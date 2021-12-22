@@ -84,8 +84,8 @@ namespace DeathChain
 
             Input.Update();
 
-            currentLevel.Update();
-            player.Update(currentLevel);
+            currentLevel.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            player.Update(currentLevel, (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }

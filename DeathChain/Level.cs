@@ -35,12 +35,12 @@ namespace DeathChain
             walls.Add(new Wall(800, 400, 150, 150, false));
         }
 
-        public void Update() {
+        public void Update(float deltaTime) {
             foreach(Enemy enemy in enemies) {
-                enemy.Update(this);
+                enemy.Update(this, deltaTime);
             }
             foreach(Entity projectile in projectiles) {
-                projectile.Update(this);
+                projectile.Update(this, deltaTime);
             }
         }
 

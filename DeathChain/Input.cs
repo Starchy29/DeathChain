@@ -36,7 +36,8 @@ namespace DeathChain
 
         public static void Setup() {
             // sets up key bindings
-            gamepadBinds[Inputs.Up] = new List<Buttons>() {Buttons.A };
+            gamepadBinds[Inputs.Up] = new List<Buttons>() {};
+            gamepadBinds[Inputs.Ability1] = new List<Buttons>() { Buttons.A, Buttons.RightTrigger };
 
             keyboardBinds[Inputs.Up] = new List<Keys>() { Keys.W, Keys.Up };
             keyboardBinds[Inputs.Down] = new List<Keys>() { Keys.Down, Keys.S };
@@ -73,10 +74,34 @@ namespace DeathChain
             }
         }
 
+        public static bool JustPressed(Inputs input) {
+            if(!IsPressed(input)) {
+                return false;
+            }
+
+            // check if unpressed last frame
+            if(IsGamepadConnected) {
+                foreach(Buttons button in gamepadBinds[input]) {
+                    if(lastgp.IsButtonDown(button)) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                foreach(Keys key in keyboardBinds[input]) {
+                    if(lastkb.IsKeyDown(key)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
         // gets the direction the player is holding, as a unit vector
         public static Vector2 GetMoveDirection() {
             if(IsGamepadConnected) {
-                return gamepad.ThumbSticks.Left;
+                Vector2 angle = gamepad.ThumbSticks.Left;
+                return new Vector2(angle.X, -angle.Y);
             } else {
                 Vector2 result = new Vector2(0, 0);
                 if(IsPressed(Inputs.Up)) {

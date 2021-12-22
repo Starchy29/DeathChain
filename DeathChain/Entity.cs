@@ -41,7 +41,7 @@ namespace DeathChain
             active = true;
         }
 
-        public virtual void Update(Level level) {}
+        public virtual void Update(Level level, float deltaTime) {}
 
         public virtual void Draw(SpriteBatch sb) {
             if(sprite != null) {
@@ -103,7 +103,10 @@ namespace DeathChain
                                 position.X = wall.position.X + wall.width;
                                 break;
                         }
-                        collisionDirections.Add(pushDirection);
+
+                        if(pushDirection != Direction.None) {
+                            collisionDirections.Add(pushDirection);
+                        }
                     }
                 }
             }
