@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace DeathChain
 {
-    static class Graphics
+    public abstract class Enemy : Entity
     {
-        public static Texture2D Pixel { get; set; }
+        public Enemy(int x, int y, int width, int height) : base(x, y, width, height) { }
     }
 }
