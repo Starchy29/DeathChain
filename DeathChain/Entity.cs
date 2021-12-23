@@ -25,6 +25,8 @@ namespace DeathChain
         protected Rectangle hitBox; // relative to position in local space
         protected Texture2D sprite;
         protected bool active;
+        protected Color tint;
+        protected Direction facing;
 
         public bool IsActive { get { return active; } }
         public Rectangle Hitbox { get { return new Rectangle((int)(position.X + hitBox.X), (int)(position.Y + hitBox.Y), hitBox.Width, hitBox.Height); } } // transferred to global space
@@ -39,13 +41,15 @@ namespace DeathChain
             hitBox = new Rectangle(0, 0, width, height); // default hitbox lines up with visual box exactly
             this.sprite = sprite;
             active = true;
+            tint = Color.White;
+            facing = Direction.Down;
         }
 
         public virtual void Update(Level level, float deltaTime) {}
 
         public virtual void Draw(SpriteBatch sb) {
             if(sprite != null) {
-                sb.Draw(sprite, DrawBox, Color.White);
+                sb.Draw(sprite, DrawBox, tint);
             }
         }
 
