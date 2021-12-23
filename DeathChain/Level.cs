@@ -33,6 +33,7 @@ namespace DeathChain
             walls.Add(new Wall(0, 800, 1600, 100, false));
 
             walls.Add(new Wall(800, 400, 150, 150, false));
+            enemies.Add(new Zombie(300, 300));
         }
 
         public void Update(float deltaTime) {

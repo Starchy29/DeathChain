@@ -32,12 +32,15 @@ namespace DeathChain
         private double timer;
         private Vector2 aim;
         private Rectangle attackArea;
+        private List<Enemy> hitEnemies; // when attacking, makes sure each attack ony hits an enemy once
         private double[] cooldowns; // cooldowns for the 4 abilities. 1: A, 2: X, 3: B, 4: Y
         private Dictionary<EnemyTypes, Action[]> abilities;
 
         public Player() : base(775, 425, 50, 50, Graphics.Pixel) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
+            hitEnemies = new List<Enemy>();
+
             cooldowns = new double[4];
             cooldowns[0] = 0.0f;
             cooldowns[1] = 0.0f;
@@ -84,8 +87,11 @@ namespace DeathChain
                     Move(deltaTime, 250.0f);
                     GenerateAttack(50, 50);
                     foreach(Enemy enemy in level.Enemies) {
-                        if(enemy.Hitbox.Intersects(attackArea)) {
+                        if(enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
                             // damage enemy
+                            enemy.TakeDamage(1);
+                            enemy.Push(aim * 500);
+                            hitEnemies.Add(enemy);
                         }
                     }
 
@@ -94,6 +100,7 @@ namespace DeathChain
                         timer = 0;
                         state = PlayerState.Normal;
                         cooldowns[1] = 0.2;
+                        hitEnemies.Clear();
                     }
                     break;
             }
@@ -145,6 +152,14 @@ namespace DeathChain
             }
 
             // draw ui (health, ability slots)
+        }
+
+        public void TakeDamge(int damage) {
+            health -= damage;
+            if(health <= 0) {
+                // die
+                position = new Vector2(800, 400);
+            }
         }
 
         private void Move(float deltaTime, float maxSpeed) {

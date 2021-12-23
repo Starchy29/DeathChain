@@ -18,8 +18,8 @@ namespace DeathChain
         SpriteBatch spriteBatch;
 
         private Level currentLevel;
-        private Player player;
-        public Player Player { get { return player; } }
+        private static Player player;
+        public static Player Player { get { return player; } }
 
         public const int StartScreenWidth = 1600;
         public const int StartScreenHeight = 900;
