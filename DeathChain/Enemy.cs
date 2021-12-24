@@ -11,12 +11,20 @@ namespace DeathChain
     public abstract class Enemy : Entity
     {
         protected int health;
+        private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive;
-        protected Vector2 velocity;
+        protected float timer;
+        private EnemyTypes type;
 
-        public Enemy(int x, int y, int width, int height, int health) : base(x, y, width, height, Graphics.Pixel) {
+        public EnemyTypes Type { get { return type; } }
+        public bool Alive { get { return alive; } }
+        public int MaxHealth { get { return maxHealth; } }
+
+        public Enemy(EnemyTypes type, int x, int y, int width, int height, int health) : base(x, y, width, height, Graphics.Pixel) {
             alive = true;
             this.health = health;
+            this.type = type;
+            maxHealth = health;
         }
 
         public sealed override void Update(Level level, float deltaTime) {
@@ -24,11 +32,11 @@ namespace DeathChain
                 AliveUpdate(level, deltaTime);
 
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
-                    Game1.Player.TakeDamge(1);
+                    Game1.Player.TakeDamage(1);
                 }
             } else {
                 tint = Color.White;
-                if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 80) {
+                if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
                     tint = Color.LightBlue;
                 }
             }
@@ -36,16 +44,12 @@ namespace DeathChain
 
         protected abstract void AliveUpdate(Level level, float deltaTime);
 
-        public void TakeDamage(int damage) {
+        public virtual void TakeDamage(int damage) {
             health -= damage;
             if(health <= 0) {
                 // die
                 alive = false;
             }
-        }
-
-        public void Push(Vector2 force) {
-            velocity += force;
         }
     }
 }

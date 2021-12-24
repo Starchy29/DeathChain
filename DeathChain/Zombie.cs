@@ -10,25 +10,78 @@ namespace DeathChain
 {
     public class Zombie : Enemy
     {
+        private bool lunging; // only 2 states
+        private Random rng;
 
-        public Zombie(int x, int y) : base(x, y, 50, 50, 3) { 
+        public Zombie(int x, int y) : base(EnemyTypes.Zombie, x, y, 50, 50, 3) { 
             tint = Color.Brown;
+            lunging = false;
+            rng = new Random(x * y);
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
-            // move toward player
-            Vector2 direction = Game1.Player.Midpoint - Midpoint;
-            direction.Normalize();
-            velocity += direction * 1000 * deltaTime;
-            if(Vector2.Dot(direction, velocity) > 0 && velocity.Length() > 200) {
-                velocity.Normalize();
-                velocity *= 200;
+            if(lunging) {
+                if(timer < 0) {
+                    // pausing
+                    timer += deltaTime;
+                    if(timer >= 0) {
+                        timer = 0.1f; // lunge duration
+                        Vector2 direction = Game1.Player.Midpoint - Midpoint;
+                        direction.Normalize();
+                        velocity = direction * 1500; // lunge speed
+                    }
+                }
+                else {
+                    // lunging
+                    position += velocity * deltaTime;
+                    
+                    timer -= deltaTime;
+                    if(timer <= 0) {
+                        // end lunge
+                        timer = 2; // don't lunge again for at least this time
+                        lunging = false;
+                        velocity = Vector2.Zero;
+                    }
+                }
+            } else {
+                // move toward player
+                Vector2 direction = Game1.Player.Midpoint - Midpoint;
+                direction.Normalize();
+                velocity += direction * 1000 * deltaTime;
+                if(Vector2.Dot(direction, velocity) > 0 && velocity.Length() > 200) {
+                    velocity.Normalize();
+                    velocity *= 200;
+                }
+
+                // move away from other enemies
+                foreach(Enemy enemy in level.Enemies) {
+                    if(enemy != this && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
+                        Vector2 moveAway = Midpoint - enemy.Midpoint;
+                        velocity += moveAway * 10 * deltaTime;
+                    }
+                }
+
+                position += velocity * deltaTime;
+
+                // chance to lunge when close enough
+                timer -= deltaTime;
+                if(timer <= 0) {
+                    timer += 0.5f; // this is how often it checks whether or not to lunge
+                    if(rng.NextDouble() <= 0.25 && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) {
+                        // begin lunge 
+                        timer = -0.4f; // pause time at start of lunge
+                        velocity = Vector2.Zero;
+                        lunging = true;;
+                    }
+                }
             }
-            position += velocity * deltaTime;
 
             List<Direction> collisions = CheckWallCollision(level, true);
-            if(collisions.Count > 0) {
-                velocity = Vector2.Zero;
+            if(collisions.Contains(Direction.Left) || collisions.Contains(Direction.Right)) {
+                velocity.X = 0;
+            }
+            if(collisions.Contains(Direction.Up) || collisions.Contains(Direction.Down)) {
+                velocity.Y = 0;
             }
         }
     }

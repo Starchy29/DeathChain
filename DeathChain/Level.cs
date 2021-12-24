@@ -13,17 +13,17 @@ namespace DeathChain
         private int width;
         private int height;
 
-        private List<Entity> projectiles;
+        private List<Projectile> projectiles;
         private List<Enemy> enemies;
         private List<Wall> walls;
 
-        public List<Entity> Projectiles { get { return projectiles; } }
+        public List<Projectile> Projectiles { get { return projectiles; } }
         public List<Enemy> Enemies { get { return enemies; } }
         public List<Wall> Walls { get { return walls; } }
 
         public Level() {
             // create a sample level
-            projectiles = new List<Entity>();
+            projectiles = new List<Projectile>();
             enemies = new List<Enemy>();
             walls = new List<Wall>();
 
@@ -32,16 +32,37 @@ namespace DeathChain
             walls.Add(new Wall(1500, 0, 100, 900, false));
             walls.Add(new Wall(0, 800, 1600, 100, false));
 
-            walls.Add(new Wall(800, 400, 150, 150, false));
+            walls.Add(new Wall(1000, 400, 150, 150, false));
+            walls.Add(new Wall(400, 400, 150, 150, true));
             enemies.Add(new Zombie(300, 300));
+            enemies.Add(new Zombie(500, 300));
+            enemies.Add(new Zombie(1200, 300));
+
+            enemies.Add(new Mushroom(500, 700));
+            enemies.Add(new Mushroom(900, 300));
         }
 
         public void Update(float deltaTime) {
             foreach(Enemy enemy in enemies) {
                 enemy.Update(this, deltaTime);
             }
-            foreach(Entity projectile in projectiles) {
+            foreach(Projectile projectile in projectiles) {
                 projectile.Update(this, deltaTime);
+            }
+
+            // clear dead enemies and projectiles
+            for(int i = 0; i < enemies.Count; i++) {
+                if(!enemies[i].IsActive) {
+                    enemies.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            for(int i = 0; i < projectiles.Count; i++) {
+                if(!projectiles[i].IsActive) {
+                    projectiles.RemoveAt(i);
+                    i--;
+                }
             }
         }
 
@@ -55,7 +76,7 @@ namespace DeathChain
             foreach(Enemy enemy in enemies) {
                 enemy.Draw(sb);
             }
-            foreach(Entity projectile in projectiles) {
+            foreach(Projectile projectile in projectiles) {
                 projectile.Draw(sb);
             }
         }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 
 namespace DeathChain
 {
@@ -14,6 +16,9 @@ namespace DeathChain
 
         public Wall(int x, int y, int width, int height, bool isPit) : base(x, y, width, height, Graphics.Pixel) {
             this.isPit = isPit;
+            if(isPit) {
+                tint = Color.Black;
+            }
         }
     }
 }

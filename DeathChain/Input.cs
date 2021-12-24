@@ -20,7 +20,7 @@ namespace DeathChain
         Ability1,
         Ability2,
         Ability3,
-        Ability4
+        Possess
     }
 
     static class Input {
@@ -28,6 +28,7 @@ namespace DeathChain
         private static KeyboardState keyboard;
         private static GamePadState lastgp;
         private static GamePadState gamepad;
+        private static Vector2 lastAim;
 
         private static Dictionary<Inputs, List<Buttons>> gamepadBinds = new Dictionary<Inputs, List<Buttons>>();
         private static Dictionary<Inputs, List<Keys>> keyboardBinds = new Dictionary<Inputs, List<Keys>>();
@@ -40,7 +41,7 @@ namespace DeathChain
             gamepadBinds[Inputs.Ability1] = new List<Buttons>() { Buttons.A };
             gamepadBinds[Inputs.Ability2] = new List<Buttons>() { Buttons.X };
             gamepadBinds[Inputs.Ability3] = new List<Buttons>() { Buttons.B };
-            gamepadBinds[Inputs.Ability4] = new List<Buttons>() { Buttons.Y };
+            gamepadBinds[Inputs.Possess] = new List<Buttons>() { Buttons.Y };
 
             keyboardBinds[Inputs.Up] = new List<Keys>() { Keys.W, Keys.Up };
             keyboardBinds[Inputs.Down] = new List<Keys>() { Keys.Down, Keys.S };
@@ -57,6 +58,10 @@ namespace DeathChain
 
             lastgp = gamepad;
             gamepad = GamePad.GetState(PlayerIndex.One);
+            if(gamepad.ThumbSticks.Left.Length() > 0.25f) {
+                lastAim = gamepad.ThumbSticks.Left;
+                lastAim.Normalize();
+            }
         }
 
         public static bool IsPressed(Inputs input) {
@@ -130,7 +135,9 @@ namespace DeathChain
         public static Vector2 GetAim() {
             if(IsGamepadConnected) {
                 Vector2 angle = gamepad.ThumbSticks.Left;
-                angle.Normalize();
+                if(angle.Length() == 0) {
+                    angle = lastAim;
+                }
                 return new Vector2(angle.X, -angle.Y);
             } else {
                 // mouse aim
