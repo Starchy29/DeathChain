@@ -22,7 +22,7 @@ namespace DeathChain
         Block
     }
 
-    public delegate void Action(Level level);
+    public delegate void Ability(Level level);
 
     public class Player : Entity
     {
@@ -33,29 +33,31 @@ namespace DeathChain
         private const float ACCEL = 10000.0f;
         private float friction = 2000f;
         private int health;
+        private int ghostHealth; // the ghost form keeps health even when forms change
         private float timer;
         private float invulnTime; // after getting hit
         private Vector2 aim;
         private Rectangle attackArea;
         private List<Enemy> hitEnemies; // when attacking, makes sure each attack ony hits an enemy once
         private double[] cooldowns; // cooldowns for the 3 abilities. 1: A, 2: X, 3: B, Possess: Y
-        private Dictionary<EnemyTypes, Action[]> abilities;
+        private Dictionary<EnemyTypes, Ability[]> abilities;
 
         public Player() : base(775, 425, 50, 50, Graphics.Pixel) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
             hitEnemies = new List<Enemy>();
-            health = 1;
+            health = 3;
+            ghostHealth = 3;
 
             cooldowns = new double[3];
             cooldowns[0] = 0.0f;
             cooldowns[1] = 0.0f;
             cooldowns[2] = 0.0f;
 
-            abilities = new Dictionary<EnemyTypes, Action[]>();
-            abilities[EnemyTypes.None] = new Action[3] { Dash, Slash, null };
-            abilities[EnemyTypes.Zombie] = new Action[3] { Lunge, Slash, null };
-            abilities[EnemyTypes.Mushroom] = new Action[3] { Block, FireSpore, null };
+            abilities = new Dictionary<EnemyTypes, Ability[]>();
+            abilities[EnemyTypes.None] = new Ability[3] { Dash, Slash, null };
+            abilities[EnemyTypes.Zombie] = new Ability[3] { Lunge, Slash, null };
+            abilities[EnemyTypes.Mushroom] = new Ability[3] { Block, FireSpore, null };
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -105,7 +107,7 @@ namespace DeathChain
                         if(enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
                             // damage enemy
                             enemy.TakeDamage(1);
-                            enemy.Push(aim * 500);
+                            enemy.Push(aim * 800);
                             hitEnemies.Add(enemy);
                         }
                     }
@@ -212,9 +214,10 @@ namespace DeathChain
                 }
                 else if(possessType != EnemyTypes.None) {
                     // unpossess
-                    health = 1;
+                    health = ghostHealth;
                     possessType = EnemyTypes.None;
                     state = PlayerState.Normal;
+                    invulnTime = 0.5f;
                 }
             }
 
@@ -236,13 +239,13 @@ namespace DeathChain
             // make sprite match the current enemy
             tint = Color.Blue;
             if(possessType == EnemyTypes.Zombie) {
-                tint = Color.SlateBlue;
+                tint = Color.Brown;
             }
             else if(possessType == EnemyTypes.Mushroom) {
                 if(state == PlayerState.Block) {
-                    tint = Color.LightGreen;
+                    tint = Color.Pink;
                 } else {
-                    tint = Color.Green;
+                    tint = Color.Tan;
                 }
             }
 
@@ -255,21 +258,24 @@ namespace DeathChain
                 case PlayerState.Lunge:
                 case PlayerState.Slash:
                     if(attackArea != null) {
-                        sb.Draw(Graphics.Pixel, attackArea, Color.Red);
+                        sb.Draw(Graphics.Pixel, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.Red);
                     }
                     break;
             }
 
             // draw ui (health, ability slots)
             for(int i = 0; i < health; i++) {
-                sb.Draw(Graphics.Pixel, new Rectangle(30 + i * 60, 30, 50, 50), Color.Red);
+                sb.Draw(Graphics.Pixel, new Rectangle(30 + i * 60, 30, 50, 50), possessType == EnemyTypes.None ? Color.Blue : Color.Red);
             }
         }
 
         public void TakeDamage(int damage) {
             if(invulnTime <= 0 && state != PlayerState.Block) {
                 health -= damage;
-                invulnTime = 1.0f;
+                if(possessType == EnemyTypes.None) {
+                    ghostHealth -= damage;
+                }
+                invulnTime = 2.0f;
                 if(health <= 0) {
                     // die
                 }

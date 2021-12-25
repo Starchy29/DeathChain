@@ -9,6 +9,11 @@ using Microsoft.Xna.Framework.Input;
 
 namespace DeathChain
 {
+    public enum GameState {
+        Menu,
+        Game
+    }
+
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
@@ -17,15 +22,24 @@ namespace DeathChain
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        private GameState state;
         private Level currentLevel;
+        private Menu currentMenu;
         private static Player player;
         public static Player Player { get { return player; } }
+
+        private Menu mainMenu;
 
         public const int StartScreenWidth = 1600;
         public const int StartScreenHeight = 900;
         private Matrix transforms = Matrix.Identity; // transformation matrix that positions gameplay in the window
         private int xOffset;
         private int yOffset;
+        private Vector2 gameDims = new Vector2(StartScreenWidth, StartScreenHeight);
+        
+        private static Game1 instance;
+        public static Game1 Game { get { return instance; } }
+        public Rectangle WindowData { get { return new Rectangle(xOffset, yOffset, (int)gameDims.X, (int)gameDims.Y); } } // used by input mouse position
 
         public Game1()
         {
@@ -36,11 +50,15 @@ namespace DeathChain
             graphics.PreferredBackBufferHeight = StartScreenHeight;
             this.Window.Title = "Death Chain";
             IsMouseVisible = true;
+            instance = this;
 
             Window.ClientSizeChanged += OnResize;
 
             Input.Setup();
             Camera.Start();
+            state = GameState.Game;
+            SetupMenus();
+            currentMenu = mainMenu;
         }
 
         /// <summary>
@@ -63,7 +81,8 @@ namespace DeathChain
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            Graphics.Font = Content.Load<SpriteFont>("File");
+
             Graphics.Pixel = Content.Load<Texture2D>("Pixel");
 
             player = new Player();
@@ -84,8 +103,16 @@ namespace DeathChain
 
             Input.Update();
 
-            currentLevel.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-            player.Update(currentLevel, (float)gameTime.ElapsedGameTime.TotalSeconds);
+            switch(state) {
+                case GameState.Game:
+                    Camera.Update(currentLevel);
+                    currentLevel.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+                    player.Update(currentLevel, (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    break;
+                case GameState.Menu:
+                    currentMenu.Update();
+                    break;
+            }
 
             base.Update(gameTime);
         }
@@ -99,8 +126,15 @@ namespace DeathChain
             GraphicsDevice.Clear(new Color(20, 20, 20));
             spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, transforms);
 
-            currentLevel.Draw(spriteBatch);
-            player.Draw(spriteBatch);
+            switch(state) {
+                case GameState.Game:
+                    currentLevel.Draw(spriteBatch);
+                    player.Draw(spriteBatch);
+                    break;
+                case GameState.Menu:
+                    currentMenu.Draw(spriteBatch);
+                    break;
+            }
 
             spriteBatch.End();
 
@@ -119,18 +153,29 @@ namespace DeathChain
             base.Draw(gameTime);
         }
 
+        private void SetupMenus() {
+            const int W = 400;
+            const int H = 100;
+
+            mainMenu = new Menu(null, new List<Button>() {
+                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { state = GameState.Game; currentLevel = new Level(); })
+            });
+        }
+
         private void OnResize(Object sender, EventArgs e) {
             xOffset = 0;
             yOffset = 0;
             if(GraphicsDevice.Viewport.Width > GraphicsDevice.Viewport.Height * 16 / 9f) { // determine which dimension is the limit
                 // bars on left and right because wider than tall
                 float scale = (float)GraphicsDevice.Viewport.Height / StartScreenHeight;
+                gameDims = new Vector2(GraphicsDevice.Viewport.Height * 16 / 9f, GraphicsDevice.Viewport.Height);
                 transforms = Matrix.CreateScale(scale, scale, 1);
                 xOffset = (int) ((GraphicsDevice.Viewport.Width - GraphicsDevice.Viewport.Height * 16 / 9f) / 2f);
                 transforms = transforms * Matrix.CreateTranslation(xOffset, 0, 0);
             } else {
                 // bars above and below because taller than wide
                 float scale = (float)GraphicsDevice.Viewport.Width / StartScreenWidth;
+                gameDims = new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Width * 9 / 16f);
                 transforms = Matrix.CreateScale(scale, scale, 1);
                 yOffset = (int) ((GraphicsDevice.Viewport.Height - GraphicsDevice.Viewport.Width * 9 / 16f) / 2f);
                 transforms = transforms * Matrix.CreateTranslation(0, yOffset, 0);

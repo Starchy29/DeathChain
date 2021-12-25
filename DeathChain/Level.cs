@@ -20,9 +20,14 @@ namespace DeathChain
         public List<Projectile> Projectiles { get { return projectiles; } }
         public List<Enemy> Enemies { get { return enemies; } }
         public List<Wall> Walls { get { return walls; } }
+        public int Width { get {return width; } }
+        public int Height { get { return height; } }
 
         public Level() {
             // create a sample level
+            width = 1600;
+            height = 900;
+
             projectiles = new List<Projectile>();
             enemies = new List<Enemy>();
             walls = new List<Wall>();
@@ -34,12 +39,12 @@ namespace DeathChain
 
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
-            enemies.Add(new Zombie(300, 300));
-            enemies.Add(new Zombie(500, 300));
-            enemies.Add(new Zombie(1200, 300));
+            enemies.Add(new Zombie(1300, 300));
+            enemies.Add(new Zombie(1300, 500));
+            enemies.Add(new Zombie(1300, 700));
 
-            enemies.Add(new Mushroom(500, 700));
-            enemies.Add(new Mushroom(900, 300));
+            //enemies.Add(new Mushroom(300, 450));
+            //enemies.Add(new Mushroom(900, 300));
         }
 
         public void Update(float deltaTime) {

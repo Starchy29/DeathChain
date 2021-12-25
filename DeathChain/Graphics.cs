@@ -10,6 +10,8 @@ namespace DeathChain
 {
     static class Graphics
     {
+        public static SpriteFont Font { get; set; }
+
         public static Texture2D Pixel { get; set; }
     }
 }

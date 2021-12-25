@@ -29,6 +29,8 @@ namespace DeathChain
         private static GamePadState lastgp;
         private static GamePadState gamepad;
         private static Vector2 lastAim;
+        private static bool lastClicked;
+        private static bool mouseClicked;
 
         private static Dictionary<Inputs, List<Buttons>> gamepadBinds = new Dictionary<Inputs, List<Buttons>>();
         private static Dictionary<Inputs, List<Keys>> keyboardBinds = new Dictionary<Inputs, List<Keys>>();
@@ -50,8 +52,8 @@ namespace DeathChain
         }
 
         public static void Update() {
-            //lastClicked = mouseClicked;
-            //mouseClicked = IsMouseClicked();
+            lastClicked = mouseClicked;
+            mouseClicked = IsMouseClicked();
 
             lastkb = keyboard;
             keyboard = Keyboard.GetState();
@@ -143,6 +145,21 @@ namespace DeathChain
                 // mouse aim
                 return Vector2.Zero;
             }
+        }
+
+        public static bool IsMouseClicked() {
+            return Mouse.GetState().LeftButton == ButtonState.Pressed;
+        }
+
+        public static bool MouseJustClicked() {
+            return !lastClicked && mouseClicked;
+        }
+
+        // convert the mouse screen position to game window position
+        public static Vector2 GetMousePosition() {
+            MouseState mouse = Mouse.GetState();
+            Rectangle stats = Game1.Game.WindowData; // x and y are the offset, width and height are the scale
+            return new Vector2((mouse.X - stats.X) * Game1.StartScreenWidth / stats.Width, (mouse.Y - stats.Y) * Game1.StartScreenHeight / stats.Height);
         }
     }
 }

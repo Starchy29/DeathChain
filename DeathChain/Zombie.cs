@@ -46,8 +46,18 @@ namespace DeathChain
             } else {
                 // move toward player
                 Vector2 direction = Game1.Player.Midpoint - Midpoint;
-                direction.Normalize();
-                velocity += direction * 1000 * deltaTime;
+                if(DistanceTo(Game1.Player) > 800) {
+                    // too far: wander instead
+                    direction = velocity;
+                    if(direction == Vector2.Zero) {
+                        direction = new Vector2((float)rng.NextDouble() * 2 - 1, (float)rng.NextDouble() * 2 - 1);
+                    }
+                    direction = Vector2.Transform(direction, Matrix.CreateRotationZ((float)rng.NextDouble() * 2 - 1));
+                }
+                if(direction.Length() > 0) {
+                    direction.Normalize();
+                }
+                velocity += direction * 2000 * deltaTime;
                 if(Vector2.Dot(direction, velocity) > 0 && velocity.Length() > 200) {
                     velocity.Normalize();
                     velocity *= 200;
@@ -61,13 +71,25 @@ namespace DeathChain
                     }
                 }
 
+                // apply friction
+                Vector2 friction = -velocity;
+                if(friction != Vector2.Zero) {
+                    friction.Normalize();
+                    velocity += friction * deltaTime * 1000;
+                    if(Vector2.Dot(friction, velocity) > 0) {
+                        // started moving backwards: stop instead
+                        velocity = Vector2.Zero;
+                    }
+                }
+                
+
                 position += velocity * deltaTime;
 
                 // chance to lunge when close enough
                 timer -= deltaTime;
                 if(timer <= 0) {
                     timer += 0.5f; // this is how often it checks whether or not to lunge
-                    if(rng.NextDouble() <= 0.25 && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) {
+                    if(rng.NextDouble() <= 0.3 && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) {
                         // begin lunge 
                         timer = -0.4f; // pause time at start of lunge
                         velocity = Vector2.Zero;
