@@ -129,7 +129,6 @@ namespace DeathChain
             switch(state) {
                 case GameState.Game:
                     currentLevel.Draw(spriteBatch);
-                    player.Draw(spriteBatch);
                     break;
                 case GameState.Menu:
                     currentMenu.Draw(spriteBatch);

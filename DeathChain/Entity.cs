@@ -92,13 +92,13 @@ namespace DeathChain
 
                         switch(pushDirection) {
                             case Direction.Up:
-                                position.Y = wall.position.Y - height;
+                                position.Y = wall.position.Y - hitBox.Height;
                                 break;
                             case Direction.Down:
                                 position.Y = wall.position.Y + wall.height;
                                 break;
                             case Direction.Left:
-                                position.X = wall.position.X - width;
+                                position.X = wall.position.X - hitBox.Width;
                                 break;
                             case Direction.Right:
                                 position.X = wall.position.X + wall.width;

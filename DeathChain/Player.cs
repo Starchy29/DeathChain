@@ -42,12 +42,13 @@ namespace DeathChain
         private double[] cooldowns; // cooldowns for the 3 abilities. 1: A, 2: X, 3: B, Possess: Y
         private Dictionary<EnemyTypes, Ability[]> abilities;
 
-        public Player() : base(775, 425, 50, 50, Graphics.Pixel) {
+        public Player() : base(775, 425, 50, 75, Graphics.Pixel) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
             hitEnemies = new List<Enemy>();
             health = 3;
             ghostHealth = 3;
+            hitBox = new Rectangle(0, 0, 50, 50);
 
             cooldowns = new double[3];
             cooldowns[0] = 0.0f;

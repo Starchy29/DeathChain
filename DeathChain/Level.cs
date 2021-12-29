@@ -43,8 +43,8 @@ namespace DeathChain
             enemies.Add(new Zombie(1300, 500));
             enemies.Add(new Zombie(1300, 700));
 
-            //enemies.Add(new Mushroom(300, 450));
-            //enemies.Add(new Mushroom(900, 300));
+            enemies.Add(new Mushroom(300, 450));
+            enemies.Add(new Mushroom(1200, 450));
         }
 
         public void Update(float deltaTime) {
@@ -76,13 +76,21 @@ namespace DeathChain
 
             // daw entities
             foreach(Wall wall in walls) {
-                wall.Draw(sb);
+                if(wall.IsPit) {
+                    wall.Draw(sb);
+                }
             }
-            foreach(Enemy enemy in enemies) {
+            foreach(Projectile projectile in projectiles) { // projectiles under enemies looks better
+                projectile.Draw(sb);
+            }
+            foreach(Enemy enemy in enemies) { // enemies before walls so if clipping happens, it's hidden
                 enemy.Draw(sb);
             }
-            foreach(Projectile projectile in projectiles) {
-                projectile.Draw(sb);
+            Game1.Player.Draw(sb);
+            foreach(Wall wall in walls) {
+                if(!wall.IsPit) {
+                    wall.Draw(sb);
+                }
             }
         }
     }
