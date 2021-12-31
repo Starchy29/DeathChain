@@ -21,26 +21,26 @@ namespace DeathChain
         protected Vector2 position;
         protected int width;
         protected int height;
-        protected Rectangle hitBox; // relative to position in local space
+        protected Rectangle drawBox; // relative to position in local space
         protected Texture2D sprite;
         protected Color tint;
         //protected Direction facing;
         protected Vector2 velocity;
 
         public bool IsActive { get; set; }
-        public Rectangle Hitbox { get { return new Rectangle((int)(position.X + hitBox.X), (int)(position.Y + hitBox.Y), hitBox.Width, hitBox.Height); } } // transferred to global space
+        public Rectangle Hitbox { get { return new Rectangle((int)position.X, (int)position.Y, width, height); } }
         public Vector2 Midpoint { get { return new Vector2(position.X + width / 2, position.Y + height / 2); } }
         public Vector2 Position { get { return position; } }
         public Vector2 Velocity { get { return velocity; } }
         public int Width { get { return width; } }
         public int Height { get { return height; } }
-        private Rectangle DrawBox { get { return new Rectangle((int)(Camera.Shift.X + position.X), (int)(Camera.Shift.Y + position.Y), width, height); } }
+        protected Rectangle DrawBox { get { return new Rectangle((int)(Camera.Shift.X + position.X + drawBox.X), (int)(Camera.Shift.Y + position.Y + drawBox.Y), drawBox.Width, drawBox.Height); } }
 
         public Entity(int x, int y, int width, int height, Texture2D sprite = null) {
             position = new Vector2(x, y);
             this.width = width;
             this.height = height;
-            hitBox = new Rectangle(0, 0, width, height); // default hitbox lines up with visual box exactly
+            drawBox = new Rectangle(0, 0, width, height); // default visual box lines up with drawbox box exactly
             this.sprite = sprite;
             IsActive = true;
             tint = Color.White;
@@ -92,13 +92,13 @@ namespace DeathChain
 
                         switch(pushDirection) {
                             case Direction.Up:
-                                position.Y = wall.position.Y - hitBox.Height;
+                                position.Y = wall.position.Y - height;
                                 break;
                             case Direction.Down:
                                 position.Y = wall.position.Y + wall.height;
                                 break;
                             case Direction.Left:
-                                position.X = wall.position.X - hitBox.Width;
+                                position.X = wall.position.X - width;
                                 break;
                             case Direction.Right:
                                 position.X = wall.position.X + wall.width;

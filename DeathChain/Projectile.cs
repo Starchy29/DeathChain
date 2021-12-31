@@ -13,8 +13,8 @@ namespace DeathChain
         private bool fromPlayer;
         public bool FromPlayer { get { return fromPlayer; } }
 
-        public Projectile(Vector2 midpoint, Vector2 velocity, bool fromPlayer, int length)
-            : base((int)midpoint.X - length / 2, (int)midpoint.Y - length / 2, length, length, Graphics.Pixel) {
+        public Projectile(Vector2 midpoint, Vector2 velocity, bool fromPlayer, int length, Texture2D sprite)
+            : base((int)midpoint.X - length / 2, (int)midpoint.Y - length / 2, length, length, sprite) {
             this.velocity = velocity;
             this.fromPlayer = fromPlayer;
         }

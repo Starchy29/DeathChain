@@ -17,9 +17,9 @@ namespace DeathChain
         Down,
         Left,
         Right,
-        Ability1,
-        Ability2,
-        Ability3,
+        Attack,
+        Secondary,
+        Tertiary,
         Possess
     }
 
@@ -40,9 +40,9 @@ namespace DeathChain
         public static void Setup() {
             // sets up key bindings
             gamepadBinds[Inputs.Up] = new List<Buttons>() {};
-            gamepadBinds[Inputs.Ability1] = new List<Buttons>() { Buttons.A };
-            gamepadBinds[Inputs.Ability2] = new List<Buttons>() { Buttons.X };
-            gamepadBinds[Inputs.Ability3] = new List<Buttons>() { Buttons.B };
+            gamepadBinds[Inputs.Attack] = new List<Buttons>() { Buttons.A };
+            gamepadBinds[Inputs.Secondary] = new List<Buttons>() { Buttons.X };
+            gamepadBinds[Inputs.Tertiary] = new List<Buttons>() { Buttons.B };
             gamepadBinds[Inputs.Possess] = new List<Buttons>() { Buttons.Y };
 
             keyboardBinds[Inputs.Up] = new List<Keys>() { Keys.W, Keys.Up };
@@ -60,7 +60,7 @@ namespace DeathChain
 
             lastgp = gamepad;
             gamepad = GamePad.GetState(PlayerIndex.One);
-            if(gamepad.ThumbSticks.Left.Length() > 0.25f) {
+            if(gamepad.ThumbSticks.Left.Length() > 0.8f) {
                 lastAim = gamepad.ThumbSticks.Left;
                 lastAim.Normalize();
             }
@@ -139,6 +139,9 @@ namespace DeathChain
                 Vector2 angle = gamepad.ThumbSticks.Left;
                 if(angle.Length() == 0) {
                     angle = lastAim;
+                } else {
+                    angle.Normalize();
+                    lastAim = angle;
                 }
                 return new Vector2(angle.X, -angle.Y);
             } else {

@@ -10,6 +10,9 @@ namespace DeathChain
 {
     public class Mushroom : Enemy
     {
+        public const int SPORE_SPEED = 800;
+        public const int SPORE_SIZE = 20;
+
         private bool blocking;
         private float blockTimer;
 
@@ -17,6 +20,8 @@ namespace DeathChain
             timer = 2;
             blocking = false;
             blockTimer = 0f;
+            sprite = Graphics.Mushroom;
+            drawBox = new Rectangle(-5, -5, width + 10, height + 10); // make mushroom appear larger
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
@@ -28,7 +33,7 @@ namespace DeathChain
                     blockTimer = -3f; // cooldown
                 }
             } else {
-                tint = Color.Tan;
+                tint = Color.White;
                 if(timer > 0) {
                     timer -= deltaTime;
                 }
@@ -36,7 +41,8 @@ namespace DeathChain
                     // fire
                     timer = 1.5f;
                     Vector2 aim = Game1.Player.Midpoint - Midpoint;
-                    level.Projectiles.Add(new Spore(Midpoint, aim, false));
+                    aim.Normalize();
+                    level.Projectiles.Add(new Projectile(Midpoint, aim * SPORE_SPEED, false, SPORE_SIZE, Graphics.Spore));
                 }
 
                 // block

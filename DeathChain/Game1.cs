@@ -84,6 +84,9 @@ namespace DeathChain
             Graphics.Font = Content.Load<SpriteFont>("File");
 
             Graphics.Pixel = Content.Load<Texture2D>("Pixel");
+            Graphics.TempGhost = Content.Load<Texture2D>("tall ghost");
+            Graphics.Mushroom = Content.Load<Texture2D>("mushroom");
+            Graphics.Spore = Content.Load<Texture2D>("spore");
 
             player = new Player();
             currentLevel = new Level();
@@ -124,6 +127,7 @@ namespace DeathChain
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(20, 20, 20));
+            GraphicsDevice.Clear(Color.DarkGreen * 0.5f);
             spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, transforms);
 
             switch(state) {

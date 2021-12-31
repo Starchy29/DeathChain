@@ -19,6 +19,7 @@ namespace DeathChain
         public EnemyTypes Type { get { return type; } }
         public bool Alive { get { return alive; } }
         public int MaxHealth { get { return maxHealth; } }
+        public Rectangle DrawRect { get { return drawBox; } }
 
         public Enemy(EnemyTypes type, int x, int y, int width, int height, int health) : base(x, y, width, height, Graphics.Pixel) {
             alive = true;

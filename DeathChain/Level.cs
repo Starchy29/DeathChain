@@ -13,6 +13,7 @@ namespace DeathChain
         private int width;
         private int height;
 
+        private List<Particle> particles;
         private List<Projectile> projectiles;
         private List<Enemy> enemies;
         private List<Wall> walls;
@@ -28,6 +29,7 @@ namespace DeathChain
             width = 1600;
             height = 900;
 
+            particles = new List<Particle>();
             projectiles = new List<Projectile>();
             enemies = new List<Enemy>();
             walls = new List<Wall>();
@@ -39,12 +41,14 @@ namespace DeathChain
 
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
-            enemies.Add(new Zombie(1300, 300));
-            enemies.Add(new Zombie(1300, 500));
-            enemies.Add(new Zombie(1300, 700));
+            //enemies.Add(new Zombie(1300, 300));
+            //enemies.Add(new Zombie(1300, 500));
+            //enemies.Add(new Zombie(1300, 700));
 
             enemies.Add(new Mushroom(300, 450));
             enemies.Add(new Mushroom(1200, 450));
+
+            //enemies.Add(new Spider(300, 450, Direction.Right));
         }
 
         public void Update(float deltaTime) {
@@ -54,8 +58,11 @@ namespace DeathChain
             foreach(Projectile projectile in projectiles) {
                 projectile.Update(this, deltaTime);
             }
+            foreach(Particle particle in particles) {
+                particle.Update(deltaTime);
+            }
 
-            // clear dead enemies and projectiles
+            // clear dead enemies and projectiles, and completed particles
             for(int i = 0; i < enemies.Count; i++) {
                 if(!enemies[i].IsActive) {
                     enemies.RemoveAt(i);
@@ -69,12 +76,19 @@ namespace DeathChain
                     i--;
                 }
             }
+
+            for(int i = 0; i < particles.Count; i++) {
+                if(particles[i].Done) {
+                    particles.RemoveAt(i);
+                    i--;
+                }
+            }
         }
 
         public void Draw(SpriteBatch sb) {
             // draw background
 
-            // daw entities
+            // draw level
             foreach(Wall wall in walls) {
                 if(wall.IsPit) {
                     wall.Draw(sb);
@@ -86,12 +100,20 @@ namespace DeathChain
             foreach(Enemy enemy in enemies) { // enemies before walls so if clipping happens, it's hidden
                 enemy.Draw(sb);
             }
+
             Game1.Player.Draw(sb);
+
+            foreach(Particle particle in particles) { // particles are typically small enough to fit on top of entities
+                particle.Draw(sb);
+            }
+
             foreach(Wall wall in walls) {
                 if(!wall.IsPit) {
                     wall.Draw(sb);
                 }
             }
+
+            Game1.Player.DrawUI(sb);
         }
     }
 }
