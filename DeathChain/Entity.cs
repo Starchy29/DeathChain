@@ -24,8 +24,8 @@ namespace DeathChain
         protected Rectangle drawBox; // relative to position in local space
         protected Texture2D sprite;
         protected Color tint;
-        //protected Direction facing;
         protected Vector2 velocity;
+        protected Animation currentAnimation;
 
         public bool IsActive { get; set; }
         public Rectangle Hitbox { get { return new Rectangle((int)position.X, (int)position.Y, width, height); } }
@@ -44,14 +44,16 @@ namespace DeathChain
             this.sprite = sprite;
             IsActive = true;
             tint = Color.White;
-            //facing = Direction.Down;
         }
 
         public virtual void Update(Level level, float deltaTime) {}
 
+        // each entity uses a single image or animations
         public virtual void Draw(SpriteBatch sb) {
             if(sprite != null) {
                 sb.Draw(sprite, DrawBox, tint);
+            } else {
+                sb.Draw(currentAnimation.CurrentSprite, DrawBox, tint);
             }
         }
 

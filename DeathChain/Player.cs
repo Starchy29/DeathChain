@@ -242,7 +242,7 @@ namespace DeathChain
                 tint = Color.Brown;
             }
             else if(possessType == EnemyTypes.Mushroom) {
-                sprite = Graphics.Mushroom;
+                sprite = Graphics.Mushroom[0];
                 if(state == PlayerState.Block) {
                     tint = Color.Pink;
                 } else {

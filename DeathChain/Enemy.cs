@@ -14,6 +14,7 @@ namespace DeathChain
         private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive;
         protected float timer;
+
         private EnemyTypes type;
 
         public EnemyTypes Type { get { return type; } }

@@ -20,11 +20,14 @@ namespace DeathChain
             timer = 2;
             blocking = false;
             blockTimer = 0f;
-            sprite = Graphics.Mushroom;
+            sprite = null;
+            currentAnimation = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
             drawBox = new Rectangle(-5, -5, width + 10, height + 10); // make mushroom appear larger
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
+            currentAnimation.Update(deltaTime);
+
             if(blocking) {
                 tint = Color.Pink;
                 blockTimer -= deltaTime;
@@ -43,6 +46,9 @@ namespace DeathChain
                     Vector2 aim = Game1.Player.Midpoint - Midpoint;
                     aim.Normalize();
                     level.Projectiles.Add(new Projectile(Midpoint, aim * SPORE_SPEED, false, SPORE_SIZE, Graphics.Spore));
+
+                    currentAnimation.Restart();
+                    level.Particles.Add(new Particle(new Rectangle((int)position.X - 25, (int)position.Y - 50, width + 50, height + 50), Graphics.SporeBurst, 0.25f));
                 }
 
                 // block

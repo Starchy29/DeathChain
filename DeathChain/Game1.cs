@@ -85,8 +85,16 @@ namespace DeathChain
 
             Graphics.Pixel = Content.Load<Texture2D>("Pixel");
             Graphics.TempGhost = Content.Load<Texture2D>("tall ghost");
-            Graphics.Mushroom = Content.Load<Texture2D>("mushroom");
+            Graphics.Mushroom = new Texture2D[4];
+            Graphics.Mushroom[0] = Content.Load<Texture2D>("mushroom");
+            for(int i = 1; i < 4; i++) {
+                Graphics.Mushroom[i] = Content.Load<Texture2D>("mush shoot " + i);
+            }
             Graphics.Spore = Content.Load<Texture2D>("spore");
+            Graphics.SporeBurst = new Texture2D[9];
+            for(int i = 0; i < 9; i++) {
+                Graphics.SporeBurst[i] = Content.Load<Texture2D>("spore burst " + i);
+            }
 
             player = new Player();
             currentLevel = new Level();

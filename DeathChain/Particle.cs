@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace DeathChain
 {
     // An animation with a position and no game logic. These are removed when completed
-    class Particle
+    public class Particle
     {
         private Rectangle area;
         private Animation animation;
@@ -32,6 +32,7 @@ namespace DeathChain
         }
 
         public void Draw(SpriteBatch sb) {
+            area.Offset(Camera.Shift.X, Camera.Shift.Y);
             sb.Draw(animation.CurrentSprite, area, Color.White);
         }
     }

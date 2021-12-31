@@ -18,6 +18,7 @@ namespace DeathChain
         private List<Enemy> enemies;
         private List<Wall> walls;
 
+        public List<Particle> Particles { get { return particles; } }
         public List<Projectile> Projectiles { get { return projectiles; } }
         public List<Enemy> Enemies { get { return enemies; } }
         public List<Wall> Walls { get { return walls; } }
@@ -45,7 +46,7 @@ namespace DeathChain
             //enemies.Add(new Zombie(1300, 500));
             //enemies.Add(new Zombie(1300, 700));
 
-            //enemies.Add(new Mushroom(300, 450));
+            enemies.Add(new Mushroom(300, 450));
             //enemies.Add(new Mushroom(1200, 450));
 
             //enemies.Add(new Spider(300, 450));
