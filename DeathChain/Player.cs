@@ -160,13 +160,7 @@ namespace DeathChain
 
             // check wall collision
             if(checkWalls) {
-                List<Direction> collisions = CheckWallCollision(level, checkPits);
-                if(collisions.Contains(Direction.Left) || collisions.Contains(Direction.Right)) {
-                    velocity.X = 0;
-                }
-                if(collisions.Contains(Direction.Up) || collisions.Contains(Direction.Down)) {
-                    velocity.Y = 0;
-                }
+                CheckWallCollision(level, checkPits);
             }
 
             // abilities

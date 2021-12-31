@@ -13,67 +13,18 @@ namespace DeathChain
         public const int WEB_SPEED = 600;
         public const int WEB_SIZE = 40;
 
-        private Direction facing;
+        private Vector2 orientation; // the direction the spider is facing
 
-        public Spider(int x, int y, Direction facing) : base(EnemyTypes.Spider, x, y, 50, 50, 2) { 
-            this.facing = facing;
-            if(facing == Direction.None) {
-                this.facing = Direction.Right;
-            }
+        public Spider(int x, int y) : base(EnemyTypes.Spider, x, y, 75, 75, 4) { 
+            orientation = new Vector2(0, 1);
 
             tint = Color.DarkGray;
         }
 
+        // stay still when player is far, attack when they get close, drop web sometimes
         protected override void AliveUpdate(Level level, float deltaTime) {
-            if(timer < 0) {
-                // pause timer after shooting
-                timer += deltaTime;
-                if(timer > 0) {
-                    timer = 1f; // begin cooldown while able to move
-                }
-            }
-            else {
-                if(timer > 0) {
-                    // shoot cooldown while moving
-                    timer -= deltaTime;
-                    if(timer < 0) {
-                        timer = 0;
-                    }
-                } else if((FacingVertical() && Math.Abs(Game1.Player.Midpoint.X - Midpoint.X) <= 60) ||
-                    (!FacingVertical() && Math.Abs(Game1.Player.Midpoint.Y - Midpoint.Y) <= 60)
-                ) {
-                    // fire if player close enough
-                    level.Projectiles.Add(new Projectile(Midpoint, ConvertAim() * WEB_SPEED, false, WEB_SIZE, Graphics.Pixel));
-                    timer = -1f; // begin frozen part of cooldown
-                }
-
-                // move toward player
-                if(FacingVertical()) {
-
-                } else {
-
-                }
-            }
-        }
-
-        // groups the directions into vertical and horizontal
-        private bool FacingVertical() {
-            return facing == Direction.Up || facing == Direction.Down;
-        }
-
-        private Vector2 ConvertAim() {
-            switch(facing) {
-                case Direction.Up:
-                    return new Vector2(0, -1);
-                case Direction.Down:
-                    return new Vector2(0, 1);
-                case Direction.Left:
-                    return new Vector2(-1, 0);
-                case Direction.Right:
-                    return new Vector2(1, 0);
-                default:
-                    return new Vector2(0, 0);
-            }
+            
+            CheckWallCollision(level, true);
         }
     }
 }

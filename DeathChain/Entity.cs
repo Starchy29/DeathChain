@@ -67,7 +67,7 @@ namespace DeathChain
             velocity += force;
         }
 
-        // a function that allows entities to easily check for wall collision. May done manually if necessary
+        // a function that allows entities to easily check for wall collision. Will stop the velocity if necessary
         protected List<Direction> CheckWallCollision(Level level, bool checkPits) {
             List<Direction> collisionDirections = new List<Direction>();
             foreach(Wall wall in level.Walls) {
@@ -92,15 +92,19 @@ namespace DeathChain
 
                         switch(pushDirection) {
                             case Direction.Up:
+                                velocity.Y = 0;
                                 position.Y = wall.position.Y - height;
                                 break;
                             case Direction.Down:
+                                velocity.Y = 0;
                                 position.Y = wall.position.Y + wall.height;
                                 break;
                             case Direction.Left:
+                                velocity.X = 0;
                                 position.X = wall.position.X - width;
                                 break;
                             case Direction.Right:
+                                velocity.X = 0;
                                 position.X = wall.position.X + wall.width;
                                 break;
                         }

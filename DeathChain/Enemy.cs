@@ -52,5 +52,20 @@ namespace DeathChain
                 alive = false;
             }
         }
+
+        // moves toward player
+        protected void Seek() {
+
+        }
+
+        // moves away from other enemies
+        protected void Separate(Level level, float deltaTime) {
+            foreach(Enemy enemy in level.Enemies) {
+                if(enemy != this && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
+                    Vector2 moveAway = Midpoint - enemy.Midpoint;
+                    velocity += moveAway * 10 * deltaTime;
+                }
+            }
+        }
     }
 }

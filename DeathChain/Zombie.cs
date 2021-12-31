@@ -46,7 +46,7 @@ namespace DeathChain
             } else {
                 // move toward player
                 Vector2 direction = Game1.Player.Midpoint - Midpoint;
-                if(DistanceTo(Game1.Player) > 800) {
+                if(DistanceTo(Game1.Player) > 800) { // vision range
                     // too far: wander instead
                     direction = velocity;
                     if(direction == Vector2.Zero) {
@@ -58,18 +58,13 @@ namespace DeathChain
                     direction.Normalize();
                 }
                 velocity += direction * 2000 * deltaTime;
-                if(Vector2.Dot(direction, velocity) > 0 && velocity.Length() > 200) {
+                if(Vector2.Dot(direction, velocity) > 0 && velocity.Length() > 200) { // cap forward speed
                     velocity.Normalize();
                     velocity *= 200;
                 }
 
                 // move away from other enemies
-                foreach(Enemy enemy in level.Enemies) {
-                    if(enemy != this && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
-                        Vector2 moveAway = Midpoint - enemy.Midpoint;
-                        velocity += moveAway * 10 * deltaTime;
-                    }
-                }
+                Separate(level, deltaTime);
 
                 // apply friction
                 Vector2 friction = -velocity;
@@ -98,13 +93,7 @@ namespace DeathChain
                 }
             }
 
-            List<Direction> collisions = CheckWallCollision(level, true);
-            if(collisions.Contains(Direction.Left) || collisions.Contains(Direction.Right)) {
-                velocity.X = 0;
-            }
-            if(collisions.Contains(Direction.Up) || collisions.Contains(Direction.Down)) {
-                velocity.Y = 0;
-            }
+            CheckWallCollision(level, true);
         }
     }
 }
