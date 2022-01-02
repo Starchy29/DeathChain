@@ -18,6 +18,8 @@ namespace DeathChain
             this.isPit = isPit;
             if(isPit) {
                 tint = Color.Black;
+            } else {
+                tint = Color.Gray;
             }
         }
     }

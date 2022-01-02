@@ -29,6 +29,7 @@ namespace DeathChain
     {
         public const int SELECT_DIST = 80; // distance from a dead enemy that the player can possess them
         private readonly Rectangle playerDrawBox = new Rectangle(0, -25, 50, 75);
+        private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
 
         private EnemyTypes possessType; // the type of enemy the player is controlling currently
         private PlayerState state;
@@ -52,6 +53,9 @@ namespace DeathChain
             ghostHealth = 3;
             drawBox = playerDrawBox;
 
+            sprite = null;
+            currentAnimation = forward;
+
             cooldowns = new double[3];
             cooldowns[0] = 0.0f;
             cooldowns[1] = 0.0f;
@@ -64,6 +68,8 @@ namespace DeathChain
         }
 
         public override void Update(Level level, float deltaTime) {
+            currentAnimation.Update(deltaTime);
+
             bool checkWalls = true;
             bool checkPits = true;
 
@@ -179,7 +185,7 @@ namespace DeathChain
             // possess enemies
             if(Input.JustPressed(Inputs.Possess)) {
                 if(possessType == EnemyTypes.None && state == PlayerState.Normal) {
-                    // possess
+                    // find an enemy in possessing range
                     List<Enemy> inRange = new List<Enemy>();
                     foreach(Enemy enemy in level.Enemies) { // find enemies in range
                         if(!enemy.Alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= SELECT_DIST) {
@@ -205,6 +211,9 @@ namespace DeathChain
                         width = possessTarget.Width;
                         height = possessTarget.Height;
                         drawBox = possessTarget.DrawRect;
+                        if(possessType == EnemyTypes.Mushroom) {
+                            currentAnimation = Mushroom.SHOOT;
+                        }
                         for(int i = 0; i < 3; i++) {
                             cooldowns[i] = 0;
                         }
@@ -217,6 +226,7 @@ namespace DeathChain
                     state = PlayerState.Normal;
                     invulnTime = 0.5f;
                     drawBox = playerDrawBox;
+                    currentAnimation = forward;
                 }
             }
 
@@ -237,12 +247,12 @@ namespace DeathChain
         public override void Draw(SpriteBatch sb) {
             // make sprite match the current enemy
             tint = Color.White;
-            sprite = Graphics.TempGhost;
+            //sprite = Graphics.TempGhost;
             if(possessType == EnemyTypes.Zombie) {
                 tint = Color.Brown;
             }
             else if(possessType == EnemyTypes.Mushroom) {
-                sprite = Graphics.Mushroom[0];
+                //sprite = Graphics.Mushroom[0];
                 if(state == PlayerState.Block) {
                     tint = Color.Pink;
                 } else {
@@ -336,6 +346,8 @@ namespace DeathChain
         private void FireSpore(Level level) {
             level.Projectiles.Add(new Projectile(Midpoint, Input.GetAim() * Mushroom.SPORE_SPEED, true, Mushroom.SPORE_SIZE, Graphics.Spore));
             cooldowns[1] = 0.75f;
+            currentAnimation.Restart();
+            level.Particles.Add(new Particle(new Rectangle((int)position.X - 25, (int)position.Y - 50, width + 50, height + 50), Graphics.SporeBurst, 0.25f));
         }
 
         // generates an attack area relative to the player. Uses the aim variable

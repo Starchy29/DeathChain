@@ -26,6 +26,16 @@ namespace DeathChain
             animation = new Animation(sprites, AnimationType.Hold, duration / sprites.Length); // animation is automatically normal type and divided among duration
         }
 
+        // copy from another particle, but reposition
+        public Particle(Particle other, Vector2 midpoint) {
+            this.area = other.area;
+            area.X = (int)midpoint.X - area.Width / 2;
+            area.Y = (int)midpoint.Y - area.Height / 2;
+            this.duration = other.duration;
+            this.animation = other.animation; // copies because struct
+            timer = 0;
+        }
+
         public void Update(float deltaTime) {
             timer += deltaTime;
             animation.Update(deltaTime);

@@ -12,6 +12,7 @@ namespace DeathChain
     {
         public const int SPORE_SPEED = 800;
         public const int SPORE_SIZE = 20;
+        public static readonly Animation SHOOT = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
 
         private bool blocking;
         private float blockTimer;
@@ -21,7 +22,7 @@ namespace DeathChain
             blocking = false;
             blockTimer = 0f;
             sprite = null;
-            currentAnimation = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
+            currentAnimation = SHOOT;
             drawBox = new Rectangle(-5, -5, width + 10, height + 10); // make mushroom appear larger
         }
 
@@ -45,7 +46,10 @@ namespace DeathChain
                     timer = 1.5f;
                     Vector2 aim = Game1.Player.Midpoint - Midpoint;
                     aim.Normalize();
-                    level.Projectiles.Add(new Projectile(Midpoint, aim * SPORE_SPEED, false, SPORE_SIZE, Graphics.Spore));
+                    level.Projectiles.Add(new Projectile(Midpoint, aim * SPORE_SPEED, false, SPORE_SIZE, Graphics.Spore,
+                        new Particle(new Rectangle(0, 0, 20, 20), Graphics.SporeBreak, 0.1f), 
+                        new Particle(new Rectangle(0, 0, 20, 20), Graphics.SporeTrail, 0.1f)
+                    ));
 
                     currentAnimation.Restart();
                     level.Particles.Add(new Particle(new Rectangle((int)position.X - 25, (int)position.Y - 50, width + 50, height + 50), Graphics.SporeBurst, 0.25f));

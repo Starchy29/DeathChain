@@ -15,8 +15,11 @@ namespace DeathChain
 
         public static Texture2D Pixel { get; set; }
         public  static Texture2D TempGhost { get; set; }
+        public static Texture2D[] PlayerFront { get; set; }
         public static Texture2D[] Mushroom { get; set; } // shoot animation, freezes on first frame when idle
         public static Texture2D Spore { get; set; }
         public static Texture2D[] SporeBurst { get; set; }
+        public static Texture2D[] SporeTrail { get; set; }
+        public static Texture2D[] SporeBreak { get; set; }
     }
 }

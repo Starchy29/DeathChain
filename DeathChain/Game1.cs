@@ -95,6 +95,18 @@ namespace DeathChain
             for(int i = 0; i < 9; i++) {
                 Graphics.SporeBurst[i] = Content.Load<Texture2D>("spore burst " + i);
             }
+            Graphics.PlayerFront = new Texture2D[3];
+            for(int i = 0; i < 3; i++) {
+                Graphics.PlayerFront[i] = Content.Load<Texture2D>("player forward " + i);
+            }
+            Graphics.SporeTrail = new Texture2D[4];
+            for(int i = 0; i < 4; i++) {
+                Graphics.SporeTrail[i] = Content.Load<Texture2D>("spore trail " + i);
+            }
+            Graphics.SporeBreak = new Texture2D[4];
+            for(int i = 0; i < 4; i++) {
+                Graphics.SporeBreak[i] = Content.Load<Texture2D>("spore break " + i);
+            }
 
             player = new Player();
             currentLevel = new Level();
