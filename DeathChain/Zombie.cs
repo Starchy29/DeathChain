@@ -10,6 +10,8 @@ namespace DeathChain
 {
     public class Zombie : Enemy
     {
+        public const int MAX_SPEED = 200;
+
         private bool lunging; // only 2 states
         private Random rng;
 
@@ -44,23 +46,37 @@ namespace DeathChain
                     }
                 }
             } else {
-                // move toward player
+                // move towards player
                 Vector2 direction = Game1.Player.Midpoint - Midpoint;
-                if(DistanceTo(Game1.Player) > 800) { // vision range
-                    // too far: wander instead
-                    direction = velocity;
-                    if(direction == Vector2.Zero) {
-                        direction = new Vector2((float)rng.NextDouble() * 2 - 1, (float)rng.NextDouble() * 2 - 1);
-                    }
-                    direction = Vector2.Transform(direction, Matrix.CreateRotationZ((float)rng.NextDouble() * 2 - 1));
-                }
                 if(direction.Length() > 0) {
                     direction.Normalize();
                 }
-                velocity += direction * 2000 * deltaTime;
-                if(Vector2.Dot(direction, velocity) > 0 && velocity.Length() > 200) { // cap forward speed
-                    velocity.Normalize();
-                    velocity *= 200;
+
+                // move around walls
+                Rectangle future = Hitbox;
+                future.Offset(direction * 40);
+                foreach(Wall wall in level.Walls) {
+                    if(wall.Hitbox.Intersects(future)) { // about to move into wall
+                        Vector2 newDirection = wall.Midpoint - Midpoint; // direction from this to wall center
+                        newDirection.Normalize();
+                        newDirection = new Vector2(newDirection.Y, -newDirection.X); // now perpendicular to wall center
+                        if(Vector2.Dot(direction, newDirection) < 0) {
+                            newDirection *= -1; // use other perpendicular direction because it is closer
+                        }
+                        direction = newDirection;
+                        break;
+                    }
+                }
+                
+                if(Vector2.Dot(direction, velocity) >= 0) { // don't approach player when knocked back
+                    // move
+                    velocity += direction * deltaTime * 2000;
+
+                    // cap speed
+                    if(velocity.Length() > MAX_SPEED) {
+                        velocity.Normalize();
+                        velocity *= MAX_SPEED;
+                    }
                 }
 
                 // move away from other enemies
@@ -76,14 +92,13 @@ namespace DeathChain
                         velocity = Vector2.Zero;
                     }
                 }
-                
 
                 position += velocity * deltaTime;
 
                 // chance to lunge when close enough
                 timer -= deltaTime;
                 if(timer <= 0) {
-                    timer += 0.5f; // this is how often it checks whether or not to lunge
+                    timer += 0.5f; // how often it checks whether or not to lunge
                     if(rng.NextDouble() <= 0.3 && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) {
                         // begin lunge 
                         timer = -0.4f; // pause time at start of lunge

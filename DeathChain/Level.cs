@@ -43,11 +43,11 @@ namespace DeathChain
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
             enemies.Add(new Zombie(1300, 300));
-            //enemies.Add(new Zombie(1300, 500));
-            //enemies.Add(new Zombie(1300, 700));
+            enemies.Add(new Zombie(1300, 500));
+            enemies.Add(new Zombie(1300, 700));
 
             enemies.Add(new Mushroom(300, 450));
-            //enemies.Add(new Mushroom(1200, 450));
+            enemies.Add(new Mushroom(1200, 450));
 
             //enemies.Add(new Spider(300, 450));
         }
@@ -90,14 +90,14 @@ namespace DeathChain
             // draw background
 
             // draw level
-            foreach(Wall wall in walls) {
-                if(wall.IsPit) {
-                    wall.Draw(sb);
-                }
+            foreach(Wall wall in walls) { // allow entites to overlap with walls
+                wall.Draw(sb);
             }
+
             foreach(Projectile projectile in projectiles) { // projectiles under enemies looks better
                 projectile.Draw(sb);
             }
+
             foreach(Enemy enemy in enemies) { // enemies before walls so if clipping happens, it's hidden
                 enemy.Draw(sb);
             }
@@ -106,12 +106,6 @@ namespace DeathChain
 
             foreach(Particle particle in particles) { // particles are typically small enough to fit on top of entities
                 particle.Draw(sb);
-            }
-
-            foreach(Wall wall in walls) {
-                if(!wall.IsPit) {
-                    wall.Draw(sb);
-                }
             }
 
             Game1.Player.DrawUI(sb);

@@ -28,7 +28,7 @@ namespace DeathChain
     public class Player : Entity
     {
         public const int SELECT_DIST = 80; // distance from a dead enemy that the player can possess them
-        private readonly Rectangle playerDrawBox = new Rectangle(0, 0, 50, 75);
+        private readonly Rectangle playerDrawBox = new Rectangle(0, -25, 50, 75);
 
         private EnemyTypes possessType; // the type of enemy the player is controlling currently
         private PlayerState state;
@@ -72,7 +72,7 @@ namespace DeathChain
                     float maxSpeed = 500;
                     switch(possessType) {
                         case EnemyTypes.Zombie:
-                            maxSpeed = 300;
+                            maxSpeed = Zombie.MAX_SPEED;
                             break;
                         case EnemyTypes.Mushroom:
                             maxSpeed = 0;
@@ -110,7 +110,7 @@ namespace DeathChain
                         if(enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
                             // damage enemy
                             enemy.TakeDamage(1);
-                            enemy.Push(aim * 800);
+                            enemy.Push(aim * 500);
                             hitEnemies.Add(enemy);
                         }
                     }

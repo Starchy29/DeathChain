@@ -54,11 +54,6 @@ namespace DeathChain
             }
         }
 
-        // moves toward player
-        protected void Seek() {
-
-        }
-
         // moves away from other enemies
         protected void Separate(Level level, float deltaTime) {
             foreach(Enemy enemy in level.Enemies) {

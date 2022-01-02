@@ -28,18 +28,21 @@ namespace DeathChain
             }
 
             // check if hit a target
+            Vector2 knockback = velocity;
+            knockback.Normalize();
+            knockback *= 500;
             if(fromPlayer) {
                 foreach(Enemy enemy in level.Enemies) {
                     if(enemy.Alive && Collides(enemy)) {
                         enemy.TakeDamage(1);
-                        enemy.Push(velocity);
+                        enemy.Push(knockback);
                         IsActive = false;
                     }
                 }
             } else {
                 if(Collides(Game1.Player)) {
                     Game1.Player.TakeDamage(1);
-                    Game1.Player.Push(velocity);
+                    Game1.Player.Push(knockback);
                     IsActive = false;
                 }
             }
