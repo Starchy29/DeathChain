@@ -21,5 +21,11 @@ namespace DeathChain
         public static Texture2D[] SporeBurst { get; set; }
         public static Texture2D[] SporeTrail { get; set; }
         public static Texture2D[] SporeBreak { get; set; }
+        public static Texture2D Slash { get; set; }
+        public static Texture2D Button { get; set; }
+        public static Texture2D Dash { get; set; }
+        public static Texture2D SporeLogo { get; set; }
+        public static Texture2D Shield { get; set; }
+        public static Texture2D Lunge { get; set; }
     }
 }

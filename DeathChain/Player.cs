@@ -28,7 +28,7 @@ namespace DeathChain
     public class Player : Entity
     {
         public const int SELECT_DIST = 80; // distance from a dead enemy that the player can possess them
-        private readonly Rectangle playerDrawBox = new Rectangle(0, -25, 50, 75);
+        private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
 
         private EnemyTypes possessType; // the type of enemy the player is controlling currently
@@ -42,8 +42,10 @@ namespace DeathChain
         private Vector2 aim;
         private Rectangle attackArea;
         private List<Enemy> hitEnemies; // when attacking, makes sure each attack ony hits an enemy once
-        private double[] cooldowns; // cooldowns for the 3 abilities. 1: A, 2: X, 3: B, Possess: Y
+        private double[] cooldowns; // cooldowns for the 3 abilities.
         private Dictionary<EnemyTypes, Ability[]> abilities;
+
+        private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
         public Player() : base(775, 425, 50, 50, Graphics.TempGhost) {
             state = PlayerState.Normal;
@@ -62,9 +64,16 @@ namespace DeathChain
             cooldowns[2] = 0.0f;
 
             abilities = new Dictionary<EnemyTypes, Ability[]>();
-            abilities[EnemyTypes.None] = new Ability[3] { Dash, Slash, null };
-            abilities[EnemyTypes.Zombie] = new Ability[3] { Lunge, Slash, null };
-            abilities[EnemyTypes.Mushroom] = new Ability[3] { Block, FireSpore, null };
+            abilities[EnemyTypes.None] = new Ability[3] { Slash, Dash, null };
+            abilities[EnemyTypes.Zombie] = new Ability[3] { Slash, Lunge, null };
+            abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
+
+            abilityIcons = new Dictionary<Ability, Texture2D>();
+            abilityIcons[Slash] = Graphics.Slash;
+            abilityIcons[Dash] = Graphics.Dash;
+            abilityIcons[Lunge] = Graphics.Lunge;
+            abilityIcons[Block] = Graphics.Shield;
+            abilityIcons[FireSpore] = Graphics.SporeLogo;
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -104,7 +113,7 @@ namespace DeathChain
                         if(timer >= 0) {
                             timer = 0;
                             state = PlayerState.Normal;
-                            cooldowns[0] = 0.5;
+                            cooldowns[1] = 0.5;
                         }
                     }
                     break;
@@ -125,7 +134,7 @@ namespace DeathChain
                     if(timer <= 0) {
                         timer = 0;
                         state = PlayerState.Normal;
-                        cooldowns[1] = 0.2;
+                        cooldowns[0] = 0.2;
                         hitEnemies.Clear();
                     }
                     break;
@@ -148,18 +157,18 @@ namespace DeathChain
                     if(timer <= 0) {
                         timer = 0;
                         state = PlayerState.Normal;
-                        cooldowns[0] = 1;
+                        cooldowns[1] = 1;
                         hitEnemies.Clear();
                     }
                     break;
 
                 case PlayerState.Block:
                     timer -= deltaTime;
-                    if(timer <= 0 || !Input.IsPressed(Inputs.Attack)) {
+                    if(timer <= 0 || !Input.IsPressed(Inputs.Secondary)) {
                         // end block
                         state = PlayerState.Normal;
                         timer = 0;
-                        cooldowns[0] = 2f;
+                        cooldowns[1] = 2f;
                     }
                     break;
             }
@@ -212,7 +221,7 @@ namespace DeathChain
                         height = possessTarget.Height;
                         drawBox = possessTarget.DrawRect;
                         if(possessType == EnemyTypes.Mushroom) {
-                            currentAnimation = Mushroom.SHOOT;
+                            currentAnimation = Mushroom.Shoot;
                         }
                         for(int i = 0; i < 3; i++) {
                             cooldowns[i] = 0;
@@ -270,7 +279,7 @@ namespace DeathChain
                 case PlayerState.Lunge:
                 case PlayerState.Slash:
                     if(attackArea != null) {
-                        sb.Draw(Graphics.Pixel, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.Red);
+                        sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
                     }
                     break;
             }
@@ -280,6 +289,33 @@ namespace DeathChain
         public void DrawUI(SpriteBatch sb) {
             for(int i = 0; i < health; i++) {
                 sb.Draw(Graphics.Pixel, new Rectangle(30 + i * 60, 30, 50, 50), possessType == EnemyTypes.None ? Color.Blue : Color.Red);
+            }
+
+            // draw ability buttons
+            Vector2 buttonMid = new Vector2(1400, 100);
+            int buttonLength = 50;
+            int distFromMid = 50;
+            Rectangle top = new Rectangle((int)buttonMid.X - buttonLength / 2, (int)buttonMid.Y - buttonLength / 2 - distFromMid, buttonLength, buttonLength);
+            Rectangle bottom = new Rectangle((int)buttonMid.X - buttonLength / 2, (int)buttonMid.Y - buttonLength / 2 + distFromMid, buttonLength, buttonLength);
+            Rectangle left = new Rectangle((int)buttonMid.X - buttonLength / 2 - distFromMid, (int)buttonMid.Y - buttonLength / 2, buttonLength, buttonLength);
+            Rectangle right = new Rectangle((int)buttonMid.X - buttonLength / 2 + distFromMid, (int)buttonMid.Y - buttonLength / 2, buttonLength, buttonLength);
+            sb.Draw(Graphics.Button, top, Color.White);
+            sb.Draw(Graphics.Button, bottom, cooldowns[1] > 0 ? Color.Red : Color.Green); 
+            sb.Draw(Graphics.Button, left, cooldowns[0] > 0 ? Color.Red : Color.Green);
+            sb.Draw(Graphics.Button, right, cooldowns[2] > 0 ? Color.Red : Color.Green);
+
+            int reducer = -7;
+            if(abilities[possessType][0] != null) {
+                left.Inflate(reducer, reducer);
+                sb.Draw(abilityIcons[abilities[possessType][0]], left, Color.White);
+            }
+            if(abilities[possessType][1] != null) {
+                bottom.Inflate(reducer, reducer);
+                sb.Draw(abilityIcons[abilities[possessType][1]], bottom, Color.White); 
+            }
+            if(abilities[possessType][2] != null) {
+                right.Inflate(reducer, reducer);
+                sb.Draw(abilityIcons[abilities[possessType][2]], right, Color.White);
             }
         }
 
@@ -344,10 +380,10 @@ namespace DeathChain
         }
 
         private void FireSpore(Level level) {
-            level.Projectiles.Add(new Projectile(Midpoint, Input.GetAim() * Mushroom.SPORE_SPEED, true, Mushroom.SPORE_SIZE, Graphics.Spore));
-            cooldowns[1] = 0.75f;
+            level.Projectiles.Add(new Projectile(Mushroom.Spore, Midpoint, Input.GetAim(), true));
+            cooldowns[0] = 0.75f;
             currentAnimation.Restart();
-            level.Particles.Add(new Particle(new Rectangle((int)position.X - 25, (int)position.Y - 50, width + 50, height + 50), Graphics.SporeBurst, 0.25f));
+            level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
         }
 
         // generates an attack area relative to the player. Uses the aim variable

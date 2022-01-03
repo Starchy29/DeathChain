@@ -40,8 +40,8 @@ namespace DeathChain
         public static void Setup() {
             // sets up key bindings
             gamepadBinds[Inputs.Up] = new List<Buttons>() {};
-            gamepadBinds[Inputs.Attack] = new List<Buttons>() { Buttons.A };
-            gamepadBinds[Inputs.Secondary] = new List<Buttons>() { Buttons.X };
+            gamepadBinds[Inputs.Attack] = new List<Buttons>() { Buttons.X };
+            gamepadBinds[Inputs.Secondary] = new List<Buttons>() { Buttons.A };
             gamepadBinds[Inputs.Tertiary] = new List<Buttons>() { Buttons.B };
             gamepadBinds[Inputs.Possess] = new List<Buttons>() { Buttons.Y };
 
