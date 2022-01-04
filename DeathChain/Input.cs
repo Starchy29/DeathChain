@@ -44,6 +44,10 @@ namespace DeathChain
             gamepadBinds[Inputs.Secondary] = new List<Buttons>() { Buttons.A };
             gamepadBinds[Inputs.Tertiary] = new List<Buttons>() { Buttons.B };
             gamepadBinds[Inputs.Possess] = new List<Buttons>() { Buttons.Y };
+            gamepadBinds[Inputs.Up] = new List<Buttons>() { Buttons.LeftThumbstickUp };
+            gamepadBinds[Inputs.Down] = new List<Buttons>() { Buttons.LeftThumbstickDown };
+            gamepadBinds[Inputs.Left] = new List<Buttons>() { Buttons.LeftThumbstickLeft };
+            gamepadBinds[Inputs.Right] = new List<Buttons>() { Buttons.LeftThumbstickRight };
 
             keyboardBinds[Inputs.Up] = new List<Keys>() { Keys.W, Keys.Up };
             keyboardBinds[Inputs.Down] = new List<Keys>() { Keys.Down, Keys.S };

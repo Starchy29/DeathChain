@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace DeathChain
 {
@@ -81,10 +82,24 @@ namespace DeathChain
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            Audio.SnowSong = Content.Load<SoundEffect>("snowfall");
+
             Graphics.Font = Content.Load<SpriteFont>("File");
 
             Graphics.Pixel = Content.Load<Texture2D>("Pixel");
             Graphics.TempGhost = Content.Load<Texture2D>("tall ghost");
+            Graphics.PlayerFront = new Texture2D[3];
+            for(int i = 0; i < 3; i++) {
+                Graphics.PlayerFront[i] = Content.Load<Texture2D>("player forward " + i);
+            }
+            Graphics.PlayerSide = new Texture2D[3];
+            for(int i = 0; i < 3; i++) {
+                Graphics.PlayerSide[i] = Content.Load<Texture2D>("player side " + i);
+            }
+            Graphics.PlayerBack = new Texture2D[3];
+            for(int i = 0; i < 3; i++) {
+                Graphics.PlayerBack[i] = Content.Load<Texture2D>("player back " + i);
+            }
             Graphics.Mushroom = new Texture2D[4];
             Graphics.Mushroom[0] = Content.Load<Texture2D>("mushroom");
             for(int i = 1; i < 4; i++) {
@@ -94,10 +109,6 @@ namespace DeathChain
             Graphics.SporeBurst = new Texture2D[9];
             for(int i = 0; i < 9; i++) {
                 Graphics.SporeBurst[i] = Content.Load<Texture2D>("spore burst " + i);
-            }
-            Graphics.PlayerFront = new Texture2D[3];
-            for(int i = 0; i < 3; i++) {
-                Graphics.PlayerFront[i] = Content.Load<Texture2D>("player forward " + i);
             }
             Graphics.SporeTrail = new Texture2D[4];
             for(int i = 0; i < 4; i++) {
@@ -116,6 +127,8 @@ namespace DeathChain
 
             player = new Player();
             currentLevel = new Level();
+            SoundEffect.MasterVolume = 0.3f;
+            //Audio.PlaySong(Songs.Snow);
         }
 
         protected override void UnloadContent() { }

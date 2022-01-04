@@ -98,7 +98,7 @@ namespace DeathChain
                 // chance to lunge when close enough
                 timer -= deltaTime;
                 if(timer <= 0) {
-                    timer += 0.5f; // how often it checks whether or not to lunge
+                    timer += 0.4f; // how often it checks whether or not to lunge
                     if(rng.NextDouble() <= 0.3 && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) {
                         // begin lunge 
                         timer = -0.4f; // pause time at start of lunge

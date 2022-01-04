@@ -103,48 +103,6 @@ namespace DeathChain
                         }
                     }
                 }
-
-                // step the animation a frame
-                /*switch(type) {
-                    case AnimationType.Hold:
-                        if(frame < sprites.Length - 1) {
-                            frame++;
-                        }
-                        break;
-                    case AnimationType.Reverse:
-                        if(frame > 0) {
-                            frame--;
-                        }
-                        break;
-                    case AnimationType.Loop:
-                        frame++;
-                        if(frame >= sprites.Length) {
-                            // restart animation
-                            frame = 0;
-                        }
-                        break;
-                    case AnimationType.Oscillate:
-                        if(backwards) {
-                            frame--;
-                            if(frame < 0) {
-                                // go forwards
-                                backwards = false;
-                                if(sprites.Length >= 2) {
-                                    frame = 1;
-                                }
-                            }
-                        } else {
-                            frame++;
-                            if(frame >= sprites.Length) {
-                                // go backwards
-                                backwards = true;
-                                if(sprites.Length >= 2) {
-                                    frame = sprites.Length - 2; // go back 1 frame instead of forward 1
-                                }
-                            }
-                        }
-                        break;
-                }*/
             }
         }
 

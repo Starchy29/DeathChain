@@ -30,6 +30,8 @@ namespace DeathChain
         public const int SELECT_DIST = 80; // distance from a dead enemy that the player can possess them
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
+        private readonly Animation side = new Animation(Graphics.PlayerSide, AnimationType.Loop, 0.1f);
+        private readonly Animation back = new Animation(Graphics.PlayerBack, AnimationType.Loop, 0.1f);
 
         private EnemyTypes possessType; // the type of enemy the player is controlling currently
         private PlayerState state;
@@ -44,6 +46,9 @@ namespace DeathChain
         private List<Enemy> hitEnemies; // when attacking, makes sure each attack ony hits an enemy once
         private double[] cooldowns; // cooldowns for the 3 abilities.
         private Dictionary<EnemyTypes, Ability[]> abilities;
+        private SpriteEffects flips;
+        private Direction wasFacing = Direction.Down;
+        private Direction facing = Direction.Down; // help choose which animation to use
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
@@ -77,14 +82,47 @@ namespace DeathChain
         }
 
         public override void Update(Level level, float deltaTime) {
+            flips = SpriteEffects.None;
+
+            if(Input.IsPressed(Inputs.Right) && !Input.IsPressed(Inputs.Left)) {
+                facing = Direction.Right;
+            }
+            else if(Input.IsPressed(Inputs.Left) && !Input.IsPressed(Inputs.Right)) {
+                facing = Direction.Left;
+                flips = SpriteEffects.FlipHorizontally;
+            }
+            else if(Input.IsPressed(Inputs.Up) && !Input.IsPressed(Inputs.Down)) {
+                facing = Direction.Up;
+                flips = SpriteEffects.FlipHorizontally;
+            }
+            else {
+                facing = Direction.Down;
+            }
+
+            if(facing != wasFacing) {
+                switch(facing) {
+                    case Direction.Down:
+                        currentAnimation = forward;
+                        break;
+                    case Direction.Up:
+                        currentAnimation = back;
+                        break;
+                    case Direction.Right:
+                    case Direction.Left:
+                        currentAnimation = side;
+                        break;
+                }
+            }
+
             currentAnimation.Update(deltaTime);
+            wasFacing = facing; // detect change in animation next frame
 
             bool checkWalls = true;
             bool checkPits = true;
 
             switch(state) {
                 case PlayerState.Normal:
-                    float maxSpeed = 500;
+                    float maxSpeed = 400;
                     switch(possessType) {
                         case EnemyTypes.Zombie:
                             maxSpeed = Zombie.MAX_SPEED;
@@ -272,10 +310,10 @@ namespace DeathChain
             if(invulnTime > 0) {
                 tint *= 0.5f;
             }
-            base.Draw(sb);
+            sb.Draw(currentAnimation.CurrentSprite, DrawBox, null, tint, 0f, Vector2.Zero, flips, 1f);
 
             // draw attack
-            switch(state) {
+            switch (state) {
                 case PlayerState.Lunge:
                 case PlayerState.Slash:
                     if(attackArea != null) {
@@ -292,7 +330,7 @@ namespace DeathChain
             }
 
             // draw ability buttons
-            Vector2 buttonMid = new Vector2(1400, 100);
+            Vector2 buttonMid = new Vector2(1500, 100);
             int buttonLength = 50;
             int distFromMid = 50;
             Rectangle top = new Rectangle((int)buttonMid.X - buttonLength / 2, (int)buttonMid.Y - buttonLength / 2 - distFromMid, buttonLength, buttonLength);
@@ -354,7 +392,7 @@ namespace DeathChain
 
         private void Dash(Level level) {
             state = PlayerState.Dash;
-            timer = 0.1f;
+            timer = 0.08f;
             velocity = Input.GetAim() * 2000;
         }
 
