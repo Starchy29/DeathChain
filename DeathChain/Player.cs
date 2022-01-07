@@ -27,7 +27,7 @@ namespace DeathChain
 
     public class Player : Entity
     {
-        public const int SELECT_DIST = 80; // distance from a dead enemy that the player can possess them
+        public const int SELECT_DIST = 50; // distance from a dead enemy that the player can possess them
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
         private readonly Animation side = new Animation(Graphics.PlayerSide, AnimationType.Loop, 0.1f);
@@ -69,14 +69,14 @@ namespace DeathChain
             cooldowns[2] = 0.0f;
 
             abilities = new Dictionary<EnemyTypes, Ability[]>();
-            abilities[EnemyTypes.None] = new Ability[3] { Slash, Dash, null };
+            abilities[EnemyTypes.None] = new Ability[3] { Slash, null, null };
             abilities[EnemyTypes.Zombie] = new Ability[3] { Slash, Lunge, null };
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
 
             abilityIcons = new Dictionary<Ability, Texture2D>();
             abilityIcons[Slash] = Graphics.Slash;
             abilityIcons[Dash] = Graphics.Dash;
-            abilityIcons[Lunge] = Graphics.Lunge;
+            abilityIcons[Lunge] = Graphics.Dash;
             abilityIcons[Block] = Graphics.Shield;
             abilityIcons[FireSpore] = Graphics.SporeLogo;
         }
@@ -122,16 +122,7 @@ namespace DeathChain
 
             switch(state) {
                 case PlayerState.Normal:
-                    float maxSpeed = 400;
-                    switch(possessType) {
-                        case EnemyTypes.Zombie:
-                            maxSpeed = Zombie.MAX_SPEED;
-                            break;
-                        case EnemyTypes.Mushroom:
-                            maxSpeed = 0;
-                            break;
-                    }
-                    Move(deltaTime, maxSpeed);
+                    Move(deltaTime, GetMaxSpeed());
                     break;
 
                 case PlayerState.Dash:
@@ -157,7 +148,7 @@ namespace DeathChain
                     break;
 
                 case PlayerState.Slash:
-                    Move(deltaTime, 250.0f);
+                    Move(deltaTime, GetMaxSpeed() / 2);
                     GenerateAttack(50, 50);
                     foreach(Enemy enemy in level.Enemies) {
                         if(enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
@@ -172,31 +163,18 @@ namespace DeathChain
                     if(timer <= 0) {
                         timer = 0;
                         state = PlayerState.Normal;
-                        cooldowns[0] = 0.2;
+                        cooldowns[0] = 0.3;
                         hitEnemies.Clear();
                     }
                     break;
 
-                case PlayerState.Lunge:
+                case PlayerState.Lunge: // zombie dash
                     position += velocity * deltaTime;
-
-                    GenerateAttack(50, 50);
-                    foreach(Enemy enemy in level.Enemies) {
-                        if(enemy.Alive && enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
-                            // damage enemy
-                            enemy.TakeDamage(1);
-                            enemy.Push(aim * 800);
-                            hitEnemies.Add(enemy);
-                            timer = 0; // end attack early
-                        }
-                    }
-
                     timer -= deltaTime;
                     if(timer <= 0) {
                         timer = 0;
                         state = PlayerState.Normal;
                         cooldowns[1] = 1;
-                        hitEnemies.Clear();
                     }
                     break;
 
@@ -314,7 +292,6 @@ namespace DeathChain
 
             // draw attack
             switch (state) {
-                case PlayerState.Lunge:
                 case PlayerState.Slash:
                     if(attackArea != null) {
                         sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
@@ -390,6 +367,20 @@ namespace DeathChain
             position += velocity * deltaTime;
         }
 
+        // determines movement speed based on enemy form
+        private float GetMaxSpeed() {
+            float maxSpeed = 400; // default player speed
+            switch(possessType) {
+                case EnemyTypes.Zombie:
+                    maxSpeed = Zombie.MAX_SPEED;
+                    break;
+                case EnemyTypes.Mushroom:
+                    maxSpeed = 0;
+                    break;
+            }
+            return maxSpeed;
+        }
+
         private void Dash(Level level) {
             state = PlayerState.Dash;
             timer = 0.08f;
@@ -406,9 +397,9 @@ namespace DeathChain
 
         private void Lunge(Level level) {
             state = PlayerState.Lunge;
-            timer = 0.1f;
+            timer = Zombie.LUNGE_DURATION;
             aim = Input.GetAim();
-            velocity = aim * 1500;
+            velocity = aim * Zombie.LUNGE_SPEED;
             GenerateAttack(50, 50);
         }
 

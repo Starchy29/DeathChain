@@ -10,10 +10,14 @@ namespace DeathChain
 {
     public class Zombie : Enemy
     {
-        public const int MAX_SPEED = 200;
+        public const int MAX_SPEED = 150;
+        public const float LUNGE_DURATION = 0.1f;
+        public const int LUNGE_SPEED = 1500;
 
         private bool lunging; // only 2 states
+        private float slashTime; // time left in slash
         private Random rng;
+        private Rectangle slashBox;
 
         public Zombie(int x, int y) : base(EnemyTypes.Zombie, x, y, 50, 50, 3) { 
             tint = Color.Brown;
@@ -27,10 +31,10 @@ namespace DeathChain
                     // pausing
                     timer += deltaTime;
                     if(timer >= 0) {
-                        timer = 0.1f; // lunge duration
+                        timer = LUNGE_DURATION;
                         Vector2 direction = Game1.Player.Midpoint - Midpoint;
                         direction.Normalize();
-                        velocity = direction * 1500; // lunge speed
+                        velocity = direction * LUNGE_SPEED;
                     }
                 }
                 else {
@@ -96,19 +100,57 @@ namespace DeathChain
                 position += velocity * deltaTime;
 
                 // chance to lunge when close enough
-                timer -= deltaTime;
+                if(timer > 0) {
+                    timer -= deltaTime;
+                }
+
                 if(timer <= 0) {
                     timer += 0.4f; // how often it checks whether or not to lunge
-                    if(rng.NextDouble() <= 0.3 && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) {
-                        // begin lunge 
-                        timer = -0.4f; // pause time at start of lunge
-                        velocity = Vector2.Zero;
-                        lunging = true;;
+                    if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) { // attack player if close enough
+                        if(rng.NextDouble() <= 0.3) {
+                            // begin lunge 
+                            timer = -0.4f; // pause time at start of lunge
+                            velocity = Vector2.Zero;
+                            lunging = true;;
+                        } else {
+                            // slash
+                            slashTime = 0.2f;
+                        }
                     }
                 }
             }
 
+            // slash check
+            if(slashTime > 0) {
+                slashTime -= deltaTime;
+                if(slashTime <= 0) {
+                    timer = 2; // attack cooldown
+                }
+
+                slashBox = Hitbox;
+                Vector2 aim = Game1.Player.Midpoint - Midpoint;
+                if(aim.Length() > 0) {
+                    aim.Normalize();
+                }
+                slashBox.Offset(aim * 50);
+
+                // check if hit player
+                if(slashBox.Intersects(Game1.Player.Hitbox)) {
+                    Game1.Player.TakeDamage(1);
+                }
+            }
+
             CheckWallCollision(level, true);
+        }
+
+        public override void Draw(SpriteBatch sb) {
+            base.Draw(sb);
+
+            // draw slash
+            slashBox.Offset(Camera.Shift);
+            if(slashTime > 0 && slashBox != null) {
+                sb.Draw(Graphics.Slash, slashBox, Color.White);
+            }
         }
     }
 }

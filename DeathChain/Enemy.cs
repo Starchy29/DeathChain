@@ -12,7 +12,7 @@ namespace DeathChain
     {
         protected int health;
         private int maxHealth; // tells the player how much health to have when possessing this
-        protected bool alive;
+        protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
         protected float timer;
 
         private EnemyTypes type;
@@ -57,7 +57,7 @@ namespace DeathChain
         // moves away from other enemies
         protected void Separate(Level level, float deltaTime) {
             foreach(Enemy enemy in level.Enemies) {
-                if(enemy != this && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
+                if(enemy != this && enemy.alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
                     Vector2 moveAway = Midpoint - enemy.Midpoint;
                     velocity += moveAway * 10 * deltaTime;
                 }
