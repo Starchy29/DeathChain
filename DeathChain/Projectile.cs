@@ -52,10 +52,11 @@ namespace DeathChain
         public override void Update(Level level, float deltaTime) {
             position += velocity * deltaTime;
 
+            Vector2 lastVelocity = velocity;
             List<Direction> collisions = CheckWallCollision(level, false);
             if(collisions.Count > 0) {
-                IsActive = false;
-                if(burst != null) {
+                OnWallHit(collisions, lastVelocity);
+                if(!IsActive && burst != null) {
                     level.Particles.Add(new Particle(burst, Midpoint));
                 }
             } else {
@@ -65,10 +66,12 @@ namespace DeathChain
                     if(trailTimer >= trailFreq) {
                         trailTimer = 0;
                         Vector2 direction = -velocity;
+                        float rotation = 0f;
                         if(direction.Length() > 0) {
                             direction.Normalize();
+                            rotation = (float)Math.Atan2(direction.Y, direction.X);
                         }
-                        level.Particles.Add(new Particle(trail, Midpoint + direction * width));
+                        level.Particles.Add(new Particle(trail, Midpoint + direction * width, rotation));
                     }
                 }
             }
@@ -92,6 +95,11 @@ namespace DeathChain
                     IsActive = false;
                 }
             }
+        }
+
+        // for sub classes
+        protected virtual void OnWallHit(List<Direction> collisions, Vector2 hitVelocity) {
+            IsActive = false;
         }
     }
 }

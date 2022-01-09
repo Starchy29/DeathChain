@@ -15,24 +15,27 @@ namespace DeathChain
         private Animation animation;
         private float timer;
         private readonly float duration;
+        private float rotation;
 
         public bool Done { get { return timer >= duration; } }
 
         public Particle(Rectangle area, Texture2D[] sprites, float duration) {
             this.area = area;
             this.duration = duration;
+            rotation = 0f;
             timer = 0;
 
             animation = new Animation(sprites, AnimationType.Hold, duration / sprites.Length); // animation is automatically normal type and divided among duration
         }
 
         // copy from another particle, but reposition
-        public Particle(Particle other, Vector2 midpoint) {
+        public Particle(Particle other, Vector2 midpoint, float rotation = 0f) {
             this.area = other.area;
             area.X = (int)midpoint.X - area.Width / 2;
             area.Y = (int)midpoint.Y - area.Height / 2;
             this.duration = other.duration;
             this.animation = other.animation; // copies because struct
+            this.rotation = rotation;
             timer = 0;
         }
 
@@ -43,7 +46,8 @@ namespace DeathChain
 
         public void Draw(SpriteBatch sb) {
             area.Offset(Camera.Shift.X, Camera.Shift.Y);
-            sb.Draw(animation.CurrentSprite, area, Color.White);
+
+            Game1.RotateDraw(sb, animation.CurrentSprite, area, Color.White, rotation);
         }
     }
 }

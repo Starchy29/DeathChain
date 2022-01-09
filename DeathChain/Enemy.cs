@@ -14,6 +14,7 @@ namespace DeathChain
         private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
         protected float timer;
+        private float damageTime; // enemy appears red when getting hit
 
         private EnemyTypes type;
 
@@ -31,23 +32,34 @@ namespace DeathChain
 
         public sealed override void Update(Level level, float deltaTime) {
             if(alive) {
+                if(damageTime > 0) {
+                    damageTime -= deltaTime;
+                }
+
                 AliveUpdate(level, deltaTime);
 
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
                     Game1.Player.TakeDamage(1);
                 }
-            } else {
-                tint = Color.White;
-                if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
-                    tint = Color.LightBlue;
-                }
             }
+        }
+
+        public override void Draw(SpriteBatch sb) {
+            tint = Color.White;
+            if(alive && damageTime > 0) {
+                tint = Color.Red;
+            }
+            else if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
+                tint = Color.LightBlue;
+            }
+            base.Draw(sb);
         }
 
         protected abstract void AliveUpdate(Level level, float deltaTime);
 
         public virtual void TakeDamage(int damage) {
             health -= damage;
+            damageTime = 0.1f;
             if(health <= 0) {
                 // die
                 alive = false;

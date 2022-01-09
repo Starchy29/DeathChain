@@ -15,7 +15,7 @@ namespace DeathChain
 
         private Direction facing;
 
-        public WallClimber(int x, int y, Direction facing) : base(EnemyTypes.Spider, x, y, 50, 50, 2) { 
+        public WallClimber(int x, int y, Direction facing) : base(EnemyTypes.None, x, y, 50, 50, 2) { 
             this.facing = facing;
             if(facing == Direction.None) {
                 this.facing = Direction.Right;

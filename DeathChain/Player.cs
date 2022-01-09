@@ -12,7 +12,6 @@ namespace DeathChain
         None,
         Zombie,
         Mushroom,
-        Spider
     }
 
     public enum PlayerState {
@@ -68,11 +67,14 @@ namespace DeathChain
             cooldowns[1] = 0.0f;
             cooldowns[2] = 0.0f;
 
+            // create enemy abilities
             abilities = new Dictionary<EnemyTypes, Ability[]>();
             abilities[EnemyTypes.None] = new Ability[3] { Slash, null, null };
             abilities[EnemyTypes.Zombie] = new Ability[3] { Slash, Lunge, null };
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
+            //abilities[EnemyTypes.Spider] = new Ability[3] { Slash, null, null };
 
+            // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
             abilityIcons[Slash] = Graphics.Slash;
             abilityIcons[Dash] = Graphics.Dash;
@@ -245,13 +247,7 @@ namespace DeathChain
                     }
                 }
                 else if(possessType != EnemyTypes.None) {
-                    // unpossess
-                    health = ghostHealth;
-                    possessType = EnemyTypes.None;
-                    state = PlayerState.Normal;
-                    invulnTime = 0.5f;
-                    drawBox = playerDrawBox;
-                    currentAnimation = forward;
+                    Unpossess();
                 }
             }
 
@@ -294,7 +290,14 @@ namespace DeathChain
             switch (state) {
                 case PlayerState.Slash:
                     if(attackArea != null) {
-                        sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
+                        //sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
+                        SpriteEffects flips = SpriteEffects.None;
+                        Vector2 aim = Midpoint - attackArea.Center.ToVector2();
+                        if(aim.X < 0) {
+                            flips = SpriteEffects.FlipVertically;
+                        }
+                        float rotation = (float)Math.Atan2(aim.Y, aim.X);
+                        Game1.RotateDraw(sb, Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White, rotation, flips);
                     }
                     break;
             }
@@ -334,16 +337,32 @@ namespace DeathChain
             }
         }
 
+        private void Unpossess() {
+            health = ghostHealth;
+            possessType = EnemyTypes.None;
+            state = PlayerState.Normal;
+            invulnTime = 0.5f;
+            drawBox = playerDrawBox;
+            currentAnimation = forward;
+        }
+
         public void TakeDamage(int damage) {
             if(invulnTime <= 0 && state != PlayerState.Block) {
                 health -= damage;
                 if(possessType == EnemyTypes.None) {
                     ghostHealth -= damage;
                 }
-                invulnTime = 2.0f;
+
                 if(health <= 0) {
                     // die
+                    if(possessType == EnemyTypes.None) {
+                        // lose
+                    } else {
+                        Unpossess();
+                    }
                 }
+
+                invulnTime = 2.0f; // overrides Unpossess immunity time
             }
         }
 
@@ -409,7 +428,7 @@ namespace DeathChain
         }
 
         private void FireSpore(Level level) {
-            level.Projectiles.Add(new Projectile(Mushroom.Spore, Midpoint, Input.GetAim(), true));
+            level.Projectiles.Add(new BounceSpore(Midpoint, Input.GetAim(), true));
             cooldowns[0] = 0.75f;
             currentAnimation.Restart();
             level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));

@@ -19,8 +19,7 @@ namespace DeathChain
         private Random rng;
         private Rectangle slashBox;
 
-        public Zombie(int x, int y) : base(EnemyTypes.Zombie, x, y, 50, 50, 3) { 
-            tint = Color.Brown;
+        public Zombie(int x, int y) : base(EnemyTypes.Zombie, x, y, 50, 50, 3) {
             lunging = false;
             rng = new Random(x * y);
         }
@@ -148,7 +147,7 @@ namespace DeathChain
 
             // draw slash
             slashBox.Offset(Camera.Shift);
-            if(slashTime > 0 && slashBox != null) {
+            if(alive && slashTime > 0 && slashBox != null) {
                 sb.Draw(Graphics.Slash, slashBox, Color.White);
             }
         }

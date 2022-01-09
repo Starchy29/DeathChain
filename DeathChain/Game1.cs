@@ -195,6 +195,12 @@ namespace DeathChain
             base.Draw(gameTime);
         }
 
+        // draws an image at the specified location, but rotates at that position
+        public static void RotateDraw(SpriteBatch sb, Texture2D sprite, Rectangle location, Color color, float radians, SpriteEffects flips = SpriteEffects.None) {
+            location.Offset(location.Width / 2, location.Height / 2);
+            sb.Draw(sprite, location, null, color, radians, new Vector2(sprite.Width / 2f, sprite.Height / 2f), flips, 1f);
+        }
+
         private void SetupMenus() {
             const int W = 400;
             const int H = 100;
