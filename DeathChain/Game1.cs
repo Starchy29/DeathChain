@@ -87,7 +87,6 @@ namespace DeathChain
             Graphics.Font = Content.Load<SpriteFont>("File");
 
             Graphics.Pixel = Content.Load<Texture2D>("Pixel");
-            Graphics.TempGhost = Content.Load<Texture2D>("tall ghost");
             Graphics.PlayerFront = new Texture2D[3];
             for(int i = 0; i < 3; i++) {
                 Graphics.PlayerFront[i] = Content.Load<Texture2D>("player forward " + i);
@@ -118,12 +117,17 @@ namespace DeathChain
             for(int i = 0; i < 4; i++) {
                 Graphics.SporeBreak[i] = Content.Load<Texture2D>("spore break " + i);
             }
+
+            Graphics.Zombie = Content.Load<Texture2D>("zombie");
+
             Graphics.Slash = Content.Load<Texture2D>("slash");
             Graphics.Button = Content.Load<Texture2D>("button");
             Graphics.Dash = Content.Load<Texture2D>("arrow");
             Graphics.SporeLogo = Content.Load<Texture2D>("spore logo");
             Graphics.Shield = Content.Load<Texture2D>("shield");
             Graphics.Lunge = Content.Load<Texture2D>("lunge");
+            Graphics.Possess = Content.Load<Texture2D>("possess");
+            Graphics.Unpossess = Content.Load<Texture2D>("unpossess");
 
             player = new Player();
             currentLevel = new Level();

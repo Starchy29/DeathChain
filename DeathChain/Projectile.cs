@@ -97,6 +97,17 @@ namespace DeathChain
             }
         }
 
+        public override void Draw(SpriteBatch sb) {
+            float rotation = 0f;
+            if(velocity != Vector2.Zero) {
+                rotation = (float)Math.Atan2(velocity.X, velocity.Y);
+            }
+
+            if(sprite != null) {
+                Game1.RotateDraw(sb, sprite, DrawBox, Color.White, rotation);
+            }
+        }
+
         // for sub classes
         protected virtual void OnWallHit(List<Direction> collisions, Vector2 hitVelocity) {
             IsActive = false;

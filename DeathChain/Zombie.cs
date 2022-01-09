@@ -20,8 +20,10 @@ namespace DeathChain
         private Rectangle slashBox;
 
         public Zombie(int x, int y) : base(EnemyTypes.Zombie, x, y, 50, 50, 3) {
+            sprite = Graphics.Zombie;
             lunging = false;
             rng = new Random(x * y);
+            drawBox = new Rectangle(0, -15, 50, 65);
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {

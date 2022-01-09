@@ -14,7 +14,7 @@ namespace DeathChain
         private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
         protected float timer;
-        private float damageTime; // enemy appears red when getting hit
+        private float enemyTimer; // alive: red flash when hit, dead: despawn timer
 
         private EnemyTypes type;
 
@@ -31,26 +31,34 @@ namespace DeathChain
         }
 
         public sealed override void Update(Level level, float deltaTime) {
-            if(alive) {
-                if(damageTime > 0) {
-                    damageTime -= deltaTime;
-                }
+            if(enemyTimer > 0) {
+                enemyTimer -= deltaTime;
+            }
 
+            if(alive) {
                 AliveUpdate(level, deltaTime);
 
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
                     Game1.Player.TakeDamage(1);
                 }
+            } 
+            else if(enemyTimer <= 0) {
+                // decay body after some time
+                IsActive = false;
             }
         }
 
         public override void Draw(SpriteBatch sb) {
             tint = Color.White;
-            if(alive && damageTime > 0) {
+            if(alive && enemyTimer > 0) {
                 tint = Color.Red;
             }
             else if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
                 tint = Color.LightBlue;
+            }
+            else if(!alive) {
+                // temporary
+                tint = Color.Black;
             }
             base.Draw(sb);
         }
@@ -59,10 +67,11 @@ namespace DeathChain
 
         public virtual void TakeDamage(int damage) {
             health -= damage;
-            damageTime = 0.1f;
+            enemyTimer = 0.1f; // red flash duration
             if(health <= 0) {
                 // die
                 alive = false;
+                enemyTimer = 5; // time before body despawns;
             }
         }
 

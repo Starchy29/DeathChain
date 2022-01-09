@@ -51,7 +51,7 @@ namespace DeathChain
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
-        public Player() : base(775, 425, 50, 50, Graphics.TempGhost) {
+        public Player() : base(775, 425, 50, 50) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
             hitEnemies = new List<Enemy>();
@@ -86,33 +86,35 @@ namespace DeathChain
         public override void Update(Level level, float deltaTime) {
             flips = SpriteEffects.None;
 
-            if(Input.IsPressed(Inputs.Right) && !Input.IsPressed(Inputs.Left)) {
-                facing = Direction.Right;
-            }
-            else if(Input.IsPressed(Inputs.Left) && !Input.IsPressed(Inputs.Right)) {
-                facing = Direction.Left;
-                flips = SpriteEffects.FlipHorizontally;
-            }
-            else if(Input.IsPressed(Inputs.Up) && !Input.IsPressed(Inputs.Down)) {
-                facing = Direction.Up;
-                flips = SpriteEffects.FlipHorizontally;
-            }
-            else {
-                facing = Direction.Down;
-            }
+            if(possessType == EnemyTypes.None) {
+                if(Input.IsPressed(Inputs.Right) && !Input.IsPressed(Inputs.Left)) {
+                    facing = Direction.Right;
+                }
+                else if(Input.IsPressed(Inputs.Left) && !Input.IsPressed(Inputs.Right)) {
+                    facing = Direction.Left;
+                    flips = SpriteEffects.FlipHorizontally;
+                }
+                else if(Input.IsPressed(Inputs.Up) && !Input.IsPressed(Inputs.Down)) {
+                    facing = Direction.Up;
+                    flips = SpriteEffects.FlipHorizontally;
+                }
+                else {
+                    facing = Direction.Down;
+                }
 
-            if(facing != wasFacing) {
-                switch(facing) {
-                    case Direction.Down:
-                        currentAnimation = forward;
-                        break;
-                    case Direction.Up:
-                        currentAnimation = back;
-                        break;
-                    case Direction.Right:
-                    case Direction.Left:
-                        currentAnimation = side;
-                        break;
+                if(facing != wasFacing) {
+                    switch(facing) {
+                        case Direction.Down:
+                            currentAnimation = forward;
+                            break;
+                        case Direction.Up:
+                            currentAnimation = back;
+                            break;
+                        case Direction.Right:
+                        case Direction.Left:
+                            currentAnimation = side;
+                            break;
+                    }
                 }
             }
 
@@ -270,7 +272,7 @@ namespace DeathChain
             tint = Color.White;
             //sprite = Graphics.TempGhost;
             if(possessType == EnemyTypes.Zombie) {
-                tint = Color.Brown;
+                currentAnimation = new Animation(new Texture2D[]{Graphics.Zombie}, AnimationType.Hold, 1f);
             }
             else if(possessType == EnemyTypes.Mushroom) {
                 //sprite = Graphics.Mushroom[0];
@@ -335,6 +337,13 @@ namespace DeathChain
                 right.Inflate(reducer, reducer);
                 sb.Draw(abilityIcons[abilities[possessType][2]], right, Color.White);
             }
+
+            top.Inflate(reducer, reducer);
+            if(possessType == EnemyTypes.None) {
+                sb.Draw(Graphics.Possess, top, Color.White);
+            } else {
+                sb.Draw(Graphics.Unpossess, top, Color.White);
+            }
         }
 
         private void Unpossess() {
@@ -362,7 +371,7 @@ namespace DeathChain
                     }
                 }
 
-                invulnTime = 2.0f; // overrides Unpossess immunity time
+                invulnTime = 1.5f; // overrides Unpossess immunity time
             }
         }
 
