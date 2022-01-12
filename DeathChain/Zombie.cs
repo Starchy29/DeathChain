@@ -19,7 +19,7 @@ namespace DeathChain
         private Random rng;
         private Rectangle slashBox;
 
-        public Zombie(int x, int y) : base(EnemyTypes.Zombie, x, y, 50, 50, 3) {
+        public Zombie(int x, int y) : base(EnemyTypes.Zombie, new Vector2(x, y), 50, 50, 3) {
             sprite = Graphics.Zombie;
             lunging = false;
             rng = new Random(x * y);
@@ -75,7 +75,7 @@ namespace DeathChain
                 
                 if(Vector2.Dot(direction, velocity) >= 0) { // don't approach player when knocked back
                     // move
-                    velocity += direction * deltaTime * 2000;
+                    velocity += direction * deltaTime * ACCEL;
 
                     // cap speed
                     if(velocity.Length() > MAX_SPEED) {
@@ -84,19 +84,8 @@ namespace DeathChain
                     }
                 }
 
-                // move away from other enemies
-                Separate(level, deltaTime);
-
-                // apply friction
-                Vector2 friction = -velocity;
-                if(friction != Vector2.Zero) {
-                    friction.Normalize();
-                    velocity += friction * deltaTime * 1000;
-                    if(Vector2.Dot(friction, velocity) > 0) {
-                        // started moving backwards: stop instead
-                        velocity = Vector2.Zero;
-                    }
-                }
+                Separate(level, deltaTime); // move away from other enemies
+                ApplyFriction(deltaTime);
 
                 position += velocity * deltaTime;
 
@@ -107,7 +96,7 @@ namespace DeathChain
 
                 if(timer <= 0) {
                     timer += 0.4f; // how often it checks whether or not to lunge
-                    if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 150) { // attack player if close enough
+                    if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 180) { // attack player if close enough
                         if(rng.NextDouble() <= 0.3) {
                             // begin lunge 
                             timer = -0.4f; // pause time at start of lunge

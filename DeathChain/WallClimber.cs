@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DeathChain
 {
-    class WallClimber : Enemy
+    /*class WallClimber : Enemy
     {
         public const int WEB_SPEED = 600;
         public const int WEB_SIZE = 40;
@@ -75,5 +75,5 @@ namespace DeathChain
                     return new Vector2(0, 0);
             }
         }
-    }
+    }*/
 }

@@ -29,15 +29,17 @@ namespace DeathChain
 
         public bool IsActive { get; set; }
         public Rectangle Hitbox { get { return new Rectangle((int)position.X, (int)position.Y, width, height); } }
+        public Circle HitCircle { get { return new Circle(Midpoint, (width > height ? width : height) / 2f); } }
         public Vector2 Midpoint { get { return new Vector2(position.X + width / 2, position.Y + height / 2); } }
         public Vector2 Position { get { return position; } }
         public Vector2 Velocity { get { return velocity; } }
         public int Width { get { return width; } }
         public int Height { get { return height; } }
+
         protected Rectangle DrawBox { get { return new Rectangle((int)(Camera.Shift.X + position.X + drawBox.X), (int)(Camera.Shift.Y + position.Y + drawBox.Y), drawBox.Width, drawBox.Height); } }
 
-        public Entity(int x, int y, int width, int height, Texture2D sprite = null) {
-            position = new Vector2(x, y);
+        public Entity(Vector2 midpoint, int width, int height, Texture2D sprite = null) {
+            position = new Vector2(midpoint.X - width / 2, midpoint.Y - height / 2);
             this.width = width;
             this.height = height;
             drawBox = new Rectangle(0, 0, width, height); // default visual box lines up with drawbox box exactly

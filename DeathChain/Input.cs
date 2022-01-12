@@ -31,6 +31,8 @@ namespace DeathChain
         private static Vector2 lastAim;
         private static bool lastClicked;
         private static bool mouseClicked;
+        private static Inputs buffer;
+        private static float bufferTime;
 
         private static Dictionary<Inputs, List<Buttons>> gamepadBinds = new Dictionary<Inputs, List<Buttons>>();
         private static Dictionary<Inputs, List<Keys>> keyboardBinds = new Dictionary<Inputs, List<Keys>>();
@@ -55,7 +57,7 @@ namespace DeathChain
             keyboardBinds[Inputs.Right] = new List<Keys>() { Keys.Right, Keys.D };
         }
 
-        public static void Update() {
+        public static void Update(float deltaTime) {
             lastClicked = mouseClicked;
             mouseClicked = IsMouseClicked();
 
@@ -67,6 +69,22 @@ namespace DeathChain
             if(gamepad.ThumbSticks.Left.Length() > 0.8f) {
                 lastAim = gamepad.ThumbSticks.Left;
                 lastAim.Normalize();
+            }
+
+            // manage buffers
+            if(bufferTime > 0) {
+                bufferTime -= deltaTime;
+                if(bufferTime <= 0) {
+                    buffer = Inputs.None;
+                }
+            }
+
+            Inputs[] bufferWatch = new Inputs[] { Inputs.Possess, Inputs.Tertiary, Inputs.Secondary, Inputs.Attack };
+            foreach(Inputs input in bufferWatch) {
+                if(PressedThisFrame(input)) {
+                    buffer = input;
+                    bufferTime = 0.2f;
+                }
             }
         }
 
@@ -89,32 +107,49 @@ namespace DeathChain
         }
 
         public static bool JustPressed(Inputs input) {
-            if(!IsPressed(input)) {
-                return false;
+            // check buffer first
+            if(buffer == input) {
+                buffer = Inputs.None; // use each buffer input only once
+                return true;
             }
 
-            // check if unpressed last frame
+            return PressedThisFrame(input);
+        }
+
+        private static bool PressedThisFrame(Inputs input) {
+            return IsPressed(input) && !WasPressed(input);
+        }
+
+        public static bool JustReleased(Inputs input) {
+            return !IsPressed(input) && WasPressed(input);
+        }
+
+        // checks if a key was pressed last frame
+        private static bool WasPressed(Inputs input) {
             if(IsGamepadConnected) {
                 foreach(Buttons button in gamepadBinds[input]) {
                     if(lastgp.IsButtonDown(button)) {
-                        return false;
+                        return true;
                     }
                 }
-                return true;
+                return false;
             } else {
                 foreach(Keys key in keyboardBinds[input]) {
                     if(lastkb.IsKeyDown(key)) {
-                        return false;
+                        return true;
                     }
                 }
-                return true;
+                return false;
             }
         }
 
-        // gets the direction the player is holding, as a unit vector
+        // gets the direction the player is trying to move, as a unit vector
         public static Vector2 GetMoveDirection() {
             if(IsGamepadConnected) {
                 Vector2 angle = gamepad.ThumbSticks.Left;
+                if(angle != Vector2.Zero) {
+                    angle.Normalize();
+                }
                 return new Vector2(angle.X, -angle.Y);
             } else {
                 Vector2 result = new Vector2(0, 0);
@@ -138,10 +173,11 @@ namespace DeathChain
             }
         }
 
+        // gets the direction the player is aiming in
         public static Vector2 GetAim() {
             if(IsGamepadConnected) {
                 Vector2 angle = gamepad.ThumbSticks.Left;
-                if(angle.Length() == 0) {
+                if(angle == Vector2.Zero) {
                     angle = lastAim;
                 } else {
                     angle.Normalize();

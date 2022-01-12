@@ -10,6 +10,8 @@ namespace DeathChain
 {
     public abstract class Enemy : Entity
     {
+        protected const int ACCEL = 2000;
+
         protected int health;
         private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
@@ -23,7 +25,7 @@ namespace DeathChain
         public int MaxHealth { get { return maxHealth; } }
         public Rectangle DrawRect { get { return drawBox; } }
 
-        public Enemy(EnemyTypes type, int x, int y, int width, int height, int health) : base(x, y, width, height, Graphics.Pixel) {
+        public Enemy(EnemyTypes type, Vector2 midpoint, int width, int height, int health) : base(midpoint, width, height, Graphics.Pixel) {
             alive = true;
             this.health = health;
             this.type = type;
@@ -53,7 +55,7 @@ namespace DeathChain
             if(alive && enemyTimer > 0) {
                 tint = Color.Red;
             }
-            else if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
+            else if(!alive && !Game1.Player.Possessing && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
                 tint = Color.LightBlue;
             }
             else if(!alive) {
@@ -81,6 +83,18 @@ namespace DeathChain
                 if(enemy != this && enemy.alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
                     Vector2 moveAway = Midpoint - enemy.Midpoint;
                     velocity += moveAway * 10 * deltaTime;
+                }
+            }
+        }
+
+        protected void ApplyFriction(float deltaTime, float amount = 1000) {
+            Vector2 direction = -velocity;
+            if(direction != Vector2.Zero) {
+                direction.Normalize();
+                velocity += direction * deltaTime * amount;
+                if(Vector2.Dot(direction, velocity) > 0) {
+                    // started moving backwards: stop instead
+                    velocity = Vector2.Zero;
                 }
             }
         }

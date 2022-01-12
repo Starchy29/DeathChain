@@ -147,13 +147,15 @@ namespace DeathChain
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            Input.Update();
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            Input.Update(deltaTime);
 
             switch(state) {
                 case GameState.Game:
                     Camera.Update(currentLevel);
-                    currentLevel.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-                    player.Update(currentLevel, (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    currentLevel.Update(deltaTime);
+                    player.Update(currentLevel, deltaTime);
                     break;
                 case GameState.Menu:
                     currentMenu.Update();
@@ -210,7 +212,11 @@ namespace DeathChain
             const int H = 100;
 
             mainMenu = new Menu(null, new List<Button>() {
-                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { state = GameState.Game; currentLevel = new Level(); })
+                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { 
+                    state = GameState.Game; 
+                    currentLevel = new Level(); 
+                    player = new Player();
+                })
             });
         }
 

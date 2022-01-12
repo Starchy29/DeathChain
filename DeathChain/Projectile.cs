@@ -10,7 +10,7 @@ namespace DeathChain
 {
     public class Projectile : Entity
     {
-        private bool fromPlayer;
+        protected bool fromPlayer;
         private Particle burst;
         private Particle trail;
         private float trailTimer;
@@ -18,7 +18,7 @@ namespace DeathChain
         public bool FromPlayer { get { return fromPlayer; } }
 
         public Projectile(Vector2 midpoint, Vector2 velocity, bool fromPlayer, int length, Texture2D sprite, Particle burst = null, Particle trail = null)
-            : base((int)midpoint.X - length / 2, (int)midpoint.Y - length / 2, length, length, sprite) {
+            : base(midpoint, length, length, sprite) {
             this.velocity = velocity;
             this.fromPlayer = fromPlayer;
             this.burst = burst;
@@ -36,7 +36,7 @@ namespace DeathChain
 
         // copy a projectile from an existing one
         public Projectile(Projectile other, Vector2 midpoint, Vector2 aim, bool fromPlayer) :
-            base((int) midpoint.X - other.Width / 2, (int) midpoint.Y - other.Width / 2, other.Width, other.Height, other.sprite)
+            base(midpoint, other.Width, other.Height, other.sprite)
         {
             if(aim.Length() > 0) {
                 aim.Normalize();

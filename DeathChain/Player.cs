@@ -12,6 +12,7 @@ namespace DeathChain
         None,
         Zombie,
         Mushroom,
+        Slime
     }
 
     public enum PlayerState {
@@ -51,7 +52,9 @@ namespace DeathChain
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
-        public Player() : base(775, 425, 50, 50) {
+        public bool Possessing { get { return possessType != EnemyTypes.None; } } // whether or not the player is possessing an enemy
+
+        public Player() : base(new Vector2(775, 425), 50, 50) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
             hitEnemies = new List<Enemy>();
@@ -72,7 +75,7 @@ namespace DeathChain
             abilities[EnemyTypes.None] = new Ability[3] { Slash, null, null };
             abilities[EnemyTypes.Zombie] = new Ability[3] { Slash, Lunge, null };
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
-            //abilities[EnemyTypes.Spider] = new Ability[3] { Slash, null, null };
+            abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
@@ -81,6 +84,8 @@ namespace DeathChain
             abilityIcons[Lunge] = Graphics.Dash;
             abilityIcons[Block] = Graphics.Shield;
             abilityIcons[FireSpore] = Graphics.SporeLogo;
+            abilityIcons[FireSlimes] = Graphics.SporeLogo;
+            abilityIcons[DropPuddle] = Graphics.Mushroom[0];
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -270,12 +275,10 @@ namespace DeathChain
         public override void Draw(SpriteBatch sb) {
             // make sprite match the current enemy
             tint = Color.White;
-            //sprite = Graphics.TempGhost;
             if(possessType == EnemyTypes.Zombie) {
                 currentAnimation = new Animation(new Texture2D[]{Graphics.Zombie}, AnimationType.Hold, 1f);
             }
             else if(possessType == EnemyTypes.Mushroom) {
-                //sprite = Graphics.Mushroom[0];
                 if(state == PlayerState.Block) {
                     tint = Color.Pink;
                 } else {
@@ -405,6 +408,9 @@ namespace DeathChain
                 case EnemyTypes.Mushroom:
                     maxSpeed = 0;
                     break;
+                case EnemyTypes.Slime:
+                    maxSpeed = Slime.MAX_SPEED;
+                    break;
             }
             return maxSpeed;
         }
@@ -441,6 +447,19 @@ namespace DeathChain
             cooldowns[0] = 0.75f;
             currentAnimation.Restart();
             level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
+        }
+
+        private void FireSlimes(Level level) {
+            cooldowns[0] = 1f;
+            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(1, 0), true));
+            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(-1, 0), true));
+            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, 1), true));
+            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, -1), true));
+        }
+
+        private void DropPuddle(Level level) {
+            cooldowns[1] = 4f;
+            level.Projectiles.Add(new SlimePuddle(Midpoint, true));
         }
 
         // generates an attack area relative to the player. Uses the aim variable

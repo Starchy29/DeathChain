@@ -13,22 +13,18 @@ namespace DeathChain
         //public const int SPORE_SPEED = 800;
         //public const int SPORE_SIZE = 20;
         public static readonly Animation Shoot = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
-        public static readonly Particle SporeCloud = new Particle(new Rectangle(0, 0, 100, 100), Graphics.SporeBurst, 0.25f); // -50
-        /*public static readonly Projectile Spore = new Projectile(800, 20, Graphics.Spore,
-            new Particle(new Rectangle(0, 0, 20, 20), Graphics.SporeBreak, 0.1f),
-            new Particle(new Rectangle(0, 0, 20, 20), Graphics.SporeTrail, 0.1f)
-        );*/
+        public static readonly Particle SporeCloud = new Particle(new Rectangle(0, 0, 100, 100), Graphics.SporeBurst, 0.25f);
 
         private bool blocking;
         private float blockTimer;
 
-        public Mushroom(int x, int y) : base(EnemyTypes.Mushroom, x, y, 50, 50, 2) {
+        public Mushroom(int x, int y) : base(EnemyTypes.Mushroom, new Vector2(x, y), 50, 50, 2) {
             timer = 2;
             blocking = false;
             blockTimer = 0f;
             sprite = null;
             currentAnimation = Shoot;
-            drawBox = new Rectangle(-5, -5, width + 10, height + 10); // make mushroom appear larger
+            drawBox.Inflate(5, 5); // make mushroom appear larger
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
