@@ -172,7 +172,6 @@ namespace DeathChain
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(20, 20, 20));
-            GraphicsDevice.Clear(Color.DarkGreen * 0.5f);
             spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, transforms);
 
             switch(state) {

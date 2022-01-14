@@ -45,9 +45,10 @@ namespace DeathChain
         }
 
         public void Draw(SpriteBatch sb) {
-            area.Offset(Camera.Shift.X, Camera.Shift.Y);
+            Rectangle drawZone = area;
+            drawZone.Offset(Camera.Shift.X, Camera.Shift.Y);
 
-            Game1.RotateDraw(sb, animation.CurrentSprite, area, Color.White, rotation);
+            Game1.RotateDraw(sb, animation.CurrentSprite, drawZone, Color.White, rotation);
         }
     }
 }

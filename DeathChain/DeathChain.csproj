@@ -53,6 +53,7 @@
     <Compile Include="Graphics.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Level.cs" />
+    <Compile Include="LevelLayout.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="Mushroom.cs" />
     <Compile Include="Particle.cs" />
