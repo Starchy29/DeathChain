@@ -10,6 +10,8 @@ namespace DeathChain
 {
     public class Level
     {
+        private const int EDGE_BUFFER = 100;
+
         private delegate bool EdgeCheck(Rectangle tester, Rectangle outermost);
 
         private static Random rng = new Random(); 
@@ -19,8 +21,8 @@ namespace DeathChain
         private List<Enemy> enemies;
         private List<Wall> walls;
 
-        private List<Rectangle> edges; // walls that define the edges of the level
-        public List<Rectangle> Edges { get { return edges; } } // used by the camera
+        private Rectangle bounds; // where the camera is allowed to see
+        public Rectangle Bounds { get { return bounds; } }
 
         public List<Particle> Particles { get { return particles; } }
         public List<Projectile> Projectiles { get { return projectiles; } }
@@ -36,11 +38,12 @@ namespace DeathChain
 
             //walls.Add(new Wall(100, 0, 1400, 100, false));
             //walls.Add(new Wall(0, 0, 100, 900, false));
-            walls.Add(new Wall(1500, 0, 500, 900, false));
-            walls.Add(new Wall(100, 800, 1400, 100, false));
+            walls.Add(new Wall(1500, 0, 600, 800, false));
+            walls.Add(new Wall(100, 800, 2000, 100, false));
 
             walls.Add(new Wall(0, -1000, 100, 1900, false));
             walls.Add(new Wall(0, -1100, 2100, 100, false));
+            walls.Add(new Wall(2100, -1100, 100, 1100, false));
 
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
@@ -54,7 +57,7 @@ namespace DeathChain
 
             enemies.Add(new Slime(300, 450));*/
 
-            DefineEdges();
+            DefineCameraSpace();
         }
 
         // create a random level with a certain difficulty
@@ -93,7 +96,7 @@ namespace DeathChain
                 enemyMin = difficulty;
             }
 
-            DefineEdges();
+            DefineCameraSpace();
         }
 
         public void Update(float deltaTime) {
@@ -160,63 +163,30 @@ namespace DeathChain
             return new LevelLayout();
         }
 
-        private void DefineEdges() {
-            edges = new List<Rectangle>();
+        // runs at the end of the constructor
+        private void DefineCameraSpace() {
+            // find edge bounds
+            bounds = new Rectangle(500, 500, -1000, -1000); // start with inside out rectangle so it is gauranteed to be overridden
+            foreach(Wall wall in walls) {
+                Rectangle zone = wall.Hitbox;
 
-            edges.AddRange(FindEdges( // leftmost
-                (Rectangle tester, Rectangle outermost) => { return tester.Left == outermost.Left; },
-                (Rectangle tester, Rectangle outermost) => { return tester.Left < outermost.Left; }
-            ));
-
-            List<Rectangle> newEdges = FindEdges( // rightmost
-                (Rectangle tester, Rectangle outermost) => { return tester.Right == outermost.Right; },
-                (Rectangle tester, Rectangle outermost) => { return tester.Right > outermost.Right; }
-            );
-            foreach(Rectangle newEdge in newEdges) {
-                if(!edges.Contains(newEdge)) {
-                    edges.Add(newEdge);
+                if(zone.Right < bounds.Left) {
+                    bounds.Width += bounds.Left - zone.Right;
+                    bounds.X = zone.Right;
+                }
+                if(zone.Left > bounds.Right) {
+                    bounds.Width = zone.Left - bounds.X;
+                }
+                if(zone.Bottom < bounds.Top) {
+                    bounds.Height += bounds.Top - zone.Bottom;
+                    bounds.Y = zone.Bottom;
+                }
+                if(zone.Top > bounds.Bottom) {
+                    bounds.Height = zone.Top - bounds.Y;
                 }
             }
 
-            newEdges = FindEdges( // top
-                (Rectangle tester, Rectangle outermost) => { return tester.Top == outermost.Top; },
-                (Rectangle tester, Rectangle outermost) => { return tester.Top < outermost.Top; }
-            );
-            foreach(Rectangle newEdge in newEdges) {
-                if(!edges.Contains(newEdge)) {
-                    edges.Add(newEdge);
-                }
-            }
-
-            newEdges = FindEdges( // bottom
-                (Rectangle tester, Rectangle outermost) => { return tester.Bottom == outermost.Bottom; },
-                (Rectangle tester, Rectangle outermost) => { return tester.Bottom > outermost.Bottom; }
-            );
-            foreach(Rectangle newEdge in newEdges) {
-                if(!edges.Contains(newEdge)) {
-                    edges.Add(newEdge);
-                }
-            }
-
-            List<Rectangle> FindEdges(EdgeCheck linesUp, EdgeCheck past) {
-                List<Rectangle> edges = new List<Rectangle>();
-                foreach(Wall wall in walls) {
-                    Rectangle zone = wall.Hitbox;
-
-                    if(edges.Count <= 0) {
-                        edges.Add(zone);
-                    }
-                    else if(linesUp(zone, edges[0])) {
-                        // use all zones that share the outer edge
-                        edges.Add(zone);
-                    }
-                    else if(past(zone, edges[0])) {
-                        edges.Clear();
-                        edges.Add(zone);
-                    }
-                }
-                return edges;
-            }
+            bounds.Inflate(EDGE_BUFFER, EDGE_BUFFER);
         }
     }
 }
