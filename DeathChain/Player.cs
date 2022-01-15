@@ -28,6 +28,7 @@ namespace DeathChain
     public class Player : Entity
     {
         public const int SELECT_DIST = 50; // distance from a dead enemy that the player can possess them
+        public const int MAX_SPEED = 400;
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
         private readonly Animation side = new Animation(Graphics.PlayerSide, AnimationType.Loop, 0.1f);
@@ -273,6 +274,22 @@ namespace DeathChain
         }
 
         public override void Draw(SpriteBatch sb) {
+            // draw attack
+            switch (state) {
+                case PlayerState.Slash:
+                    if(attackArea != null) {
+                        //sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
+                        SpriteEffects flips = SpriteEffects.None;
+                        Vector2 aim = Midpoint - attackArea.Center.ToVector2();
+                        if(aim.X < 0) {
+                            flips = SpriteEffects.FlipVertically;
+                        }
+                        float rotation = (float)Math.Atan2(aim.Y, aim.X);
+                        Game1.RotateDraw(sb, Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White, rotation, flips);
+                    }
+                    break;
+            }
+
             // make sprite match the current enemy
             tint = Color.White;
             if(possessType == EnemyTypes.Zombie) {
@@ -290,23 +307,6 @@ namespace DeathChain
                 tint *= 0.5f;
             }
             sb.Draw(currentAnimation.CurrentSprite, DrawBox, null, tint, 0f, Vector2.Zero, flips, 1f);
-
-            // draw attack
-            switch (state) {
-                case PlayerState.Slash:
-                    if(attackArea != null) {
-                        //sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
-                        SpriteEffects flips = SpriteEffects.None;
-                        Vector2 aim = Midpoint - attackArea.Center.ToVector2();
-                        if(aim.X < 0) {
-                            flips = SpriteEffects.FlipVertically;
-                        }
-                        float rotation = (float)Math.Atan2(aim.Y, aim.X);
-                        Game1.RotateDraw(sb, Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White, rotation, flips);
-                    }
-                    break;
-            }
-            
         }
 
         public void DrawUI(SpriteBatch sb) {
@@ -400,7 +400,7 @@ namespace DeathChain
 
         // determines movement speed based on enemy form
         private float GetMaxSpeed() {
-            float maxSpeed = 400; // default player speed
+            float maxSpeed = MAX_SPEED; // default player speed
             switch(possessType) {
                 case EnemyTypes.Zombie:
                     maxSpeed = Zombie.MAX_SPEED;
@@ -466,6 +466,13 @@ namespace DeathChain
         private void GenerateAttack(int length, int dist) {
             Vector2 rectMid = Midpoint + aim * dist;
             attackArea = new Rectangle((int)rectMid.X - length / 2, (int)rectMid.Y - length / 2, length, length);
+        }
+
+        // when player enters a room, walk up for a bit, returns distance travelled
+        public float WalkIn(float deltaTime) {
+            float distance = MAX_SPEED * deltaTime;
+            position.Y -= distance;
+            return distance;
         }
     }
 }

@@ -130,7 +130,7 @@ namespace DeathChain
             Graphics.Unpossess = Content.Load<Texture2D>("unpossess");
 
             player = new Player();
-            currentLevel = new Level();
+            currentLevel = new Level(0);
             SoundEffect.MasterVolume = 0.3f;
             //Audio.PlaySong(Songs.Snow);
         }
@@ -154,8 +154,7 @@ namespace DeathChain
             switch(state) {
                 case GameState.Game:
                     Camera.Update(currentLevel);
-                    currentLevel.Update(deltaTime);
-                    player.Update(currentLevel, deltaTime);
+                    currentLevel.Update(deltaTime, player);
                     break;
                 case GameState.Menu:
                     currentMenu.Update();
@@ -198,6 +197,11 @@ namespace DeathChain
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public void NextLevel() {
+            currentLevel = new Level(0);
+            Camera.Update(currentLevel);
         }
 
         // draws an image at the specified location, but rotates at that position

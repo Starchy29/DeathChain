@@ -20,6 +20,9 @@ namespace DeathChain
         private List<Projectile> projectiles;
         private List<Enemy> enemies;
         private List<Wall> walls;
+        private int endY;
+        private Vector2 start;
+        private float enterDist;
 
         private Rectangle bounds; // where the camera is allowed to see
         public Rectangle Bounds { get { return bounds; } }
@@ -78,13 +81,16 @@ namespace DeathChain
             enemyTypes[1].Add(EnemyTypes.Slime);
 
             // choose a level shape
-            LevelLayout layout = ChooseLevelLayout();
-            //width = layout.Width
+            LevelLayout layout = new LevelLayout(0);
+            endY = layout.EndY;
+            Game1.Player.Midpoint = layout.Start;
+            start = layout.Start;
+            enterDist = EDGE_BUFFER + 25;
 
             // choose a floorplan
-            List<Rectangle> obstacles = layout.Obstacles;
-            foreach(Rectangle obstacle in obstacles) {
-                walls.Add(new Wall(obstacle.X, obstacle.Y, obstacle.Width, obstacle.Height, rng.NextDouble() < 0.5));
+            List<Wall> addWalls = layout.Walls;
+            foreach(Wall addWall in addWalls) {
+                walls.Add(addWall);
             }
 
             // shuffle spawn spots
@@ -99,7 +105,22 @@ namespace DeathChain
             DefineCameraSpace();
         }
 
-        public void Update(float deltaTime) {
+        public void Update(float deltaTime, Player player) {
+            // start of level room enter aniation
+            if(enterDist > 0) {
+                enterDist -= player.WalkIn(deltaTime);
+                if(enterDist <= 0) {
+                    // close door behind player
+                    walls.Add(new Wall((int)start.X - LevelLayout.DOOR_WIDTH / 2, (int)start.Y - EDGE_BUFFER, LevelLayout.DOOR_WIDTH, EDGE_BUFFER, false));
+                }
+                return;
+            }
+
+            player.Update(this, deltaTime);
+            if(player.Hitbox.Bottom  < endY) {
+                Game1.Game.NextLevel();
+            }
+
             foreach(Enemy enemy in enemies) {
                 enemy.Update(this, deltaTime);
             }
@@ -159,33 +180,29 @@ namespace DeathChain
             Game1.Player.DrawUI(sb);
         }
 
-        private LevelLayout ChooseLevelLayout() {
-            return new LevelLayout();
-        }
-
         // runs at the end of the constructor
         private void DefineCameraSpace() {
             // find edge bounds
-            bounds = new Rectangle(500, 500, -1000, -1000); // start with inside out rectangle so it is gauranteed to be overridden
+            Vector2 topLeft = new Vector2(10000, 10000);
+            Vector2 bottomRight = new Vector2(-10000, -10000);
             foreach(Wall wall in walls) {
                 Rectangle zone = wall.Hitbox;
 
-                if(zone.Right < bounds.Left) {
-                    bounds.Width += bounds.Left - zone.Right;
-                    bounds.X = zone.Right;
+                if(zone.Right < topLeft.X) {
+                    topLeft.X = zone.Right;
                 }
-                if(zone.Left > bounds.Right) {
-                    bounds.Width = zone.Left - bounds.X;
+                if(zone.Left > bottomRight.X) {
+                    bottomRight.X = zone.Left;
                 }
-                if(zone.Bottom < bounds.Top) {
-                    bounds.Height += bounds.Top - zone.Bottom;
-                    bounds.Y = zone.Bottom;
+                if(zone.Bottom < topLeft.Y) {
+                    topLeft.Y = zone.Bottom;
                 }
-                if(zone.Top > bounds.Bottom) {
-                    bounds.Height = zone.Top - bounds.Y;
+                if(zone.Top > bottomRight.Y) {
+                    bottomRight.Y = zone.Top;
                 }
             }
 
+            bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)(bottomRight.X - topLeft.X), (int)(bottomRight.Y - topLeft.Y));
             bounds.Inflate(EDGE_BUFFER, EDGE_BUFFER);
         }
     }

@@ -30,7 +30,10 @@ namespace DeathChain
         public bool IsActive { get; set; }
         public Rectangle Hitbox { get { return new Rectangle((int)position.X, (int)position.Y, width, height); } }
         public Circle HitCircle { get { return new Circle(Midpoint, (width > height ? width : height) / 2f); } }
-        public Vector2 Midpoint { get { return new Vector2(position.X + width / 2, position.Y + height / 2); } }
+        public Vector2 Midpoint { 
+            get { return new Vector2(position.X + width / 2, position.Y + height / 2); }
+            set { position = new Vector2(value.X - width / 2, value.Y - width / 2); }
+        }
         public Vector2 Position { get { return position; } }
         public Vector2 Velocity { get { return velocity; } }
         public int Width { get { return width; } }
