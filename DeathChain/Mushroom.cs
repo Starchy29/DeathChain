@@ -10,8 +10,6 @@ namespace DeathChain
 {
     public class Mushroom : Enemy
     {
-        //public const int SPORE_SPEED = 800;
-        //public const int SPORE_SIZE = 20;
         public static readonly Animation Shoot = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
         public static readonly Particle SporeCloud = new Particle(new Rectangle(0, 0, 100, 100), Graphics.SporeBurst, 0.25f);
 
@@ -42,9 +40,9 @@ namespace DeathChain
                 if(timer > 0) {
                     timer -= deltaTime;
                 }
-                if(timer <= 0 && DistanceTo(Game1.Player) <= 700) { // range
+                if(timer <= 0 && DistanceTo(Game1.Player) <= 900) { // range
                     // fire
-                    timer = 1.5f;
+                    timer = 2f; // shoot cooldown
                     Vector2 aim = Game1.Player.Midpoint - Midpoint;
                     aim.Normalize();
                     level.Projectiles.Add(new BounceSpore(Midpoint, aim, false));

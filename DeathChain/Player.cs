@@ -173,7 +173,7 @@ namespace DeathChain
                     if(timer <= 0) {
                         timer = 0;
                         state = PlayerState.Normal;
-                        cooldowns[0] = 0.3;
+                        cooldowns[0] = 0.4;
                         hitEnemies.Clear();
                     }
                     break;
@@ -387,7 +387,7 @@ namespace DeathChain
                     }
                 }
 
-                invulnTime = 1.5f; // overrides Unpossess immunity time
+                invulnTime = 1f; // overrides Unpossess immunity time
             }
         }
 

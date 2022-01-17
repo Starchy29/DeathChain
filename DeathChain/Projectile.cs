@@ -15,9 +15,10 @@ namespace DeathChain
         private Particle trail;
         private float trailTimer;
         private readonly float trailFreq;
+        private float distanceLeft;
         public bool FromPlayer { get { return fromPlayer; } }
 
-        public Projectile(Vector2 midpoint, Vector2 velocity, bool fromPlayer, int length, Texture2D sprite, Particle burst = null, Particle trail = null)
+        public Projectile(Vector2 midpoint, Vector2 velocity, float range, int length, bool fromPlayer, Texture2D sprite, Particle burst = null, Particle trail = null)
             : base(midpoint, length, length, sprite) {
             this.velocity = velocity;
             this.fromPlayer = fromPlayer;
@@ -28,11 +29,12 @@ namespace DeathChain
                 float speed = velocity.Length();
                 trailFreq = length / speed;
             }
+            this.distanceLeft = range;
         }
 
         // create a projectile blueprint
-        public Projectile(float speed, int length, Texture2D sprite, Particle burst = null, Particle trail = null) :
-            this(Vector2.Zero, new Vector2(speed, 0), false, length, sprite, burst, trail) { } // the literal values here will be set to the correct value when copied, so they can be anything
+        public Projectile(float speed, float range, int length, Texture2D sprite, Particle burst = null, Particle trail = null) :
+            this(Vector2.Zero, new Vector2(speed, 0), range, length, false, sprite, burst, trail) { } // the literal values here will be set to the correct value when copied, so they can be anything
 
         // copy a projectile from an existing one
         public Projectile(Projectile other, Vector2 midpoint, Vector2 aim, bool fromPlayer) :
@@ -47,18 +49,21 @@ namespace DeathChain
             this.burst = other.burst;
             this.trailTimer = other.trailTimer;
             this.trailFreq = other.trailFreq;
+            this.distanceLeft = other.distanceLeft;
         }
 
         public override void Update(Level level, float deltaTime) {
-            position += velocity * deltaTime;
+            Vector2 displacement = velocity * deltaTime;
+            position += displacement;
+            distanceLeft -= displacement.Length();
+            if(distanceLeft <= 0) {
+                IsActive = false;
+            }
 
             Vector2 lastVelocity = velocity;
             List<Direction> collisions = CheckWallCollision(level, false);
             if(collisions.Count > 0) {
                 OnWallHit(collisions, lastVelocity);
-                if(!IsActive && burst != null) {
-                    level.Particles.Add(new Particle(burst, Midpoint));
-                }
             } else {
                 // leave a trail effect (not on the frame this hits a wall)
                 if(trail != null) {
@@ -94,6 +99,10 @@ namespace DeathChain
                     Game1.Player.Push(knockback);
                     IsActive = false;
                 }
+            }
+
+            if(!IsActive && burst != null) {
+                level.Particles.Add(new Particle(burst, Midpoint));
             }
         }
 

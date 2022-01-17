@@ -14,6 +14,8 @@ namespace DeathChain
         public const float LUNGE_DURATION = 0.1f;
         public const int LUNGE_SPEED = 1500;
 
+        private const float ATTACK_COOLDOWN = 2f;
+
         private bool lunging; // only 2 states
         private float slashTime; // time left in slash
         private Random rng;
@@ -32,20 +34,28 @@ namespace DeathChain
                     // pausing
                     timer += deltaTime;
                     if(timer >= 0) {
-                        timer = LUNGE_DURATION;
-                        Vector2 direction = Game1.Player.Midpoint - Midpoint;
-                        direction.Normalize();
-                        velocity = direction * LUNGE_SPEED;
+                        if(rng.NextDouble() <= 0.4) {
+                            // lunge
+                            timer = LUNGE_DURATION;
+                            Vector2 direction = Game1.Player.Midpoint - Midpoint;
+                            direction.Normalize();
+                            velocity = direction * LUNGE_SPEED;
+                        } else {
+                            // slash
+                            lunging = false;
+                            timer = ATTACK_COOLDOWN;
+                            slashTime = 0.2f;
+                        }
                     }
                 }
                 else {
                     // lunging
-                    position += velocity * deltaTime;
+                    //position += velocity * deltaTime;
                     
                     timer -= deltaTime;
                     if(timer <= 0) {
                         // end lunge
-                        timer = 2; // don't lunge again for at least this time
+                        timer = ATTACK_COOLDOWN; // don't lunge again for at least this time
                         lunging = false;
                         velocity = Vector2.Zero;
                     }
@@ -63,6 +73,8 @@ namespace DeathChain
                 foreach(Wall wall in level.Walls) {
                     if(wall.Hitbox.Intersects(future)) { // about to move into wall
                         Vector2 newDirection = wall.Midpoint - Midpoint; // direction from this to wall center
+                        newDirection.X /= wall.Width; // factor in wall dimensions
+                        newDirection.Y /= wall.Height;
                         newDirection.Normalize();
                         newDirection = new Vector2(newDirection.Y, -newDirection.X); // now perpendicular to wall center
                         if(Vector2.Dot(direction, newDirection) < 0) {
@@ -87,7 +99,7 @@ namespace DeathChain
                 Separate(level, deltaTime); // move away from other enemies
                 ApplyFriction(deltaTime);
 
-                position += velocity * deltaTime;
+                //position += velocity * deltaTime;
 
                 // chance to lunge when close enough
                 if(timer > 0) {
@@ -95,16 +107,13 @@ namespace DeathChain
                 }
 
                 if(timer <= 0) {
-                    timer += 0.4f; // how often it checks whether or not to lunge
+                    timer += 0.4f; // how often it checks whether or not to attack
                     if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 180) { // attack player if close enough
-                        if(rng.NextDouble() <= 0.3) {
-                            // begin lunge 
-                            timer = -0.4f; // pause time at start of lunge
+                        if(rng.NextDouble() <= 0.7) {
+                            // begin attack
+                            timer = -0.4f; // pause time at start of attack
                             velocity = Vector2.Zero;
-                            lunging = true;;
-                        } else {
-                            // slash
-                            slashTime = 0.2f;
+                            lunging = true;
                         }
                     }
                 }
@@ -129,6 +138,8 @@ namespace DeathChain
                     Game1.Player.TakeDamage(1);
                 }
             }
+
+            position += velocity * deltaTime;
 
             CheckWallCollision(level, true);
         }

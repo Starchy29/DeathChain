@@ -89,7 +89,6 @@ namespace DeathChain
                     spawnSpots.Add(new Vector2(2000 - 100 - 150, 1200 - 100 - 150)); // bottom right
                     break;
             }
-
         }
 
         private void AddEdges(int width, int height, Direction topDoor = Direction.None, Direction bottomDoor = Direction.None) {

@@ -40,14 +40,12 @@ namespace DeathChain
             enemies = new List<Enemy>();
             walls = new List<Wall>();
 
+            Game1.Player.Midpoint = new Vector2(800, 450);
+
             walls.Add(new Wall(100, 0, 1400, 100, false));
             walls.Add(new Wall(0, 0, 100, 900, false));
             walls.Add(new Wall(1500, 0, 600, 800, false));
             walls.Add(new Wall(100, 800, 2000, 100, false));
-
-            //walls.Add(new Wall(0, -1000, 100, 1900, false));
-            //walls.Add(new Wall(0, -1100, 2100, 100, false));
-            //walls.Add(new Wall(2100, -1100, 100, 1100, false));
 
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
