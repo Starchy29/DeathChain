@@ -11,7 +11,7 @@ namespace DeathChain
     class Slime : Enemy
     {
         public const int MAX_SPEED = 150;
-        public static readonly Projectile SLIMEBALL = new Projectile(500, 20, Graphics.Pixel);
+        public static readonly Projectile SLIMEBALL = new Projectile(500, 30, Graphics.SlimeBall);
 
         private float wanderTime;
         private float puddleTime;
@@ -22,6 +22,7 @@ namespace DeathChain
             rng = new Random();
             timer = 3f;
             puddleTime = 0f;
+            sprite = Graphics.Slime;
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {

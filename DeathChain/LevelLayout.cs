@@ -30,12 +30,13 @@ namespace DeathChain
             spawnSpots = new List<Vector2>();
 
             // choose edge layout
-            switch(rng.Next(0, 7)) {
+            switch(1 + 0 * rng.Next(0, 7)) {
                 case 0: // small room
                     AddEdges(1600, 900);
                     break;
                 case 1: // large room
                     AddEdges(2000, 1200);
+                    MakeMediumRoom(rng);
                     break;
                 case 2: // tall
                     AddEdges(1600, 1600);
@@ -57,6 +58,40 @@ namespace DeathChain
             }
         }
 
+        private void MakeMediumRoom(Random rng) {
+            // 2000 x 1200
+            switch(0) {
+                case 0: // center dashed line
+                    walls.Add(new Wall(1000 - 300, 600 - 50, 600, 100, CoinFlip(rng))); // middle line
+                    if(CoinFlip(rng)) {
+                        walls.Add(new Wall(100, 600 - 50, 250, 100, CoinFlip(rng))); // left dash of middle line
+                    }
+                    if(CoinFlip(rng)) {
+                        walls.Add(new Wall(2000 - 100 - 250, 600 - 50, 250, 100, CoinFlip(rng))); // right dash of middle line
+                    }
+
+                    spawnSpots.Add(new Vector2(1000, 300)); // center top
+
+                    // left column (350 - 700)
+                    spawnSpots.Add(new Vector2(525 + 150, 300)); // top
+                    spawnSpots.Add(new Vector2(525, 600)); // middle
+                    spawnSpots.Add(new Vector2(525 + 150, 900)); // bottom
+
+                    // right column (1300 - 1650)
+                    spawnSpots.Add(new Vector2(1475 - 150, 300)); // top
+                    spawnSpots.Add(new Vector2(1475, 600)); // middle
+                    spawnSpots.Add(new Vector2(1475 - 150, 900)); // bottom
+
+                    // corners
+                    spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
+                    spawnSpots.Add(new Vector2(2000 - 100 - 150, 100 + 150)); // top right
+                    spawnSpots.Add(new Vector2(100 + 150, 1200 - 100 - 150)); // bottom left
+                    spawnSpots.Add(new Vector2(2000 - 100 - 150, 1200 - 100 - 150)); // bottom right
+                    break;
+            }
+
+        }
+
         private void AddEdges(int width, int height, Direction topDoor = Direction.None, Direction bottomDoor = Direction.None) {
             const int W = 100; // wall width
             const int SIDE_DIST = 400; // distance doors are from the wall
@@ -68,7 +103,7 @@ namespace DeathChain
                 int x = W;
                 walls.Add(new Wall(x, 0, SIDE_DIST, W, false));
                 x += SIDE_DIST;
-                // add door
+                walls.Insert(0, new Wall(x, 0, DOOR_WIDTH, W, false));
                 x += DOOR_WIDTH;
                 walls.Add(new Wall(x, 0, width - W - x, W, false));
             }
@@ -76,13 +111,14 @@ namespace DeathChain
                 int x = width - W - SIDE_DIST;
                 walls.Add(new Wall(x, 0, SIDE_DIST, W, false));
                 x -= DOOR_WIDTH;
-                // add door
+                walls.Insert(0, new Wall(x, 0, DOOR_WIDTH, W, false));
                 walls.Add(new Wall(W, 0, x - W, W, false));
             }
             else { // middle
                 int doorBorder = (width - 2 * W - DOOR_WIDTH) / 2;
                 walls.Add(new Wall(W, 0, doorBorder, W, false)); // top left
                 walls.Add(new Wall(width - W - doorBorder, 0, doorBorder, W, false)); // top right
+                walls.Insert(0, new Wall(width / 2 - DOOR_WIDTH / 2, 0, DOOR_WIDTH, W, false));
             }
 
             if(bottomDoor == Direction.Left) {

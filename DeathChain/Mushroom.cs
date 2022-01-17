@@ -42,7 +42,7 @@ namespace DeathChain
                 if(timer > 0) {
                     timer -= deltaTime;
                 }
-                if(timer <= 0 && DistanceTo(Game1.Player) <= 500) { // range
+                if(timer <= 0 && DistanceTo(Game1.Player) <= 700) { // range
                     // fire
                     timer = 1.5f;
                     Vector2 aim = Game1.Player.Midpoint - Midpoint;
@@ -64,6 +64,14 @@ namespace DeathChain
                         }
                     }
                 }
+            }
+        }
+
+        // temporary
+        public override void Draw(SpriteBatch sb) {
+            base.Draw(sb);
+            if(blocking) {
+                sb.Draw(currentAnimation.CurrentSprite, DrawBox, Color.Pink);
             }
         }
 

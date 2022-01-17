@@ -41,7 +41,6 @@ namespace DeathChain
 
         public static void Setup() {
             // sets up key bindings
-            gamepadBinds[Inputs.Up] = new List<Buttons>() {};
             gamepadBinds[Inputs.Attack] = new List<Buttons>() { Buttons.X };
             gamepadBinds[Inputs.Secondary] = new List<Buttons>() { Buttons.A };
             gamepadBinds[Inputs.Tertiary] = new List<Buttons>() { Buttons.B };
@@ -55,6 +54,10 @@ namespace DeathChain
             keyboardBinds[Inputs.Down] = new List<Keys>() { Keys.Down, Keys.S };
             keyboardBinds[Inputs.Left] = new List<Keys>() { Keys.Left, Keys.A };
             keyboardBinds[Inputs.Right] = new List<Keys>() { Keys.Right, Keys.D };
+            keyboardBinds[Inputs.Attack] = new List<Keys>() { Keys.J };
+            keyboardBinds[Inputs.Secondary] = new List<Keys>() { Keys.K };
+            keyboardBinds[Inputs.Tertiary] = new List<Keys>() { Keys.L };
+            keyboardBinds[Inputs.Possess] = new List<Keys>() { Keys.I };
         }
 
         public static void Update(float deltaTime) {
@@ -186,7 +189,7 @@ namespace DeathChain
                 return new Vector2(angle.X, -angle.Y);
             } else {
                 // mouse aim
-                return Vector2.Zero;
+                return GetMoveDirection();
             }
         }
 

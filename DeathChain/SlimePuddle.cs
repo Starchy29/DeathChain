@@ -21,6 +21,7 @@ namespace DeathChain
         {
             timeLeft = DURATION;
             collision = new Circle(midpoint, 35); // a little less than half the length
+            tint = Color.Purple;
         }
 
         public override void Update(Level level, float deltaTime) {

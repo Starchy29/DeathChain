@@ -64,7 +64,6 @@
     <Compile Include="Slime.cs" />
     <Compile Include="SlimePuddle.cs" />
     <Compile Include="Wall.cs" />
-    <Compile Include="WallClimber.cs" />
     <Compile Include="Zombie.cs" />
   </ItemGroup>
   <ItemGroup>

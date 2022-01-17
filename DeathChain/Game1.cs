@@ -26,6 +26,7 @@ namespace DeathChain
         private GameState state;
         private Level currentLevel;
         private Menu currentMenu;
+        private int difficulty;
         private static Player player;
         public static Player Player { get { return player; } }
 
@@ -83,6 +84,7 @@ namespace DeathChain
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Audio.SnowSong = Content.Load<SoundEffect>("snowfall");
+            Audio.ForestSong = Content.Load<SoundEffect>("Haunting Dread");
 
             Graphics.Font = Content.Load<SpriteFont>("File");
 
@@ -120,6 +122,9 @@ namespace DeathChain
 
             Graphics.Zombie = Content.Load<Texture2D>("zombie");
 
+            Graphics.Slime = Content.Load<Texture2D>("slime");
+            Graphics.SlimeBall = Content.Load<Texture2D>("slimeball");
+
             Graphics.Slash = Content.Load<Texture2D>("slash");
             Graphics.Button = Content.Load<Texture2D>("button");
             Graphics.Dash = Content.Load<Texture2D>("arrow");
@@ -128,9 +133,13 @@ namespace DeathChain
             Graphics.Lunge = Content.Load<Texture2D>("lunge");
             Graphics.Possess = Content.Load<Texture2D>("possess");
             Graphics.Unpossess = Content.Load<Texture2D>("unpossess");
+            Graphics.Soul = Content.Load<Texture2D>("soul");
+            Graphics.Heart = Content.Load<Texture2D>("heart");
+            Graphics.Drop = Content.Load<Texture2D>("drop");
 
             player = new Player();
-            currentLevel = new Level(0);
+            difficulty = 1;
+            currentLevel = new Level(difficulty);
             SoundEffect.MasterVolume = 0.3f;
             //Audio.PlaySong(Songs.Snow);
         }
@@ -200,8 +209,13 @@ namespace DeathChain
         }
 
         public void NextLevel() {
-            currentLevel = new Level(0);
+            difficulty++;
+            currentLevel = new Level(difficulty);
             Camera.Update(currentLevel);
+        }
+
+        public void Lose() {
+            state = GameState.Menu;
         }
 
         // draws an image at the specified location, but rotates at that position
@@ -217,8 +231,9 @@ namespace DeathChain
             mainMenu = new Menu(null, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { 
                     state = GameState.Game; 
-                    currentLevel = new Level(); 
-                    player = new Player();
+                    difficulty = 1;
+                    player = new Player(); // must be before current level is changed
+                    currentLevel = new Level(difficulty); 
                 })
             });
         }

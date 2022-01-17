@@ -9,17 +9,26 @@ using Microsoft.Xna.Framework.Audio;
 namespace DeathChain
 {
     public enum Songs {
-        Snow
+        Snow,
+        Forest
     }
 
     public static class Audio
     {
         public static SoundEffect SnowSong { get; set; }
+        public static SoundEffect ForestSong { get; set; }
 
         public static void PlaySong(Songs song) {
+            SoundEffectInstance instance;
             switch(song) {
                 case Songs.Snow:
-                    SoundEffectInstance instance = SnowSong.CreateInstance();
+                    instance = SnowSong.CreateInstance();
+                    instance.IsLooped = true;
+                    instance.Play();
+                    break;
+
+                case Songs.Forest:
+                    instance = ForestSong.CreateInstance();
                     instance.IsLooped = true;
                     instance.Play();
                     break;

@@ -104,7 +104,7 @@ namespace DeathChain
             }
 
             if(sprite != null) {
-                Game1.RotateDraw(sb, sprite, DrawBox, Color.White, rotation);
+                Game1.RotateDraw(sb, sprite, DrawBox, tint, rotation);
             }
         }
 

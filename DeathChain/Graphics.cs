@@ -26,6 +26,9 @@ namespace DeathChain
 
         public static Texture2D Zombie { get; set; }
 
+        public static Texture2D Slime { get; set; }
+        public static Texture2D SlimeBall { get; set; }
+
         public static Texture2D Slash { get; set; }
         public static Texture2D Button { get; set; }
         public static Texture2D Dash { get; set; }
@@ -34,5 +37,8 @@ namespace DeathChain
         public static Texture2D Lunge { get; set; }
         public static Texture2D Possess { get; set; }
         public static Texture2D Unpossess { get; set; }
+        public static Texture2D Soul { get; set; }
+        public static Texture2D Heart { get; set; }
+        public static Texture2D Drop { get; set; }
     }
 }

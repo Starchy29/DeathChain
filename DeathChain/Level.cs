@@ -23,6 +23,7 @@ namespace DeathChain
         private int endY;
         private Vector2 start;
         private float enterDist;
+        private bool cleared;
 
         private Rectangle bounds; // where the camera is allowed to see
         public Rectangle Bounds { get { return bounds; } }
@@ -39,26 +40,26 @@ namespace DeathChain
             enemies = new List<Enemy>();
             walls = new List<Wall>();
 
-            //walls.Add(new Wall(100, 0, 1400, 100, false));
-            //walls.Add(new Wall(0, 0, 100, 900, false));
+            walls.Add(new Wall(100, 0, 1400, 100, false));
+            walls.Add(new Wall(0, 0, 100, 900, false));
             walls.Add(new Wall(1500, 0, 600, 800, false));
             walls.Add(new Wall(100, 800, 2000, 100, false));
 
-            walls.Add(new Wall(0, -1000, 100, 1900, false));
-            walls.Add(new Wall(0, -1100, 2100, 100, false));
-            walls.Add(new Wall(2100, -1100, 100, 1100, false));
+            //walls.Add(new Wall(0, -1000, 100, 1900, false));
+            //walls.Add(new Wall(0, -1100, 2100, 100, false));
+            //walls.Add(new Wall(2100, -1100, 100, 1100, false));
 
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
 
-            /*enemies.Add(new Zombie(1300, 300));
+            enemies.Add(new Zombie(1300, 300));
             enemies.Add(new Zombie(1300, 500));
             enemies.Add(new Zombie(1300, 700));
 
             //enemies.Add(new Mushroom(300, 450));
             enemies.Add(new Mushroom(1300, 450));
 
-            enemies.Add(new Slime(300, 450));*/
+            enemies.Add(new Slime(300, 450));
 
             DefineCameraSpace();
         }
@@ -94,12 +95,52 @@ namespace DeathChain
             }
 
             // shuffle spawn spots
+            Random rng = new Random();
             List<Vector2> spawnSpots = layout.SpawnSpots;
+            for(int i = 0; i < spawnSpots.Count; i++) {
+                int swapI = rng.Next(0, spawnSpots.Count);
+                Vector2 swapper = spawnSpots[swapI];
+                spawnSpots[swapI] = spawnSpots[i];
+                spawnSpots[i] = swapper;
+            }
             
             // add enemies
-            int enemyMin = 3;
+            int enemyMin = 2;
             if(difficulty < 3) {
-                enemyMin = difficulty;
+                //enemyMin = difficulty;
+            }
+            while(difficulty > 0 && spawnSpots.Count > 0) {
+                // determine max difficulty value of next enemy
+                int maxDiff = 2;
+                if(enemyMin > 0) {
+                    // make sure there are at least a few small enemies
+                    maxDiff = 1;
+                    enemyMin--;
+                }
+                else if(difficulty < 3) {
+                    // don't make an enemy that would exceed the max difficulty value
+                    maxDiff = difficulty;
+                }
+
+                // choose next enemy
+                int enemyDiff = rng.Next(1, maxDiff + 1);
+                difficulty -= enemyDiff;
+
+                List<EnemyTypes> enemyOptions = enemyTypes[enemyDiff - 1];
+                Vector2 position = spawnSpots[0];
+                spawnSpots.RemoveAt(0);
+
+                switch(enemyOptions[rng.Next(0, enemyOptions.Count)]) {
+                    case EnemyTypes.Zombie:
+                        enemies.Add(new Zombie((int)position.X, (int)position.Y));
+                        break;
+                    case EnemyTypes.Mushroom:
+                        enemies.Add(new Mushroom((int)position.X, (int)position.Y));
+                        break;
+                    case EnemyTypes.Slime:
+                        enemies.Add(new Slime((int)position.X, (int)position.Y));
+                        break;
+                }
             }
 
             DefineCameraSpace();
@@ -121,9 +162,18 @@ namespace DeathChain
                 Game1.Game.NextLevel();
             }
 
+            bool enemiesLeft = false;
             foreach(Enemy enemy in enemies) {
                 enemy.Update(this, deltaTime);
+                if(enemy.Alive) {
+                    enemiesLeft = true;
+                }
             }
+            if(!enemiesLeft && !cleared) {
+                cleared = true; // make sure only deletes the wall once
+                walls.RemoveAt(0);
+            }
+
             foreach(Projectile projectile in projectiles) {
                 projectile.Update(this, deltaTime);
             }

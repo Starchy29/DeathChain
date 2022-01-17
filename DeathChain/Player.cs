@@ -55,12 +55,12 @@ namespace DeathChain
 
         public bool Possessing { get { return possessType != EnemyTypes.None; } } // whether or not the player is possessing an enemy
 
-        public Player() : base(new Vector2(775, 425), 50, 50) {
+        public Player() : base(Vector2.Zero, 50, 50) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
             hitEnemies = new List<Enemy>();
-            health = 3;
-            ghostHealth = 3;
+            health = 5;
+            ghostHealth = 5;
             drawBox = playerDrawBox;
 
             sprite = null;
@@ -86,7 +86,7 @@ namespace DeathChain
             abilityIcons[Block] = Graphics.Shield;
             abilityIcons[FireSpore] = Graphics.SporeLogo;
             abilityIcons[FireSlimes] = Graphics.SporeLogo;
-            abilityIcons[DropPuddle] = Graphics.Mushroom[0];
+            abilityIcons[DropPuddle] = Graphics.Drop;
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -295,6 +295,9 @@ namespace DeathChain
             if(possessType == EnemyTypes.Zombie) {
                 currentAnimation = new Animation(new Texture2D[]{Graphics.Zombie}, AnimationType.Hold, 1f);
             }
+            else if(possessType == EnemyTypes.Slime) {
+                currentAnimation = new Animation(new Texture2D[] { Graphics.Slime }, AnimationType.Hold, 1f);
+            }
             else if(possessType == EnemyTypes.Mushroom) {
                 if(state == PlayerState.Block) {
                     tint = Color.Pink;
@@ -310,8 +313,17 @@ namespace DeathChain
         }
 
         public void DrawUI(SpriteBatch sb) {
-            for(int i = 0; i < health; i++) {
-                sb.Draw(Graphics.Pixel, new Rectangle(30 + i * 60, 30, 50, 50), possessType == EnemyTypes.None ? Color.Blue : Color.Red);
+            // draw health
+            int x = 0;
+            for(int i = 0; i < ghostHealth; i++) {
+                Rectangle drawZone = new Rectangle(30 + i * 60, 30, 50, 50);
+                drawZone.Inflate(5, 5);
+                sb.Draw(Graphics.Soul, drawZone, Color.White);
+            }
+            if(possessType != EnemyTypes.None) {
+                for(int i = 0; i < health; i++) {
+                    sb.Draw(Graphics.Heart, new Rectangle(30 + 60 * ghostHealth + i * 60, 30, 50, 50), Color.White);
+                }
             }
 
             // draw ability buttons
@@ -369,6 +381,7 @@ namespace DeathChain
                     // die
                     if(possessType == EnemyTypes.None) {
                         // lose
+                        Game1.Game.Lose();
                     } else {
                         Unpossess();
                     }
@@ -403,13 +416,13 @@ namespace DeathChain
             float maxSpeed = MAX_SPEED; // default player speed
             switch(possessType) {
                 case EnemyTypes.Zombie:
-                    maxSpeed = Zombie.MAX_SPEED;
+                    maxSpeed = Zombie.MAX_SPEED + 50;
                     break;
                 case EnemyTypes.Mushroom:
                     maxSpeed = 0;
                     break;
                 case EnemyTypes.Slime:
-                    maxSpeed = Slime.MAX_SPEED;
+                    maxSpeed = Slime.MAX_SPEED + 50;
                     break;
             }
             return maxSpeed;
