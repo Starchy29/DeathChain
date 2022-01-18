@@ -17,6 +17,8 @@ namespace DeathChain
         protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
         protected float timer;
         private float enemyTimer; // alive: red flash when hit, dead: despawn timer
+        protected Vector2 direction; // the direction this moves towards, determined by sub classes
+        protected int maxSpeed;
 
         private EnemyTypes type;
 
@@ -25,10 +27,11 @@ namespace DeathChain
         public int MaxHealth { get { return maxHealth; } }
         public Rectangle DrawRect { get { return drawBox; } }
 
-        public Enemy(EnemyTypes type, Vector2 midpoint, int width, int height, int health) : base(midpoint, width, height, Graphics.Pixel) {
+        public Enemy(EnemyTypes type, Vector2 midpoint, int width, int height, int health, int maxSpeed) : base(midpoint, width, height, Graphics.Pixel) {
             alive = true;
             this.health = health;
             this.type = type;
+            this.maxSpeed = maxSpeed;
             maxHealth = health;
         }
 
@@ -39,6 +42,17 @@ namespace DeathChain
 
             if(alive) {
                 AliveUpdate(level, deltaTime);
+
+                // move in target direction, cap max speed
+                if(direction != Vector2.Zero) {
+                    direction.Normalize();
+                }
+                velocity += direction * ACCEL * deltaTime;
+                if(velocity.Length() > maxSpeed) {
+                    velocity.Normalize();
+                    velocity *= maxSpeed;
+                }
+                position += velocity * deltaTime;
 
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
                     Game1.Player.TakeDamage(1);

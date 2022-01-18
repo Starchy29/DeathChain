@@ -21,7 +21,7 @@ namespace DeathChain
         private Random rng;
         private Rectangle slashBox;
 
-        public Zombie(int x, int y) : base(EnemyTypes.Zombie, new Vector2(x, y), 50, 50, 3) {
+        public Zombie(int x, int y) : base(EnemyTypes.Zombie, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
             sprite = Graphics.Zombie;
             lunging = false;
             rng = new Random(x * y);
@@ -37,9 +37,12 @@ namespace DeathChain
                         if(rng.NextDouble() <= 0.4) {
                             // lunge
                             timer = LUNGE_DURATION;
-                            Vector2 direction = Game1.Player.Midpoint - Midpoint;
-                            direction.Normalize();
+                            direction = Game1.Player.Midpoint - Midpoint;
+                            if(direction != Vector2.Zero) {
+                                direction.Normalize();
+                            }
                             velocity = direction * LUNGE_SPEED;
+                            maxSpeed = LUNGE_SPEED;
                         } else {
                             // slash
                             lunging = false;
@@ -50,22 +53,18 @@ namespace DeathChain
                 }
                 else {
                     // lunging
-                    //position += velocity * deltaTime;
-                    
                     timer -= deltaTime;
                     if(timer <= 0) {
                         // end lunge
                         timer = ATTACK_COOLDOWN; // don't lunge again for at least this time
                         lunging = false;
                         velocity = Vector2.Zero;
+                        maxSpeed = MAX_SPEED;
                     }
                 }
             } else {
                 // move towards player
-                Vector2 direction = Game1.Player.Midpoint - Midpoint;
-                if(direction.Length() > 0) {
-                    direction.Normalize();
-                }
+                direction = Game1.Player.Midpoint - Midpoint;
 
                 // move around walls
                 Rectangle future = Hitbox;
@@ -84,22 +83,8 @@ namespace DeathChain
                         break;
                     }
                 }
-                
-                if(Vector2.Dot(direction, velocity) >= 0) { // don't approach player when knocked back
-                    // move
-                    velocity += direction * deltaTime * ACCEL;
-
-                    // cap speed
-                    if(velocity.Length() > MAX_SPEED) {
-                        velocity.Normalize();
-                        velocity *= MAX_SPEED;
-                    }
-                }
 
                 Separate(level, deltaTime); // move away from other enemies
-                ApplyFriction(deltaTime);
-
-                //position += velocity * deltaTime;
 
                 // chance to lunge when close enough
                 if(timer > 0) {
@@ -113,6 +98,7 @@ namespace DeathChain
                             // begin attack
                             timer = -0.4f; // pause time at start of attack
                             velocity = Vector2.Zero;
+                            direction = Vector2.Zero;
                             lunging = true;
                         }
                     }
@@ -138,8 +124,6 @@ namespace DeathChain
                     Game1.Player.TakeDamage(1);
                 }
             }
-
-            position += velocity * deltaTime;
 
             CheckWallCollision(level, true);
         }

@@ -16,9 +16,8 @@ namespace DeathChain
         private float wanderTime;
         private float puddleTime;
         private Random rng;
-        private Vector2 direction;
 
-        public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3) {
+        public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
             rng = new Random();
             timer = 3f;
             puddleTime = 0f;
@@ -33,19 +32,9 @@ namespace DeathChain
                 ChangeDirection();
             }
 
-            ApplyFriction(deltaTime);
-
-            if(timer > 0.5f) { // freeze when about to shoot
-                velocity += direction * ACCEL * deltaTime;
+            if(timer < 0.5f) { // freeze when about to shoot
+                direction = Vector2.Zero;
             }
-
-            // cap speed
-            if(velocity.Length() > MAX_SPEED) {
-                velocity.Normalize();
-                velocity *= MAX_SPEED;
-            }
-
-            position += velocity * deltaTime;
 
             List<Direction> collisions = CheckWallCollision(level, true);
             if(collisions.Count > 0) {
@@ -60,6 +49,7 @@ namespace DeathChain
                 level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(-1, 0), false));
                 level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, 1), false));
                 level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, -1), false));
+                ChangeDirection(); // start moving again
             }
 
             puddleTime -= deltaTime;
@@ -72,7 +62,6 @@ namespace DeathChain
         private void ChangeDirection() {
             wanderTime = 1f; // how often this changes direction
             direction = new Vector2((float)rng.NextDouble() - 0.5f, (float)rng.NextDouble() - 0.5f);
-            direction.Normalize();
         }
     }
 }

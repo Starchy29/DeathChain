@@ -16,7 +16,7 @@ namespace DeathChain
         private bool blocking;
         private float blockTimer;
 
-        public Mushroom(int x, int y) : base(EnemyTypes.Mushroom, new Vector2(x, y), 50, 50, 2) {
+        public Mushroom(int x, int y) : base(EnemyTypes.Mushroom, new Vector2(x, y), 50, 50, 2, 0) {
             timer = 2;
             blocking = false;
             blockTimer = 0f;

@@ -50,14 +50,14 @@ namespace DeathChain
             walls.Add(new Wall(1000, 400, 150, 150, false));
             walls.Add(new Wall(400, 400, 150, 150, true));
 
-            enemies.Add(new Zombie(1300, 300));
-            enemies.Add(new Zombie(1300, 500));
+            //enemies.Add(new Zombie(1300, 300));
+            //enemies.Add(new Zombie(1300, 500));
             enemies.Add(new Zombie(1300, 700));
 
             //enemies.Add(new Mushroom(300, 450));
-            enemies.Add(new Mushroom(1300, 450));
+            //enemies.Add(new Mushroom(1300, 450));
 
-            enemies.Add(new Slime(300, 450));
+            //enemies.Add(new Slime(300, 450));
 
             DefineCameraSpace();
         }
