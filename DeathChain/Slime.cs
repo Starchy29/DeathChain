@@ -54,7 +54,7 @@ namespace DeathChain
 
             puddleTime -= deltaTime;
             if(puddleTime <= 0) {
-                puddleTime = SlimePuddle.DURATION / 2f; // cooldown
+                puddleTime = SlimePuddle.DURATION; // cooldown
                 level.Projectiles.Add(new SlimePuddle(Midpoint, false));
             }
         }

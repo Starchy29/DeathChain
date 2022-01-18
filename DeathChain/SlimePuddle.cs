@@ -17,7 +17,7 @@ namespace DeathChain
         private Circle collision;
 
         public SlimePuddle(Vector2 midpoint, bool fromPlayer) 
-            : base(midpoint, Vector2.Zero, 1, 80, fromPlayer, Graphics.Button) 
+            : base(midpoint, Vector2.Zero, 1, 120, fromPlayer, Graphics.Button) 
         {
             timeLeft = DURATION;
             collision = new Circle(midpoint, 35); // a little less than half the length

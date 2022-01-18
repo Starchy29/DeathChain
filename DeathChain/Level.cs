@@ -47,17 +47,18 @@ namespace DeathChain
             walls.Add(new Wall(1500, 0, 600, 800, false));
             walls.Add(new Wall(100, 800, 2000, 100, false));
 
-            walls.Add(new Wall(1000, 400, 150, 150, false));
-            walls.Add(new Wall(400, 400, 150, 150, true));
+            walls.Add(new Wall(1000, 400, 250, 100, false));
+            walls.Add(new Wall(400, 400, 100, 250, true));
 
             //enemies.Add(new Zombie(1300, 300));
             //enemies.Add(new Zombie(1300, 500));
-            enemies.Add(new Zombie(1300, 700));
+            //enemies.Add(new Zombie(1300, 700));
 
             //enemies.Add(new Mushroom(300, 450));
             //enemies.Add(new Mushroom(1300, 450));
 
             //enemies.Add(new Slime(300, 450));
+            enemies.Add(new Blight(300, 450));
 
             DefineCameraSpace();
         }
@@ -77,6 +78,7 @@ namespace DeathChain
 
             enemyTypes[0].Add(EnemyTypes.Zombie);
             enemyTypes[0].Add(EnemyTypes.Mushroom);
+            enemyTypes[0].Add(EnemyTypes.Blight);
             enemyTypes[1].Add(EnemyTypes.Slime);
 
             // choose a level shape
@@ -137,6 +139,9 @@ namespace DeathChain
                         break;
                     case EnemyTypes.Slime:
                         enemies.Add(new Slime((int)position.X, (int)position.Y));
+                        break;
+                    case EnemyTypes.Blight:
+                        enemies.Add(new Blight((int)position.X, (int)position.Y));
                         break;
                 }
             }

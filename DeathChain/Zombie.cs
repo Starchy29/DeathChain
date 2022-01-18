@@ -66,24 +66,7 @@ namespace DeathChain
                 // move towards player
                 direction = Game1.Player.Midpoint - Midpoint;
 
-                // move around walls
-                Rectangle future = Hitbox;
-                future.Offset(direction * 40);
-                foreach(Wall wall in level.Walls) {
-                    if(wall.Hitbox.Intersects(future)) { // about to move into wall
-                        Vector2 newDirection = wall.Midpoint - Midpoint; // direction from this to wall center
-                        newDirection.X /= wall.Width; // factor in wall dimensions
-                        newDirection.Y /= wall.Height;
-                        newDirection.Normalize();
-                        newDirection = new Vector2(newDirection.Y, -newDirection.X); // now perpendicular to wall center
-                        if(Vector2.Dot(direction, newDirection) < 0) {
-                            newDirection *= -1; // use other perpendicular direction because it is closer
-                        }
-                        direction = newDirection;
-                        break;
-                    }
-                }
-
+                PassWalls(level);
                 Separate(level, deltaTime); // move away from other enemies
 
                 // chance to lunge when close enough

@@ -12,7 +12,8 @@ namespace DeathChain
         None,
         Zombie,
         Mushroom,
-        Slime
+        Slime,
+        Blight
     }
 
     public enum PlayerState {
@@ -20,7 +21,8 @@ namespace DeathChain
         Dash,
         Slash,
         Lunge,
-        Block
+        Block,
+        Explode
     }
 
     public delegate void Ability(Level level);
@@ -29,6 +31,7 @@ namespace DeathChain
     {
         public const int SELECT_DIST = 50; // distance from a dead enemy that the player can possess them
         public const int MAX_SPEED = 400;
+        private const float DECAY_RATE = 5f;
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
         private readonly Animation side = new Animation(Graphics.PlayerSide, AnimationType.Loop, 0.1f);
@@ -50,6 +53,7 @@ namespace DeathChain
         private SpriteEffects flips;
         private Direction wasFacing = Direction.Down;
         private Direction facing = Direction.Down; // help choose which animation to use
+        private float decayTimer; // tracks how long until the possessed body loses a health
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
@@ -77,6 +81,7 @@ namespace DeathChain
             abilities[EnemyTypes.Zombie] = new Ability[3] { Slash, Lunge, null };
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
+            abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
@@ -87,6 +92,7 @@ namespace DeathChain
             abilityIcons[FireSpore] = Graphics.SporeLogo;
             abilityIcons[FireSlimes] = Graphics.SporeLogo;
             abilityIcons[DropPuddle] = Graphics.Drop;
+            abilityIcons[Explode] = Graphics.Drop;
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -135,6 +141,24 @@ namespace DeathChain
                     Move(deltaTime, GetMaxSpeed());
                     break;
 
+                case PlayerState.Explode:
+                    Move(deltaTime, Blight.MAX_SPEED);
+
+                    timer -= deltaTime;
+                    if(timer <= 0) {
+                        state = PlayerState.Normal;
+                    }
+
+                    Circle explosion = new Circle(Midpoint, Blight.EXPLOSION_RADIUS);
+                    foreach(Enemy enemy in level.Enemies) {
+                        if(enemy.HitCircle.Intersects(explosion) && !hitEnemies.Contains(enemy)) {
+                            enemy.TakeDamage();
+                            enemy.Push(aim * 1000);
+                            hitEnemies.Add(enemy);
+                        }
+                    }
+                    break;
+
                 case PlayerState.Dash:
                     if(timer >= 0) {
                         // dashing
@@ -174,7 +198,6 @@ namespace DeathChain
                         timer = 0;
                         state = PlayerState.Normal;
                         cooldowns[0] = 0.4;
-                        hitEnemies.Clear();
                     }
                     break;
 
@@ -252,6 +275,9 @@ namespace DeathChain
                         for(int i = 0; i < 3; i++) {
                             cooldowns[i] = 0;
                         }
+
+                        invulnTime = 0.5f;
+                        decayTimer = DECAY_RATE;
                     }
                 }
                 else if(possessType != EnemyTypes.None) {
@@ -270,6 +296,17 @@ namespace DeathChain
             }
             if(invulnTime > 0) {
                 invulnTime -= deltaTime;
+            }
+            if(Possessing) {
+                // lose health over time when possessing
+                decayTimer -= deltaTime;
+                if(decayTimer <= 0) {
+                    health--;
+                    decayTimer = DECAY_RATE;
+                    if(health <= 0) {
+                        Unpossess();
+                    }
+                }
             }
         }
 
@@ -310,6 +347,10 @@ namespace DeathChain
                 tint *= 0.5f;
             }
             sb.Draw(currentAnimation.CurrentSprite, DrawBox, null, tint, 0f, Vector2.Zero, flips, 1f);
+
+            if(state == PlayerState.Explode) {
+                sb.Draw(Graphics.Button, new Rectangle((int)(Midpoint.X - Blight.EXPLOSION_RADIUS + Camera.Shift.X), (int)(Midpoint.Y - Blight.EXPLOSION_RADIUS + Camera.Shift.Y), Blight.EXPLOSION_RADIUS * 2, Blight.EXPLOSION_RADIUS * 2), Color.Orange);
+            }
         }
 
         public void DrawUI(SpriteBatch sb) {
@@ -365,29 +406,30 @@ namespace DeathChain
             health = ghostHealth;
             possessType = EnemyTypes.None;
             state = PlayerState.Normal;
-            invulnTime = 0.5f;
             drawBox = playerDrawBox;
             currentAnimation = forward;
         }
 
-        public void TakeDamage(int damage) {
+        public void TakeDamage(int damage = 1) {
             if(invulnTime <= 0 && state != PlayerState.Block) {
                 health -= damage;
-                if(possessType == EnemyTypes.None) {
+
+                if(Possessing) {
+                    invulnTime = 0.5f;
+                } else {
                     ghostHealth -= damage;
+                    invulnTime = 2f;
                 }
 
                 if(health <= 0) {
                     // die
-                    if(possessType == EnemyTypes.None) {
+                    if(Possessing) {
+                        Unpossess();
+                    } else {
                         // lose
                         Game1.Game.Lose();
-                    } else {
-                        Unpossess();
                     }
                 }
-
-                invulnTime = 1f; // overrides Unpossess immunity time
             }
         }
 
@@ -424,20 +466,24 @@ namespace DeathChain
                 case EnemyTypes.Slime:
                     maxSpeed = Slime.MAX_SPEED + 50;
                     break;
+                case EnemyTypes.Blight:
+                    maxSpeed = Blight.MAX_SPEED;
+                    break;
             }
             return maxSpeed;
         }
 
         private void Dash(Level level) {
             state = PlayerState.Dash;
-            timer = 0.08f;
-            velocity = Input.GetAim() * 2000;
+            timer = Zombie.LUNGE_DURATION;
+            velocity = Input.GetAim() * Zombie.LUNGE_SPEED;
         }
 
         private void Slash(Level level) {
             state = PlayerState.Slash;
             timer = 0.2f;
             aim = Input.GetAim();
+            hitEnemies.Clear();
 
             GenerateAttack(50, 50);
         }
@@ -473,6 +519,13 @@ namespace DeathChain
         private void DropPuddle(Level level) {
             cooldowns[1] = 4f;
             level.Projectiles.Add(new SlimePuddle(Midpoint, true));
+        }
+
+        private void Explode(Level level) {
+            cooldowns[0] = 2f;
+            state = PlayerState.Explode;
+            timer = Blight.EXPLOSION_DURATION;
+            hitEnemies.Clear();
         }
 
         // generates an attack area relative to the player. Uses the aim variable

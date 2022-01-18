@@ -41,17 +41,21 @@ namespace DeathChain
             }
 
             if(alive) {
-                AliveUpdate(level, deltaTime);
+                AliveUpdate(level, deltaTime); // changes direction variable
 
-                // move in target direction, cap max speed
+                // move in target direction
                 if(direction != Vector2.Zero) {
                     direction.Normalize();
                 }
                 velocity += direction * ACCEL * deltaTime;
-                if(velocity.Length() > maxSpeed) {
+                ApplyFriction(deltaTime);
+
+                // cap max speed unless moving backwards
+                if(Vector2.Dot(direction, velocity) >= 0 && velocity.Length() > maxSpeed) {
                     velocity.Normalize();
                     velocity *= maxSpeed;
                 }
+
                 position += velocity * deltaTime;
 
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
@@ -81,7 +85,7 @@ namespace DeathChain
 
         protected abstract void AliveUpdate(Level level, float deltaTime);
 
-        public virtual void TakeDamage(int damage) {
+        public virtual void TakeDamage(int damage = 1) {
             health -= damage;
             enemyTimer = 0.1f; // red flash duration
             if(health <= 0) {
@@ -97,6 +101,30 @@ namespace DeathChain
                 if(enemy != this && enemy.alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
                     Vector2 moveAway = Midpoint - enemy.Midpoint;
                     velocity += moveAway * 10 * deltaTime;
+                }
+            }
+        }
+
+        // moves around walls
+        protected void PassWalls(Level level) {
+            if(direction != Vector2.Zero) {
+                direction.Normalize();
+            }
+
+            Rectangle future = Hitbox;
+            future.Offset(direction * width);
+            foreach(Wall wall in level.Walls) {
+                if(wall.Hitbox.Intersects(future)) { // about to move into wall
+                    Vector2 newDirection = wall.Midpoint - Midpoint; // direction from this to wall center
+                    newDirection.X /= wall.Width; // factor in wall dimensions
+                    newDirection.Y /= wall.Height;
+                    newDirection.Normalize();
+                    newDirection = new Vector2(newDirection.Y, -newDirection.X); // now perpendicular to wall center
+                    if(Vector2.Dot(direction, newDirection) < 0) {
+                        newDirection *= -1; // use other perpendicular direction because it is closer
+                    }
+                    direction = newDirection;
+                    break;
                 }
             }
         }
