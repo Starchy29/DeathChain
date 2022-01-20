@@ -22,7 +22,6 @@ namespace DeathChain
         Slash,
         Lunge,
         Block,
-        Explode
     }
 
     public delegate void Ability(Level level);
@@ -141,24 +140,6 @@ namespace DeathChain
                     Move(deltaTime, GetMaxSpeed());
                     break;
 
-                case PlayerState.Explode:
-                    Move(deltaTime, Blight.MAX_SPEED);
-
-                    timer -= deltaTime;
-                    if(timer <= 0) {
-                        state = PlayerState.Normal;
-                    }
-
-                    Circle explosion = new Circle(Midpoint, Blight.EXPLOSION_RADIUS);
-                    foreach(Enemy enemy in level.Enemies) {
-                        if(enemy.HitCircle.Intersects(explosion) && !hitEnemies.Contains(enemy)) {
-                            enemy.TakeDamage();
-                            enemy.Push(aim * 1000);
-                            hitEnemies.Add(enemy);
-                        }
-                    }
-                    break;
-
                 case PlayerState.Dash:
                     if(timer >= 0) {
                         // dashing
@@ -242,45 +223,43 @@ namespace DeathChain
 
             // possess enemies
             if(Input.JustPressed(Inputs.Possess)) {
-                if(possessType == EnemyTypes.None && state == PlayerState.Normal) {
-                    // find an enemy in possessing range
-                    List<Enemy> inRange = new List<Enemy>();
-                    foreach(Enemy enemy in level.Enemies) { // find enemies in range
-                        if(!enemy.Alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= SELECT_DIST) {
-                            inRange.Add(enemy);
-                        }
-                    }
-
-                    if(inRange.Count > 0) {
-                        // find closest enemy that can be selected
-                        Enemy possessTarget = inRange[0];
-                        for(int i = 1; i < inRange.Count; i++) {
-                            if(Vector2.Distance(Midpoint, inRange[i].Midpoint) < Vector2.Distance(Midpoint, possessTarget.Midpoint)) {
-                                possessTarget = inRange[i];
-                            }
-                        }
-
-                        // actually possess now
-                        health = possessTarget.MaxHealth;
-                        possessTarget.IsActive = false;
-                        possessType = possessTarget.Type;
-                        position = possessTarget.Position;
-                        velocity = Vector2.Zero;
-                        width = possessTarget.Width;
-                        height = possessTarget.Height;
-                        drawBox = possessTarget.DrawRect;
-                        if(possessType == EnemyTypes.Mushroom) {
-                            currentAnimation = Mushroom.Shoot;
-                        }
-                        for(int i = 0; i < 3; i++) {
-                            cooldowns[i] = 0;
-                        }
-
-                        invulnTime = 0.5f;
-                        decayTimer = DECAY_RATE;
+                // find an enemy in possessing range
+                List<Enemy> inRange = new List<Enemy>();
+                foreach(Enemy enemy in level.Enemies) { // find enemies in range
+                    if(!enemy.Alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= SELECT_DIST) {
+                        inRange.Add(enemy);
                     }
                 }
-                else if(possessType != EnemyTypes.None) {
+
+                if(inRange.Count > 0) {
+                    // find closest enemy that can be selected
+                    Enemy possessTarget = inRange[0];
+                    for(int i = 1; i < inRange.Count; i++) {
+                        if(Vector2.Distance(Midpoint, inRange[i].Midpoint) < Vector2.Distance(Midpoint, possessTarget.Midpoint)) {
+                            possessTarget = inRange[i];
+                        }
+                    }
+
+                    // actually possess now
+                    health = possessTarget.MaxHealth;
+                    possessTarget.IsActive = false;
+                    possessType = possessTarget.Type;
+                    position = possessTarget.Position;
+                    velocity = Vector2.Zero;
+                    width = possessTarget.Width;
+                    height = possessTarget.Height;
+                    drawBox = possessTarget.DrawRect;
+                    if(possessType == EnemyTypes.Mushroom) {
+                        currentAnimation = Mushroom.Shoot;
+                    }
+                    for(int i = 0; i < 3; i++) {
+                        cooldowns[i] = 0;
+                    }
+
+                    invulnTime = 0.5f;
+                    decayTimer = DECAY_RATE;
+                }
+                else if(Possessing) {
                     Unpossess();
                 }
             }
@@ -347,10 +326,6 @@ namespace DeathChain
                 tint *= 0.5f;
             }
             sb.Draw(currentAnimation.CurrentSprite, DrawBox, null, tint, 0f, Vector2.Zero, flips, 1f);
-
-            if(state == PlayerState.Explode) {
-                sb.Draw(Graphics.Button, new Rectangle((int)(Midpoint.X - Blight.EXPLOSION_RADIUS + Camera.Shift.X), (int)(Midpoint.Y - Blight.EXPLOSION_RADIUS + Camera.Shift.Y), Blight.EXPLOSION_RADIUS * 2, Blight.EXPLOSION_RADIUS * 2), Color.Orange);
-            }
         }
 
         public void DrawUI(SpriteBatch sb) {
@@ -395,11 +370,7 @@ namespace DeathChain
             }
 
             top.Inflate(reducer, reducer);
-            if(possessType == EnemyTypes.None) {
-                sb.Draw(Graphics.Possess, top, Color.White);
-            } else {
-                sb.Draw(Graphics.Unpossess, top, Color.White);
-            }
+            sb.Draw(Graphics.Possess, top, Color.White);
         }
 
         private void Unpossess() {
@@ -502,7 +473,7 @@ namespace DeathChain
         }
 
         private void FireSpore(Level level) {
-            level.Projectiles.Add(new BounceSpore(Midpoint, Input.GetAim(), true));
+            level.Abilities.Add(new BounceSpore(Midpoint, Input.GetAim(), true));
             cooldowns[0] = 0.75f;
             currentAnimation.Restart();
             level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
@@ -510,22 +481,20 @@ namespace DeathChain
 
         private void FireSlimes(Level level) {
             cooldowns[0] = 1f;
-            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(1, 0), true));
-            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(-1, 0), true));
-            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, 1), true));
-            level.Projectiles.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, -1), true));
+            level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(1, 0), true));
+            level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(-1, 0), true));
+            level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, 1), true));
+            level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, -1), true));
         }
 
         private void DropPuddle(Level level) {
             cooldowns[1] = 4f;
-            level.Projectiles.Add(new SlimePuddle(Midpoint, true));
+            level.Abilities.Add(new Zone(Slime.SlimePuddle, Midpoint, true));
         }
 
         private void Explode(Level level) {
             cooldowns[0] = 2f;
-            state = PlayerState.Explode;
-            timer = Blight.EXPLOSION_DURATION;
-            hitEnemies.Clear();
+            level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, new Texture2D[] { Graphics.Button }));
         }
 
         // generates an attack area relative to the player. Uses the aim variable

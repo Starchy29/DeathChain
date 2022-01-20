@@ -10,8 +10,10 @@ namespace DeathChain
 {
     class Slime : Enemy
     {
+        public const float PUDDLE_DURATION = 8f;
         public const int MAX_SPEED = 180;
         public static readonly Projectile SLIMEBALL = new Projectile(500, 500, 30, Graphics.SlimeBall);
+        public static readonly Zone SlimePuddle = new Zone(Vector2.Zero, false, 60, PUDDLE_DURATION, 0.5f, new Texture2D[] {Graphics.Button}, true, null);
 
         private float wanderTime;
         private float puddleTime;
@@ -45,17 +47,17 @@ namespace DeathChain
             timer -= deltaTime;
             if(timer <= 0) {
                 timer = 3f; // cooldown
-                level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(1, 0), false));
-                level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(-1, 0), false));
-                level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, 1), false));
-                level.Projectiles.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, -1), false));
+                level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(1, 0), false));
+                level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(-1, 0), false));
+                level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, 1), false));
+                level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, -1), false));
                 ChangeDirection(); // start moving again
             }
 
             puddleTime -= deltaTime;
             if(puddleTime <= 0) {
-                puddleTime = SlimePuddle.DURATION; // cooldown
-                level.Projectiles.Add(new SlimePuddle(Midpoint, false));
+                puddleTime = PUDDLE_DURATION; // cooldown
+                level.Abilities.Add(new Zone(SlimePuddle, Midpoint, false));
             }
         }
 

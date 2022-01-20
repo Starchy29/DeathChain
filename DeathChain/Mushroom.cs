@@ -45,7 +45,7 @@ namespace DeathChain
                     timer = 2f; // shoot cooldown
                     Vector2 aim = Game1.Player.Midpoint - Midpoint;
                     aim.Normalize();
-                    level.Projectiles.Add(new BounceSpore(Midpoint, aim, false));
+                    level.Abilities.Add(new BounceSpore(Midpoint, aim, false));
 
                     currentAnimation.Restart();
                     level.Particles.Add(new Particle(SporeCloud, Midpoint - new Vector2(0, 25)));
@@ -55,8 +55,8 @@ namespace DeathChain
                 if(blockTimer < 0) {
                     blockTimer += deltaTime;
                 } else {
-                    foreach(Projectile projectile in level.Projectiles) {
-                        if(projectile.FromPlayer && DistanceTo(projectile) <= 150f) {
+                    foreach(Entity projectile in level.Abilities) {
+                        if(projectile is Projectile && ((Projectile)projectile).FromPlayer && DistanceTo(projectile) <= 150f) {
                             blocking = true;
                             blockTimer = 2f; // block duration
                         }

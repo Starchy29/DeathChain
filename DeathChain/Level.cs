@@ -17,7 +17,7 @@ namespace DeathChain
         private static Random rng = new Random(); 
 
         private List<Particle> particles;
-        private List<Projectile> projectiles;
+        private List<Entity> abilities;
         private List<Enemy> enemies;
         private List<Wall> walls;
         private int endY;
@@ -29,14 +29,14 @@ namespace DeathChain
         public Rectangle Bounds { get { return bounds; } }
 
         public List<Particle> Particles { get { return particles; } }
-        public List<Projectile> Projectiles { get { return projectiles; } }
+        public List<Entity> Abilities { get { return abilities; } }
         public List<Enemy> Enemies { get { return enemies; } }
         public List<Wall> Walls { get { return walls; } }
 
         public Level() {
             // create a sample level
             particles = new List<Particle>();
-            projectiles = new List<Projectile>();
+            abilities = new List<Entity>();
             enemies = new List<Enemy>();
             walls = new List<Wall>();
 
@@ -66,7 +66,7 @@ namespace DeathChain
         // create a random level with a certain difficulty
         public Level(int difficulty) {
             particles = new List<Particle>();
-            projectiles = new List<Projectile>();
+            abilities = new List<Entity>();
             enemies = new List<Enemy>();
             walls = new List<Wall>();
 
@@ -177,8 +177,8 @@ namespace DeathChain
                 walls.RemoveAt(0);
             }
 
-            foreach(Projectile projectile in projectiles) {
-                projectile.Update(this, deltaTime);
+            foreach(Entity ability in abilities) {
+                ability.Update(this, deltaTime);
             }
             foreach(Particle particle in particles) {
                 particle.Update(deltaTime);
@@ -192,9 +192,9 @@ namespace DeathChain
                 }
             }
 
-            for(int i = 0; i < projectiles.Count; i++) {
-                if(!projectiles[i].IsActive) {
-                    projectiles.RemoveAt(i);
+            for(int i = 0; i < abilities.Count; i++) {
+                if(!abilities[i].IsActive) {
+                    abilities.RemoveAt(i);
                     i--;
                 }
             }
@@ -216,8 +216,8 @@ namespace DeathChain
                 wall.Draw(sb);
             }
 
-            foreach(Projectile projectile in projectiles) { // projectiles under enemies looks better
-                projectile.Draw(sb);
+            foreach(Entity ability in abilities) { // projectiles under enemies looks better
+                ability.Draw(sb);
             }
 
             foreach(Enemy enemy in enemies) { // enemies before walls so if clipping happens, it's hidden

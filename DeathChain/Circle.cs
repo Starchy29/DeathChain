@@ -14,6 +14,9 @@ namespace DeathChain
         private Vector2 middle;
         private float radius;
 
+        public Vector2 Middle { get { return middle; } }
+        public float Radius { get { return radius; } }
+
         public Circle(Vector2 middle, float radius) {
             this.middle = middle;
             this.radius = radius;
