@@ -88,14 +88,14 @@ namespace DeathChain
             if(fromPlayer) {
                 foreach(Enemy enemy in level.Enemies) {
                     if(enemy.Alive && Collides(enemy)) {
-                        enemy.TakeDamage(1);
+                        enemy.TakeDamage(level);
                         enemy.Push(knockback);
                         IsActive = false;
                     }
                 }
             } else {
                 if(Collides(Game1.Player)) {
-                    Game1.Player.TakeDamage(1);
+                    Game1.Player.TakeDamage(level);
                     Game1.Player.Push(knockback);
                     IsActive = false;
                 }

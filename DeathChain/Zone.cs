@@ -54,13 +54,13 @@ namespace DeathChain
                 if(fromPlayer) {
                     foreach(Enemy enemy in level.Enemies) {
                         if(enemy.Alive && enemy.HitCircle.Intersects(hitZone)) {
-                            OnHit(enemy);
+                            OnHit(level, enemy);
                             break;
                         }
                     }
                 }
                 else if(Game1.Player.HitCircle.Intersects(hitZone)) {
-                    OnHit();
+                    OnHit(level);
                 }
             }
 
@@ -72,12 +72,12 @@ namespace DeathChain
             }
         }
 
-        protected virtual void OnHit(Enemy enemy = null) {
+        protected virtual void OnHit(Level level, Enemy enemy = null) {
             // default: deal damage
             if(fromPlayer) {
-                enemy.TakeDamage();
+                enemy.TakeDamage(level);
             } else {
-                Game1.Player.TakeDamage();
+                Game1.Player.TakeDamage(level);
             }
             this.IsActive = false;
         }

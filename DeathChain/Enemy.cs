@@ -59,7 +59,7 @@ namespace DeathChain
                 position += velocity * deltaTime;
 
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
-                    Game1.Player.TakeDamage(1);
+                    Game1.Player.TakeDamage(level, 1);
                 }
             } 
             else if(enemyTimer <= 0) {
@@ -85,7 +85,7 @@ namespace DeathChain
 
         protected abstract void AliveUpdate(Level level, float deltaTime);
 
-        public virtual void TakeDamage(int damage = 1) {
+        public virtual void TakeDamage(Level level, int damage = 1) {
             health -= damage;
             enemyTimer = 0.1f; // red flash duration
             if(health <= 0) {

@@ -17,7 +17,11 @@ namespace DeathChain
 
         bool chasing = false;
 
-        public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 1, MAX_SPEED) {}
+        public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 1, MAX_SPEED) {
+            sprite = Graphics.Blight;
+            drawBox.Inflate(6, 6);
+            drawBox.Offset(0, -3);
+        }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
             if(timer < 0)  {

@@ -21,15 +21,15 @@ namespace DeathChain
             hitPlayer = false;
         }
 
-        protected override void OnHit(Enemy enemy = null) {
+        protected override void OnHit(Level level, Enemy enemy = null) {
             if(fromPlayer) { 
                 if(enemy != null && !hitEnemies.Contains(enemy)) {
-                    enemy.TakeDamage();
+                    enemy.TakeDamage(level);
                     hitEnemies.Add(enemy);
                 }
             } else {
                 if(!hitPlayer) {
-                    Game1.Player.TakeDamage();
+                    Game1.Player.TakeDamage(level);
                     hitPlayer = true;
                 }
             }

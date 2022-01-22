@@ -13,7 +13,8 @@ namespace DeathChain
         Zombie,
         Mushroom,
         Slime,
-        Blight
+        Blight,
+        Scarecrow
     }
 
     public enum PlayerState {
@@ -81,6 +82,7 @@ namespace DeathChain
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
             abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
+            abilities[EnemyTypes.Scarecrow] = new Ability[3] { FireSpore, FireSlimes, Lunge };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
@@ -91,7 +93,7 @@ namespace DeathChain
             abilityIcons[FireSpore] = Graphics.SporeLogo;
             abilityIcons[FireSlimes] = Graphics.SporeLogo;
             abilityIcons[DropPuddle] = Graphics.Drop;
-            abilityIcons[Explode] = Graphics.Drop;
+            abilityIcons[Explode] = Graphics.ExplosionLogo;
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -168,7 +170,7 @@ namespace DeathChain
                     foreach(Enemy enemy in level.Enemies) {
                         if(enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
                             // damage enemy
-                            enemy.TakeDamage(1);
+                            enemy.TakeDamage(level);
                             enemy.Push(aim * 500);
                             hitEnemies.Add(enemy);
                         }
@@ -199,6 +201,7 @@ namespace DeathChain
                         state = PlayerState.Normal;
                         timer = 0;
                         cooldowns[1] = 2f;
+                        currentAnimation = Mushroom.Shoot;
                     }
                     break;
             }
@@ -306,7 +309,7 @@ namespace DeathChain
                     break;
             }
 
-            // make sprite match the current enemy
+            // TEMPORARY: make sprite match the current enemy
             tint = Color.White;
             if(possessType == EnemyTypes.Zombie) {
                 currentAnimation = new Animation(new Texture2D[]{Graphics.Zombie}, AnimationType.Hold, 1f);
@@ -314,12 +317,11 @@ namespace DeathChain
             else if(possessType == EnemyTypes.Slime) {
                 currentAnimation = new Animation(new Texture2D[] { Graphics.Slime }, AnimationType.Hold, 1f);
             }
-            else if(possessType == EnemyTypes.Mushroom) {
-                if(state == PlayerState.Block) {
-                    tint = Color.Pink;
-                } else {
-                    tint = Color.White;
-                }
+            else if(possessType == EnemyTypes.Scarecrow) {
+                currentAnimation = new Animation(new Texture2D[] { Graphics.Scarecrow }, AnimationType.Hold, 1f);
+            }
+            else if(possessType == EnemyTypes.Blight) {
+                currentAnimation = new Animation(new Texture2D[] { Graphics.Blight }, AnimationType.Hold, 1f);
             }
 
             if(invulnTime > 0) {
@@ -330,16 +332,22 @@ namespace DeathChain
 
         public void DrawUI(SpriteBatch sb) {
             // draw health
-            int x = 0;
             for(int i = 0; i < ghostHealth; i++) {
                 Rectangle drawZone = new Rectangle(30 + i * 60, 30, 50, 50);
-                drawZone.Inflate(5, 5);
                 sb.Draw(Graphics.Soul, drawZone, Color.White);
             }
-            if(possessType != EnemyTypes.None) {
+            if(Possessing) {
                 for(int i = 0; i < health; i++) {
-                    sb.Draw(Graphics.Heart, new Rectangle(30 + 60 * ghostHealth + i * 60, 30, 50, 50), Color.White);
+                    sb.Draw(Graphics.Heart, new Rectangle(30 + 60 * (ghostHealth + i), 30, 50, 50), Color.White);
                 }
+
+                // death clock
+                sb.Draw(Graphics.DeathClock, new Rectangle(30, 120, 100, 100), Color.White);
+
+                float angle = decayTimer / DECAY_RATE;
+                angle *= 2f * (float)Math.PI;
+                sb.Draw(Graphics.Pixel, new Rectangle(80, 170, 50, 5), null, Color.Black, (float)-Math.PI / 2f - angle, new Vector2(0, 0.5f), SpriteEffects.None, 0);
+
             }
 
             // draw ability buttons
@@ -379,10 +387,18 @@ namespace DeathChain
             state = PlayerState.Normal;
             drawBox = playerDrawBox;
             currentAnimation = forward;
+            cooldowns[0] = 0;
         }
 
-        public void TakeDamage(int damage = 1) {
-            if(invulnTime <= 0 && state != PlayerState.Block) {
+        public void TakeDamage(Level level, int damage = 1) {
+            if(invulnTime <= 0 && state == PlayerState.Block) {
+                // don't take damage when blocking
+                level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
+                invulnTime = 0.3f;
+                return;
+            }
+
+            if(invulnTime <= 0) {
                 health -= damage;
 
                 if(Possessing) {
@@ -470,6 +486,7 @@ namespace DeathChain
         private void Block(Level level) {
             state = PlayerState.Block;
             timer = 2f; // max block time
+            currentAnimation = Mushroom.Hide;
         }
 
         private void FireSpore(Level level) {

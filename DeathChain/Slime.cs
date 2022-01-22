@@ -24,7 +24,7 @@ namespace DeathChain
             timer = 3f;
             puddleTime = 0f;
             sprite = Graphics.Slime;
-            drawBox = new Rectangle(0, -10, 50, 60);
+            drawBox = new Rectangle(-5, -15, 60, 70);
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {

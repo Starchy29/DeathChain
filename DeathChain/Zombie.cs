@@ -25,7 +25,8 @@ namespace DeathChain
             sprite = Graphics.Zombie;
             lunging = false;
             rng = new Random(x * y);
-            drawBox = new Rectangle(0, -15, 50, 65);
+            drawBox.Inflate(20, 16);
+            drawBox.Offset(0, -15);
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
@@ -104,7 +105,7 @@ namespace DeathChain
 
                 // check if hit player
                 if(slashBox.Intersects(Game1.Player.Hitbox)) {
-                    Game1.Player.TakeDamage(1);
+                    Game1.Player.TakeDamage(level);
                 }
             }
 

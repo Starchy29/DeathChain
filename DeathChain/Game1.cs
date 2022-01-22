@@ -101,10 +101,17 @@ namespace DeathChain
             for(int i = 0; i < 3; i++) {
                 Graphics.PlayerBack[i] = Content.Load<Texture2D>("player back " + i);
             }
+
             Graphics.Mushroom = new Texture2D[4];
+            Graphics.MushroomHide = new Texture2D[10];
             Graphics.Mushroom[0] = Content.Load<Texture2D>("mushroom");
+            Graphics.MushroomHide[0] = Graphics.Mushroom[0];
             for(int i = 1; i < 4; i++) {
                 Graphics.Mushroom[i] = Content.Load<Texture2D>("mush shoot " + i);
+                Graphics.MushroomHide[i] = Graphics.Mushroom[i];
+            }
+            for(int i = 4; i < 10; i++) {
+                Graphics.MushroomHide[i] = Content.Load<Texture2D>("mush hide " + i);
             }
             Graphics.Spore = Content.Load<Texture2D>("spore");
             Graphics.SporeBurst = new Texture2D[9];
@@ -125,6 +132,10 @@ namespace DeathChain
             Graphics.Slime = Content.Load<Texture2D>("slime");
             Graphics.SlimeBall = Content.Load<Texture2D>("slimeball");
 
+            Graphics.Scarecrow = Content.Load<Texture2D>("scarecrow");
+
+            Graphics.Blight = Content.Load<Texture2D>("blight");
+
             Graphics.Slash = Content.Load<Texture2D>("slash");
             Graphics.Button = Content.Load<Texture2D>("button");
             Graphics.Dash = Content.Load<Texture2D>("arrow");
@@ -136,10 +147,14 @@ namespace DeathChain
             Graphics.Soul = Content.Load<Texture2D>("soul");
             Graphics.Heart = Content.Load<Texture2D>("heart");
             Graphics.Drop = Content.Load<Texture2D>("drop");
+            Graphics.ExplosionLogo = Content.Load<Texture2D>("explosion logo");
+            Graphics.DeathClock = Content.Load<Texture2D>("death clock");
+
+            Graphics.PoisonPit = Content.Load<Texture2D>("poison pit");
 
             player = new Player();
-            difficulty = 1;
-            currentLevel = new Level();
+            difficulty = 2;
+            currentLevel = new Level(2);
             SoundEffect.MasterVolume = 0.3f;
             //Audio.PlaySong(Songs.Forest);
         }
@@ -231,7 +246,7 @@ namespace DeathChain
             mainMenu = new Menu(null, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { 
                     state = GameState.Game; 
-                    difficulty = 1;
+                    difficulty = 2;
                     player = new Player(); // must be before current level is changed
                     currentLevel = new Level(difficulty); 
                 })

@@ -14,11 +14,13 @@ namespace DeathChain
         public static SpriteFont Font { get; set; }
 
         public static Texture2D Pixel { get; set; }
+
         public static Texture2D[] PlayerFront { get; set; }
         public static Texture2D[] PlayerSide { get; set; }
         public static Texture2D[] PlayerBack { get; set; }
 
         public static Texture2D[] Mushroom { get; set; } // shoot animation, freezes on first frame when idle
+        public static Texture2D[] MushroomHide { get; set; } // shoot animation, freezes on first frame when idle
         public static Texture2D Spore { get; set; }
         public static Texture2D[] SporeBurst { get; set; }
         public static Texture2D[] SporeTrail { get; set; }
@@ -28,6 +30,9 @@ namespace DeathChain
 
         public static Texture2D Slime { get; set; }
         public static Texture2D SlimeBall { get; set; }
+
+        public static Texture2D Scarecrow { get; set; }
+        public static Texture2D Blight { get; set; }
 
         public static Texture2D Slash { get; set; }
         public static Texture2D Button { get; set; }
@@ -40,5 +45,9 @@ namespace DeathChain
         public static Texture2D Soul { get; set; }
         public static Texture2D Heart { get; set; }
         public static Texture2D Drop { get; set; }
+        public static Texture2D ExplosionLogo { get; set; }
+        public static Texture2D DeathClock { get; set; }
+
+        public static Texture2D PoisonPit { get; set; }
     }
 }

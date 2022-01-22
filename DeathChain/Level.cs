@@ -60,6 +60,8 @@ namespace DeathChain
             //enemies.Add(new Slime(300, 450));
             enemies.Add(new Blight(300, 450));
 
+            enemies.Add(new Scarecrow(300, 450));
+
             DefineCameraSpace();
         }
 
@@ -79,7 +81,9 @@ namespace DeathChain
             enemyTypes[0].Add(EnemyTypes.Zombie);
             enemyTypes[0].Add(EnemyTypes.Mushroom);
             enemyTypes[0].Add(EnemyTypes.Blight);
+
             enemyTypes[1].Add(EnemyTypes.Slime);
+            //enemyTypes[1].Add(EnemyTypes.Scarecrow);
 
             // choose a level shape
             LevelLayout layout = new LevelLayout(0);
@@ -105,17 +109,14 @@ namespace DeathChain
             }
             
             // add enemies
-            int enemyMin = 2;
-            if(difficulty < 3) {
-                //enemyMin = difficulty;
-            }
+           bool spawnFirst = true;
             while(difficulty > 0 && spawnSpots.Count > 0) {
                 // determine max difficulty value of next enemy
                 int maxDiff = 2;
-                if(enemyMin > 0) {
-                    // make sure there are at least a few small enemies
-                    maxDiff = 1;
-                    enemyMin--;
+                if(spawnFirst && difficulty <= 3) {
+                    // make sure there are at least two enemies
+                    maxDiff = difficulty - 1; // gaurantees that a second enemy will spawn
+                    spawnFirst = false;
                 }
                 else if(difficulty < 3) {
                     // don't make an enemy that would exceed the max difficulty value
@@ -142,6 +143,9 @@ namespace DeathChain
                         break;
                     case EnemyTypes.Blight:
                         enemies.Add(new Blight((int)position.X, (int)position.Y));
+                        break;
+                    case EnemyTypes.Scarecrow:
+                        enemies.Add(new Scarecrow((int)position.X, (int)position.Y));
                         break;
                 }
             }

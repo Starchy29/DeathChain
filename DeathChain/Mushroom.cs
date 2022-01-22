@@ -11,6 +11,7 @@ namespace DeathChain
     public class Mushroom : Enemy
     {
         public static readonly Animation Shoot = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
+        public static readonly Animation Hide = new Animation(Graphics.MushroomHide, AnimationType.Hold, 0.01f);
         public static readonly Particle SporeCloud = new Particle(new Rectangle(0, 0, 100, 100), Graphics.SporeBurst, 0.25f);
 
         private bool blocking;
@@ -33,7 +34,8 @@ namespace DeathChain
                 blockTimer -= deltaTime;
                 if(blockTimer <= 0) {
                     blocking = false;
-                    blockTimer = -3f; // cooldown
+                    currentAnimation = Shoot;
+                    blockTimer = -6f; // cooldown
                 }
             } else {
                 tint = Color.White;
@@ -58,6 +60,7 @@ namespace DeathChain
                     foreach(Entity projectile in level.Abilities) {
                         if(projectile is Projectile && ((Projectile)projectile).FromPlayer && DistanceTo(projectile) <= 150f) {
                             blocking = true;
+                            currentAnimation = Hide;
                             blockTimer = 2f; // block duration
                         }
                     }
@@ -65,17 +68,11 @@ namespace DeathChain
             }
         }
 
-        // temporary
-        public override void Draw(SpriteBatch sb) {
-            base.Draw(sb);
-            if(blocking) {
-                sb.Draw(currentAnimation.CurrentSprite, DrawBox, Color.Pink);
-            }
-        }
-
-        public override void TakeDamage(int damage) {
+        public override void TakeDamage(Level level, int damage = 1) {
             if(!blocking) {
-                base.TakeDamage(damage);
+                base.TakeDamage(level, damage);
+            } else {
+                level.Particles.Add(new Particle(SporeCloud, Midpoint - new Vector2(0, 25)));
             }
         }
     }
