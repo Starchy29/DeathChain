@@ -17,7 +17,8 @@ namespace DeathChain
         public Wall(int x, int y, int width, int height, bool isPit) : base(new Vector2(x + width / 2, y + height / 2), width, height, Graphics.Pixel) {
             this.isPit = isPit;
             if(isPit) {
-                sprite = Graphics.PoisonPit;
+                //sprite = Graphics.PoisonPit;
+                tint = Color.Black;
             } else {
                 tint = Color.Gray;
             }

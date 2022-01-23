@@ -22,7 +22,7 @@ namespace DeathChain
         public Vector2 Start { get { return start; } }
         public int EndY { get { return 0; } }
 
-        public LevelLayout(int region) {
+        public LevelLayout(int region, bool small = false) {
             Random rng = new Random();
 
             walls = new List<Wall>();
@@ -30,9 +30,10 @@ namespace DeathChain
             spawnSpots = new List<Vector2>();
 
             // choose edge layout
-            switch(1 + 0 * rng.Next(0, 7)) {
+            switch(rng.Next(0, small ? 1 : 2)) {
                 case 0: // small room
                     AddEdges(1600, 900);
+                    MakeSmallRoom(rng);
                     break;
                 case 1: // large room
                     AddEdges(2000, 1200);
@@ -54,6 +55,76 @@ namespace DeathChain
                 case 6: // L
                     AddEdges(2400, 1800, Direction.Right, Direction.Left);
                     walls.Add(new Wall(100, 100, 1100, 900, false));
+                    break;
+            }
+        }
+
+        private void MakeSmallRoom(Random rng) {
+            // 1600 x 900
+            switch(rng.Next(0, 2)) {
+                case 0: // middle pit
+                    bool makeLeft = false;
+                    bool makeRight = false;
+                    if(CoinFlip(rng)) {
+                        makeLeft = true;
+                        if(CoinFlip(rng)) {
+                            makeRight = true;
+                        }
+                    } else {
+                        makeRight = true;
+                        if(CoinFlip(rng)) {
+                            makeLeft = true;
+                        }
+                    }
+
+                    const int DIST = 350;
+                    if(makeLeft) {
+                        walls.Add(new Wall(DIST, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip(rng)));
+                    } else {
+                        spawnSpots.Add(new Vector2(700, 500)); // lower left
+                        spawnSpots.Add(new Vector2(600, 400)); // upper left
+                    }
+                    if(makeRight) {
+                        walls.Add(new Wall(800, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip(rng)));
+                    } else {
+                        spawnSpots.Add(new Vector2(900, 500)); // lower right
+                        spawnSpots.Add(new Vector2(1000, 400)); // upper right
+                    }
+
+                    // corners
+                    spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
+                    spawnSpots.Add(new Vector2(1600 - 100 - 150, 100 + 150)); // top right
+                    spawnSpots.Add(new Vector2(100 + 150, 900 - 100 - 150)); // bottom left
+                    spawnSpots.Add(new Vector2(1600 - 100 - 150, 900 - 100 - 150)); // bottom right
+
+                    // sides
+                    spawnSpots.Add(new Vector2(100 + 75, 450)); // left
+                    spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
+                    break;
+
+                case 1: // rocks
+                    walls.Add(new Wall(800 - 150, 250, 300, 100, CoinFlip(rng))); // top
+
+                    if(CoinFlip(rng)) {
+                        walls.Add(new Wall(800 - 150, 550, 300, 100, CoinFlip(rng))); // bottom
+                    }
+                    if(CoinFlip(rng)) {
+                        walls.Add(new Wall(300, 450 - 150, 100, 300, CoinFlip(rng))); // left
+                    }
+                    if(CoinFlip(rng)) {
+                        walls.Add(new Wall(1600 - 300 - 100, 450 - 150, 100, 300, CoinFlip(rng))); // right
+                    }
+
+                    spawnSpots.Add(new Vector2(100 + 75, 450)); // left
+                    spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
+
+                    spawnSpots.Add(new Vector2(1600 - 300 - 50, 200)); // top right
+                    spawnSpots.Add(new Vector2(1600 - 300 - 50, 900 - 200)); // bottom right
+                    spawnSpots.Add(new Vector2(300 + 50, 200)); // top left
+                    spawnSpots.Add(new Vector2(300 + 50, 900 - 200)); // bottom left
+
+                    spawnSpots.Add(new Vector2(800, 200)); // middle
+                    spawnSpots.Add(new Vector2(800, 450)); // top middle
                     break;
             }
         }

@@ -20,7 +20,7 @@ namespace DeathChain
         private Random rng;
 
         public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
-            rng = new Random();
+            rng = new Random(x - y);
             timer = 3f;
             puddleTime = 0f;
             sprite = Graphics.Slime;

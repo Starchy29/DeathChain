@@ -154,7 +154,7 @@ namespace DeathChain
 
             player = new Player();
             difficulty = 2;
-            currentLevel = new Level(2);
+            currentLevel = new Level();
             SoundEffect.MasterVolume = 0.3f;
             //Audio.PlaySong(Songs.Forest);
         }

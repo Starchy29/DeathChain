@@ -23,6 +23,7 @@ namespace DeathChain
         Slash,
         Lunge,
         Block,
+        Teleport
     }
 
     public delegate void Ability(Level level);
@@ -51,6 +52,7 @@ namespace DeathChain
         private double[] cooldowns; // cooldowns for the 3 abilities.
         private Dictionary<EnemyTypes, Ability[]> abilities;
         private SpriteEffects flips;
+        private Vector2 selector; // used for abilities that select a spot on the level
         private Direction wasFacing = Direction.Down;
         private Direction facing = Direction.Down; // help choose which animation to use
         private float decayTimer; // tracks how long until the possessed body loses a health
@@ -82,7 +84,7 @@ namespace DeathChain
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
             abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
-            abilities[EnemyTypes.Scarecrow] = new Ability[3] { FireSpore, FireSlimes, Lunge };
+            abilities[EnemyTypes.Scarecrow] = new Ability[3] { FireSpore, Teleport, null };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
@@ -94,6 +96,7 @@ namespace DeathChain
             abilityIcons[FireSlimes] = Graphics.SporeLogo;
             abilityIcons[DropPuddle] = Graphics.Drop;
             abilityIcons[Explode] = Graphics.ExplosionLogo;
+            abilityIcons[Teleport] = Graphics.Dash;
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -204,6 +207,49 @@ namespace DeathChain
                         currentAnimation = Mushroom.Shoot;
                     }
                     break;
+
+                case PlayerState.Teleport:
+                    // move the selector until the player lets go
+                    Vector2 direction = selector - Midpoint;
+                    if(direction != Vector2.Zero) {
+                        direction.Normalize();
+                    }
+                    direction += Input.GetAim();
+                    if(direction != Vector2.Zero) {
+                        direction.Normalize();
+                    }
+
+                    selector += direction * 1200 * deltaTime;
+
+                    // keep selector in level
+                    Rectangle bounds = level.Bounds;
+                    bounds.Inflate(-Level.EDGE_BUFFER, -Level.EDGE_BUFFER);
+                    if(selector.X < bounds.Left) {
+                        selector.X = bounds.Left + 1; // add one so the point does not lie on top of any wall
+                    }
+                    if(selector.X > bounds.Right) {
+                        selector.X = bounds.Right - 1;
+                    }
+                    if(selector.Y < bounds.Top) {
+                        selector.Y = bounds.Top + 1;
+                    }
+                    if(selector.Y > bounds.Bottom) {
+                        selector.Y = bounds.Bottom - 1;
+                    }
+
+                    bool overWall = false;
+                    foreach(Wall wall in level.Walls) {
+                        if(wall.Hitbox.Contains(selector)) {
+                            overWall = true;
+                            break;
+                        }
+                    }
+                    if(!overWall && !Input.IsPressed(Inputs.Secondary)) {
+                        state = PlayerState.Normal;
+                        Midpoint = selector;
+                        cooldowns[1] = 0; // temp
+                    }
+                    break;
             }
 
             // check wall collision
@@ -309,6 +355,11 @@ namespace DeathChain
                     break;
             }
 
+            // draw selectors
+            if(state == PlayerState.Teleport) {
+                sb.Draw(Graphics.Scarecrow, new Rectangle((int)(selector.X + Camera.Shift.X - width / 2 + drawBox.X), (int)(selector.Y + Camera.Shift.Y - height / 2 + drawBox.Y), drawBox.Width, drawBox.Height), Color.Black);
+            }
+
             // TEMPORARY: make sprite match the current enemy
             tint = Color.White;
             if(possessType == EnemyTypes.Zombie) {
@@ -342,11 +393,11 @@ namespace DeathChain
                 }
 
                 // death clock
-                sb.Draw(Graphics.DeathClock, new Rectangle(30, 120, 100, 100), Color.White);
+                sb.Draw(Graphics.DeathClock, new Rectangle(30, 100, 100, 100), Color.White);
 
                 float angle = decayTimer / DECAY_RATE;
                 angle *= 2f * (float)Math.PI;
-                sb.Draw(Graphics.Pixel, new Rectangle(80, 170, 50, 5), null, Color.Black, (float)-Math.PI / 2f - angle, new Vector2(0, 0.5f), SpriteEffects.None, 0);
+                sb.Draw(Graphics.Pixel, new Rectangle(80, 150, 50, 5), null, Color.Black, (float)-Math.PI / 2f - angle, new Vector2(0, 0.5f), SpriteEffects.None, 0);
 
             }
 
@@ -447,6 +498,7 @@ namespace DeathChain
                 case EnemyTypes.Zombie:
                     maxSpeed = Zombie.MAX_SPEED + 50;
                     break;
+                case EnemyTypes.Scarecrow:
                 case EnemyTypes.Mushroom:
                     maxSpeed = 0;
                     break;
@@ -512,6 +564,12 @@ namespace DeathChain
         private void Explode(Level level) {
             cooldowns[0] = 2f;
             level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, new Texture2D[] { Graphics.Button }));
+        }
+
+        private void Teleport(Level level) {
+            cooldowns[1] = 2f;
+            state = PlayerState.Teleport;
+            selector = Midpoint + Input.GetAim();
         }
 
         // generates an attack area relative to the player. Uses the aim variable

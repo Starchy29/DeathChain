@@ -10,7 +10,7 @@ namespace DeathChain
 {
     public class Level
     {
-        private const int EDGE_BUFFER = 100;
+        public const int EDGE_BUFFER = 100;
 
         private delegate bool EdgeCheck(Rectangle tester, Rectangle outermost);
 
@@ -58,7 +58,7 @@ namespace DeathChain
             //enemies.Add(new Mushroom(1300, 450));
 
             //enemies.Add(new Slime(300, 450));
-            enemies.Add(new Blight(300, 450));
+            //enemies.Add(new Blight(300, 450));
 
             enemies.Add(new Scarecrow(300, 450));
 
@@ -86,7 +86,13 @@ namespace DeathChain
             //enemyTypes[1].Add(EnemyTypes.Scarecrow);
 
             // choose a level shape
-            LevelLayout layout = new LevelLayout(0);
+            LevelLayout layout;
+            if(difficulty <= 3) {
+                // the first couple levels must be small rooms
+                layout = new LevelLayout(0, true);
+            } else {
+                layout = new LevelLayout(0);
+            }
             endY = layout.EndY;
             Game1.Player.Midpoint = layout.Start;
             start = layout.Start;
