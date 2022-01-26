@@ -27,6 +27,7 @@ namespace DeathChain
 
         private Rectangle bounds; // where the camera is allowed to see
         public Rectangle Bounds { get { return bounds; } }
+        public bool Cleared { get { return cleared; } }
 
         public List<Particle> Particles { get { return particles; } }
         public List<Entity> Abilities { get { return abilities; } }
@@ -83,7 +84,7 @@ namespace DeathChain
             enemyTypes[0].Add(EnemyTypes.Blight);
 
             enemyTypes[1].Add(EnemyTypes.Slime);
-            //enemyTypes[1].Add(EnemyTypes.Scarecrow);
+            enemyTypes[1].Add(EnemyTypes.Scarecrow);
 
             // choose a level shape
             LevelLayout layout;

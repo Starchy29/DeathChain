@@ -65,6 +65,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scarecrow.cs" />
     <Compile Include="Slime.cs" />
+    <Compile Include="SpiralFlame.cs" />
     <Compile Include="Wall.cs" />
     <Compile Include="Zombie.cs" />
     <Compile Include="Zone.cs" />

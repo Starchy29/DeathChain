@@ -12,11 +12,11 @@ namespace DeathChain
     // a circle that sits on the battlefield
     class Zone : Entity
     {
-        private float duration; // includes startup time
-        private float startup; // time when zone is visible before interacting
-        private Circle hitZone;
+        protected float duration; // includes startup time
+        protected float startup; // time when zone is visible before interacting
+        protected Circle hitZone;
         private float timer;
-        private Particle dissipation;
+        protected Particle dissipation;
         protected bool fromPlayer;
 
         public Zone(Vector2 midpoint, bool fromPlayer, int radius, float duration, float startup, Texture2D[] sprites, bool stillAnim, Particle dissipation) : base(midpoint, 2 * radius, 2 * radius) {

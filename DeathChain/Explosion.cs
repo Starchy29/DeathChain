@@ -14,8 +14,19 @@ namespace DeathChain
         private bool hitPlayer;
 
         public Explosion(Vector2 midpoint, bool fromPlayer, int radius, float startup, Texture2D[] sprites) 
-            : base(midpoint, fromPlayer, radius, startup + 0.2f, startup,sprites, false, null)
+            : base(midpoint, fromPlayer, radius, startup + 0.2f, startup, sprites, false, null)
         {
+            // damage each entity only once
+            hitEnemies = new List<Enemy>();
+            hitPlayer = false;
+        }
+
+        // copy from an explosion template
+        public Explosion(Explosion other, Vector2 midpoint, bool fromPlayer) 
+            : this(midpoint, fromPlayer, (int)other.hitZone.Radius, other.startup, new Texture2D[0])
+        {
+            currentAnimation = other.currentAnimation;
+
             // damage each entity only once
             hitEnemies = new List<Enemy>();
             hitPlayer = false;

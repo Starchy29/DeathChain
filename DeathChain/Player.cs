@@ -84,7 +84,7 @@ namespace DeathChain
             abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
             abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
-            abilities[EnemyTypes.Scarecrow] = new Ability[3] { FireSpore, Teleport, null };
+            abilities[EnemyTypes.Scarecrow] = new Ability[3] { FlameBurst, Teleport, FlameSpiral };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
@@ -97,6 +97,8 @@ namespace DeathChain
             abilityIcons[DropPuddle] = Graphics.Drop;
             abilityIcons[Explode] = Graphics.ExplosionLogo;
             abilityIcons[Teleport] = Graphics.Dash;
+            abilityIcons[FlameBurst] = Graphics.ExplosionLogo;
+            abilityIcons[FlameSpiral] = Graphics.SporeLogo;
         }
 
         public override void Update(Level level, float deltaTime) {
@@ -230,7 +232,7 @@ namespace DeathChain
                     if(selector.X > bounds.Right) {
                         selector.X = bounds.Right - 1;
                     }
-                    if(selector.Y < bounds.Top) {
+                    if(!level.Cleared && selector.Y < bounds.Top) { // allow the player to leave the level when beaten
                         selector.Y = bounds.Top + 1;
                     }
                     if(selector.Y > bounds.Bottom) {
@@ -247,7 +249,7 @@ namespace DeathChain
                     if(!overWall && !Input.IsPressed(Inputs.Secondary)) {
                         state = PlayerState.Normal;
                         Midpoint = selector;
-                        cooldowns[1] = 0; // temp
+                        cooldowns[1] = 0.8f;
                     }
                     break;
             }
@@ -567,9 +569,20 @@ namespace DeathChain
         }
 
         private void Teleport(Level level) {
-            cooldowns[1] = 2f;
             state = PlayerState.Teleport;
             selector = Midpoint + Input.GetAim();
+        }
+
+        private void FlameBurst(Level level) {
+            cooldowns[0] = 0.7f;
+            level.Abilities.Add(new Explosion(Scarecrow.FlameBurst, Midpoint + Input.GetAim() * Scarecrow.BURST_RANGE, true));
+        }
+
+        private void FlameSpiral(Level level) {
+            //cooldowns[2] = 1f;
+            level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2(1, 0), true));
+            level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(2 * Math.PI / 3), (float)Math.Sin(2 * Math.PI / 3)), true));
+            level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(-2 * Math.PI / 3), (float)Math.Sin(-2 * Math.PI / 3)), true));
         }
 
         // generates an attack area relative to the player. Uses the aim variable
