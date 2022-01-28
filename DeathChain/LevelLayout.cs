@@ -30,7 +30,7 @@ namespace DeathChain
             spawnSpots = new List<Vector2>();
 
             // choose edge layout
-            switch(rng.Next(0, small ? 1 : 2)) {
+            switch(0 + 0 * rng.Next(0, small ? 1 : 2)) {
                 case 0: // small room
                     AddEdges(1600, 900);
                     MakeSmallRoom(rng);
@@ -61,7 +61,7 @@ namespace DeathChain
 
         private void MakeSmallRoom(Random rng) {
             // 1600 x 900
-            switch(rng.Next(0, 2)) {
+            switch(0 + 0 * rng.Next(0, 2)) {
                 case 0: // middle pit
                     bool makeLeft = false;
                     bool makeRight = false;
@@ -100,6 +100,13 @@ namespace DeathChain
                     // sides
                     spawnSpots.Add(new Vector2(100 + 75, 450)); // left
                     spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
+
+                    // rocks
+                    AddRock(1200, 225, rng); // top right
+                    AddRock(600, 225, rng); // top left
+                    AddRock(800, 675, rng); // bottom middle
+                    AddRock(200, 550, rng); // left
+                    AddRock(1400, 350, rng); // right
                     break;
 
                 case 1: // rocks
@@ -221,6 +228,13 @@ namespace DeathChain
 
         private bool CoinFlip(Random rng) {
             return rng.NextDouble() < 0.5;
+        }
+
+        private void AddRock(int x, int y, Random rng) {
+            int width = 50;
+            if(CoinFlip(rng)) {
+                walls.Add(new Wall(x - width / 2, y - width / 2, width, width, false));
+            }
         }
     }
 }
