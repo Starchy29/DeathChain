@@ -31,6 +31,7 @@ namespace DeathChain
         public static Player Player { get { return player; } }
 
         private Menu mainMenu;
+        private Menu pauseMenu;
 
         public const int StartScreenWidth = 1600;
         public const int StartScreenHeight = 900;
@@ -177,9 +178,18 @@ namespace DeathChain
                 case GameState.Game:
                     Camera.Update(currentLevel);
                     currentLevel.Update(deltaTime, player);
+
+                    if(Input.JustPressed(Inputs.Pause)) {
+                        state = GameState.Menu;
+                        currentMenu = pauseMenu;
+                    }
                     break;
                 case GameState.Menu:
                     currentMenu.Update();
+
+                    if(currentMenu == pauseMenu && Input.JustPressed(Inputs.Pause)) {
+                        state = GameState.Game;
+                    }
                     break;
             }
 
@@ -229,6 +239,7 @@ namespace DeathChain
 
         public void Lose() {
             state = GameState.Menu;
+            currentMenu = mainMenu;
         }
 
         // draws an image at the specified location, but rotates at that position
@@ -247,6 +258,12 @@ namespace DeathChain
                     difficulty = 2;
                     player = new Player(); // must be before current level is changed
                     currentLevel = new Level(difficulty); 
+                })
+            });
+
+            pauseMenu = new Menu(null, new List<Button>() {
+                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Resume", () => {
+                    state = GameState.Game;
                 })
             });
         }

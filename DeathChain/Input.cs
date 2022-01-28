@@ -49,6 +49,7 @@ namespace DeathChain
             gamepadBinds[Inputs.Down] = new List<Buttons>() { Buttons.LeftThumbstickDown };
             gamepadBinds[Inputs.Left] = new List<Buttons>() { Buttons.LeftThumbstickLeft };
             gamepadBinds[Inputs.Right] = new List<Buttons>() { Buttons.LeftThumbstickRight };
+            gamepadBinds[Inputs.Pause] = new List<Buttons>() { Buttons.Start, Buttons.Back };
 
             keyboardBinds[Inputs.Up] = new List<Keys>() { Keys.W, Keys.Up };
             keyboardBinds[Inputs.Down] = new List<Keys>() { Keys.Down, Keys.S };
@@ -58,6 +59,7 @@ namespace DeathChain
             keyboardBinds[Inputs.Secondary] = new List<Keys>() { Keys.K };
             keyboardBinds[Inputs.Tertiary] = new List<Keys>() { Keys.L };
             keyboardBinds[Inputs.Possess] = new List<Keys>() { Keys.I };
+            keyboardBinds[Inputs.Pause] = new List<Keys>() { Keys.Escape, Keys.Enter };
         }
 
         public static void Update(float deltaTime) {

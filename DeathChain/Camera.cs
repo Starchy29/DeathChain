@@ -19,7 +19,7 @@ namespace DeathChain
 
         public static void Update(Level level) {
             // center player in window
-            position = Game1.Player.Midpoint - new Vector2(800, 450); // screen is 1600 by 900
+            position = Game1.Player.Focus - new Vector2(800, 450); // screen is 1600 by 900
 
             // keep camera in level
             Rectangle tangle = level.Bounds;

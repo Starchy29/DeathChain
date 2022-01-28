@@ -11,7 +11,7 @@ namespace DeathChain
     class Scarecrow : Enemy
     {
         Random rng;
-        public const int BURST_RANGE = 170;
+        public const int BURST_RANGE = 150;
         public static Explosion FlameBurst = new Explosion(Vector2.Zero, false, 70, 0.2f, new Texture2D[] { Graphics.Button });
 
         public Scarecrow(int x, int y) : base(EnemyTypes.Scarecrow, new Vector2(x, y), 50, 50, 3, 0) {

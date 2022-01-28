@@ -60,6 +60,13 @@ namespace DeathChain
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
         public bool Possessing { get { return possessType != EnemyTypes.None; } } // whether or not the player is possessing an enemy
+        public Vector2 Focus { get {
+            if(state == PlayerState.Teleport) {
+                return selector;
+            } else {
+                return Midpoint;
+            }
+        } }
 
         public Player() : base(Vector2.Zero, 50, 50) {
             state = PlayerState.Normal;
@@ -164,7 +171,7 @@ namespace DeathChain
                         if(timer >= 0) {
                             timer = 0;
                             state = PlayerState.Normal;
-                            cooldowns[1] = 0.5;
+                            cooldowns[1] = 0.5f;
                         }
                     }
                     break;
@@ -249,7 +256,7 @@ namespace DeathChain
                     if(!overWall && !Input.IsPressed(Inputs.Secondary)) {
                         state = PlayerState.Normal;
                         Midpoint = selector;
-                        cooldowns[1] = 0.8f;
+                        cooldowns[1] = 0.4f;
                     }
                     break;
             }
@@ -292,7 +299,12 @@ namespace DeathChain
                     }
 
                     // actually possess now
-                    health = possessTarget.MaxHealth;
+                    if(Possessing) {
+                        health += possessTarget.MaxHealth;
+                    } else {
+                        health = possessTarget.MaxHealth;
+                        decayTimer = DECAY_RATE;
+                    }
                     possessTarget.IsActive = false;
                     possessType = possessTarget.Type;
                     position = possessTarget.Position;
@@ -308,7 +320,6 @@ namespace DeathChain
                     }
 
                     invulnTime = 0.5f;
-                    decayTimer = DECAY_RATE;
                 }
                 else if(Possessing) {
                     Unpossess();
@@ -579,7 +590,7 @@ namespace DeathChain
         }
 
         private void FlameSpiral(Level level) {
-            //cooldowns[2] = 1f;
+            cooldowns[2] = 1f;
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2(1, 0), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(2 * Math.PI / 3), (float)Math.Sin(2 * Math.PI / 3)), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(-2 * Math.PI / 3), (float)Math.Sin(-2 * Math.PI / 3)), true));
