@@ -43,6 +43,7 @@ namespace DeathChain
         private static Game1 instance;
         public static Game1 Game { get { return instance; } }
         public Rectangle WindowData { get { return new Rectangle(xOffset, yOffset, (int)gameDims.X, (int)gameDims.Y); } } // used by input mouse position
+        public static Random RNG = new Random();
 
         public Game1()
         {

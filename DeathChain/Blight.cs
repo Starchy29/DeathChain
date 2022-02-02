@@ -12,15 +12,15 @@ namespace DeathChain
     {
         public const int MAX_SPEED = 500;
         private const float COOLDOWN = -1f;
-        public const int EXPLOSION_RADIUS = 100;
+        public const int EXPLOSION_RADIUS = 110;
         public const float STARTUP = 0.1f;
-
-        bool chasing = false;
 
         public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 1, MAX_SPEED) {
             sprite = Graphics.Blight;
             drawBox.Inflate(6, 6);
             drawBox.Offset(0, -3);
+            timer = 4f;
+            moveTimer = 0f;
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
@@ -28,30 +28,30 @@ namespace DeathChain
                 // pause after explosion
                 timer += deltaTime;
                 if(timer >= 0) {
-                    timer = 0;
+                    timer = 3f;
+                    ChangeDirection();
+                    level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, new Texture2D[] { Graphics.Button }));
                 }
             }
             else {
-                if(chasing) {
-                    direction = Game1.Player.Midpoint - Midpoint;
+                moveTimer -= deltaTime;
+                if(moveTimer <= 0) {
+                    ChangeDirection();
+                }
 
-                    // when close to the player, stop and explode
-                    if(DistanceTo(Game1.Player) <= 120) {
-                        chasing = false;
-                        timer = COOLDOWN;
-                        direction = Vector2.Zero;
-                        level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, new Texture2D[]{ Graphics.Button}));
-                    }
-                } else {
-                    // don't chase player until within range
-                    if(DistanceTo(Game1.Player) <= 600) {
-                        chasing = true;
-                    }
+                // stop and explode every interval
+                timer -= deltaTime;
+                if(timer <= 0) {
+                    timer = COOLDOWN;
+                    direction = Vector2.Zero;
                 }
             }
 
             PassWalls(level);
-            CheckWallCollision(level, true);
+            List<Direction> collisions = CheckWallCollision(level, true);
+            if(collisions.Count > 0) {
+                ChangeDirection();
+            }
         }
     }
 }

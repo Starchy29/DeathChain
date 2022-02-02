@@ -19,6 +19,7 @@ namespace DeathChain
         private float enemyTimer; // alive: red flash when hit, dead: despawn timer
         protected Vector2 direction; // the direction this moves towards, determined by sub classes
         protected int maxSpeed;
+        protected float moveTimer;
 
         private EnemyTypes type;
 
@@ -73,7 +74,7 @@ namespace DeathChain
             if(alive && enemyTimer > 0) {
                 tint = Color.Red;
             }
-            else if(!alive && !Game1.Player.Possessing && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
+            else if(!alive && Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= Player.SELECT_DIST) {
                 tint = Color.LightBlue;
             }
             else if(!alive) {
@@ -127,6 +128,11 @@ namespace DeathChain
                     break;
                 }
             }
+        }
+
+        protected void ChangeDirection() {
+            moveTimer += 1f; // how often this changes direction
+            direction = new Vector2((float)Game1.RNG.NextDouble() - 0.5f, (float)Game1.RNG.NextDouble() - 0.5f);
         }
 
         protected void ApplyFriction(float deltaTime, float amount = 1000) {

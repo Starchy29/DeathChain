@@ -30,7 +30,7 @@ namespace DeathChain
 
     public class Player : Entity
     {
-        public const int SELECT_DIST = 50; // distance from a dead enemy that the player can possess them
+        public const int SELECT_DIST = 100; // distance from a dead enemy that the player can possess them
         public const int MAX_SPEED = 400;
         private const float DECAY_RATE = 5f;
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
@@ -228,7 +228,7 @@ namespace DeathChain
                         direction.Normalize();
                     }
 
-                    selector += direction * 1200 * deltaTime;
+                    selector += direction * 900 * deltaTime; // selector move speed
 
                     // keep selector in level
                     Rectangle bounds = level.Bounds;

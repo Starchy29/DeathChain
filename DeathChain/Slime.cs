@@ -17,10 +17,8 @@ namespace DeathChain
 
         private float wanderTime;
         private float puddleTime;
-        private Random rng;
 
         public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
-            rng = new Random(x - y);
             timer = 3f;
             puddleTime = 0f;
             sprite = Graphics.Slime;
@@ -29,8 +27,8 @@ namespace DeathChain
 
         protected override void AliveUpdate(Level level, float deltaTime) {
             // wander
-            wanderTime -= deltaTime;
-            if(wanderTime <= 0) {
+            moveTimer -= deltaTime;
+            if(moveTimer <= 0) {
                 ChangeDirection();
             }
 
@@ -59,11 +57,6 @@ namespace DeathChain
                 puddleTime = PUDDLE_DURATION; // cooldown
                 level.Abilities.Add(new Zone(SlimePuddle, Midpoint, false));
             }
-        }
-
-        private void ChangeDirection() {
-            wanderTime = 1f; // how often this changes direction
-            direction = new Vector2((float)rng.NextDouble() - 0.5f, (float)rng.NextDouble() - 0.5f);
         }
     }
 }

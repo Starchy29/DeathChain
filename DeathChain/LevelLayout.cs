@@ -30,7 +30,7 @@ namespace DeathChain
             spawnSpots = new List<Vector2>();
 
             // choose edge layout
-            switch(0 + 0 * rng.Next(0, small ? 1 : 2)) {
+            switch(rng.Next(0, small ? 1 : 2)) {
                 case 0: // small room
                     AddEdges(1600, 900);
                     MakeSmallRoom(rng);
@@ -61,7 +61,7 @@ namespace DeathChain
 
         private void MakeSmallRoom(Random rng) {
             // 1600 x 900
-            switch(0 + 0 * rng.Next(0, 2)) {
+            switch(rng.Next(0, 2)) {
                 case 0: // middle pit
                     bool makeLeft = false;
                     bool makeRight = false;
@@ -83,12 +83,16 @@ namespace DeathChain
                     } else {
                         spawnSpots.Add(new Vector2(700, 500)); // lower left
                         spawnSpots.Add(new Vector2(600, 400)); // upper left
+                        AddRock(350, 300, rng);
+                        AddRock(550, 600,rng);
                     }
                     if(makeRight) {
                         walls.Add(new Wall(800, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip(rng)));
                     } else {
                         spawnSpots.Add(new Vector2(900, 500)); // lower right
                         spawnSpots.Add(new Vector2(1000, 400)); // upper right
+                        AddRock(1250, 300, rng);
+                        AddRock(1050, 600, rng);
                     }
 
                     // corners
@@ -100,13 +104,6 @@ namespace DeathChain
                     // sides
                     spawnSpots.Add(new Vector2(100 + 75, 450)); // left
                     spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
-
-                    // rocks
-                    AddRock(1200, 225, rng); // top right
-                    AddRock(600, 225, rng); // top left
-                    AddRock(800, 675, rng); // bottom middle
-                    AddRock(200, 550, rng); // left
-                    AddRock(1400, 350, rng); // right
                     break;
 
                 case 1: // rocks
