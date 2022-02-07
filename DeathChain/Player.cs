@@ -300,7 +300,19 @@ namespace DeathChain
 
                     // actually possess now
                     if(Possessing) {
-                        health += possessTarget.MaxHealth;
+                        if(health >= 6 && health < 10) {
+                            health++;
+                        }
+                        else if(health >= 3) {
+                            health += (possessTarget.MaxHealth <= 1 ? 1 : 2);
+                        }
+                        else {
+                            health += possessTarget.MaxHealth;
+                        }
+
+                        if(health < possessTarget.MaxHealth) {
+                            health = possessTarget.MaxHealth;
+                        }
                     } else {
                         health = possessTarget.MaxHealth;
                         decayTimer = DECAY_RATE;
@@ -377,15 +389,19 @@ namespace DeathChain
             tint = Color.White;
             if(possessType == EnemyTypes.Zombie) {
                 currentAnimation = new Animation(new Texture2D[]{Graphics.Zombie}, AnimationType.Hold, 1f);
+                tint = Color.Gray;
             }
             else if(possessType == EnemyTypes.Slime) {
                 currentAnimation = new Animation(new Texture2D[] { Graphics.Slime }, AnimationType.Hold, 1f);
+                tint = Color.Gray;
             }
             else if(possessType == EnemyTypes.Scarecrow) {
                 currentAnimation = new Animation(new Texture2D[] { Graphics.Scarecrow }, AnimationType.Hold, 1f);
+                tint = Color.Gray;
             }
             else if(possessType == EnemyTypes.Blight) {
                 currentAnimation = new Animation(new Texture2D[] { Graphics.Blight }, AnimationType.Hold, 1f);
+                tint = Color.Gray;
             }
 
             if(invulnTime > 0) {
@@ -458,12 +474,13 @@ namespace DeathChain
             if(invulnTime <= 0 && state == PlayerState.Block) {
                 // don't take damage when blocking
                 level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
-                invulnTime = 0.3f;
+                invulnTime = 0.3f; // prevent rapid particles
                 return;
             }
 
             if(invulnTime <= 0) {
                 health -= damage;
+                level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
 
                 if(Possessing) {
                     invulnTime = 0.5f;
@@ -562,7 +579,7 @@ namespace DeathChain
         }
 
         private void FireSlimes(Level level) {
-            cooldowns[0] = 1f;
+            cooldowns[0] = 0.8f;
             level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(1, 0), true));
             level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(-1, 0), true));
             level.Abilities.Add(new Projectile(Slime.SLIMEBALL, Midpoint, new Vector2(0, 1), true));
@@ -575,7 +592,7 @@ namespace DeathChain
         }
 
         private void Explode(Level level) {
-            cooldowns[0] = 2f;
+            cooldowns[0] = 1.5f;
             level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, new Texture2D[] { Graphics.Button }));
         }
 
@@ -590,7 +607,7 @@ namespace DeathChain
         }
 
         private void FlameSpiral(Level level) {
-            cooldowns[2] = 1f;
+            cooldowns[2] = 3f;
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2(1, 0), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(2 * Math.PI / 3), (float)Math.Sin(2 * Math.PI / 3)), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(-2 * Math.PI / 3), (float)Math.Sin(-2 * Math.PI / 3)), true));

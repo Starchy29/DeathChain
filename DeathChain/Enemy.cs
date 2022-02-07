@@ -130,9 +130,14 @@ namespace DeathChain
             }
         }
 
-        protected void ChangeDirection() {
+        protected void ChangeDirection(List<Vector2> options = null) {
             moveTimer += 1f; // how often this changes direction
-            direction = new Vector2((float)Game1.RNG.NextDouble() - 0.5f, (float)Game1.RNG.NextDouble() - 0.5f);
+
+            if(options == null) {
+                direction = new Vector2((float)Game1.RNG.NextDouble() - 0.5f, (float)Game1.RNG.NextDouble() - 0.5f);
+            } else {
+                direction = options[Game1.RNG.Next(options.Count)];
+            }
         }
 
         protected void ApplyFriction(float deltaTime, float amount = 1000) {

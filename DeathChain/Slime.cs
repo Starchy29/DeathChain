@@ -10,7 +10,7 @@ namespace DeathChain
 {
     class Slime : Enemy
     {
-        public const float PUDDLE_DURATION = 8f;
+        public const float PUDDLE_DURATION = 6f;
         public const int MAX_SPEED = 180;
         public static readonly Projectile SLIMEBALL = new Projectile(500, 500, 30, Graphics.SlimeBall);
         public static readonly Zone SlimePuddle = new Zone(Vector2.Zero, false, 60, PUDDLE_DURATION, 0.5f, new Texture2D[] {Graphics.Button}, true, null);
@@ -19,7 +19,7 @@ namespace DeathChain
         private float puddleTime;
 
         public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
-            timer = 3f;
+            timer = 1f + (float)Game1.RNG.NextDouble() * 4f;
             puddleTime = 0f;
             sprite = Graphics.Slime;
             drawBox = new Rectangle(-5, -15, 60, 70);
@@ -32,7 +32,7 @@ namespace DeathChain
                 ChangeDirection();
             }
 
-            if(timer < 0.5f) { // freeze when about to shoot
+            if(timer < 0.2f) { // freeze when about to shoot
                 direction = Vector2.Zero;
             }
 
@@ -44,7 +44,7 @@ namespace DeathChain
             // attacks
             timer -= deltaTime;
             if(timer <= 0) {
-                timer = 3f; // cooldown
+                timer = 1f + (float)Game1.RNG.NextDouble(); // shoot cooldown
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(1, 0), false));
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(-1, 0), false));
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, 1), false));

@@ -61,7 +61,7 @@ namespace DeathChain
                         if(projectile is Projectile && ((Projectile)projectile).FromPlayer && DistanceTo(projectile) <= 150f) {
                             blocking = true;
                             currentAnimation = Hide;
-                            blockTimer = 2f; // block duration
+                            blockTimer = 0.5f; // block duration
                         }
                     }
                 }

@@ -23,21 +23,21 @@ namespace DeathChain
         public int EndY { get { return 0; } }
 
         public LevelLayout(int region, bool small = false) {
-            Random rng = new Random();
-
             walls = new List<Wall>();
             start = Vector2.Zero; // placeholder
             spawnSpots = new List<Vector2>();
 
             // choose edge layout
-            switch(rng.Next(0, small ? 1 : 2)) {
+            switch(Game1.RNG.Next(0, small ? 1 : 2)) {
                 case 0: // small room
                     AddEdges(1600, 900);
-                    MakeSmallRoom(rng);
+                    MakeSmallRoom();
+                    DefineSpawnSpots(1600, 900);
                     break;
                 case 1: // large room
                     AddEdges(2000, 1200);
-                    MakeMediumRoom(rng);
+                    MakeMediumRoom();
+                    DefineSpawnSpots(2000, 1200);
                     break;
                 case 2: // tall
                     AddEdges(1600, 1600);
@@ -59,67 +59,73 @@ namespace DeathChain
             }
         }
 
-        private void MakeSmallRoom(Random rng) {
+        private void MakeSmallRoom() {
             // 1600 x 900
-            switch(rng.Next(0, 2)) {
+            switch(Game1.RNG.Next(0, 2)) {
                 case 0: // middle pit
                     bool makeLeft = false;
                     bool makeRight = false;
-                    if(CoinFlip(rng)) {
+                    if(CoinFlip()) {
                         makeLeft = true;
-                        if(CoinFlip(rng)) {
+                        if(CoinFlip()) {
                             makeRight = true;
                         }
                     } else {
                         makeRight = true;
-                        if(CoinFlip(rng)) {
+                        if(CoinFlip()) {
                             makeLeft = true;
                         }
                     }
 
                     const int DIST = 350;
                     if(makeLeft) {
-                        walls.Add(new Wall(DIST, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip(rng)));
+                        walls.Add(new Wall(DIST, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip()));
                     } else {
-                        spawnSpots.Add(new Vector2(700, 500)); // lower left
-                        spawnSpots.Add(new Vector2(600, 400)); // upper left
-                        AddRock(350, 300, rng);
-                        AddRock(550, 600,rng);
+                        //spawnSpots.Add(new Vector2(700, 500)); // lower left
+                        //spawnSpots.Add(new Vector2(600, 400)); // upper left
+                        AddRock(350, 300);
+                        AddRock(550, 600);
                     }
                     if(makeRight) {
-                        walls.Add(new Wall(800, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip(rng)));
+                        walls.Add(new Wall(800, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip()));
                     } else {
-                        spawnSpots.Add(new Vector2(900, 500)); // lower right
-                        spawnSpots.Add(new Vector2(1000, 400)); // upper right
-                        AddRock(1250, 300, rng);
-                        AddRock(1050, 600, rng);
+                        //spawnSpots.Add(new Vector2(900, 500)); // lower right
+                        //spawnSpots.Add(new Vector2(1000, 400)); // upper right
+                        AddRock(1250, 300);
+                        AddRock(1050, 600);
                     }
 
                     // corners
-                    spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
+                    /*spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
                     spawnSpots.Add(new Vector2(1600 - 100 - 150, 100 + 150)); // top right
                     spawnSpots.Add(new Vector2(100 + 150, 900 - 100 - 150)); // bottom left
                     spawnSpots.Add(new Vector2(1600 - 100 - 150, 900 - 100 - 150)); // bottom right
 
                     // sides
                     spawnSpots.Add(new Vector2(100 + 75, 450)); // left
-                    spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
+                    spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right*/
                     break;
 
-                case 1: // rocks
-                    walls.Add(new Wall(800 - 150, 250, 300, 100, CoinFlip(rng))); // top
+                case 1: // dashed box
+                    walls.Add(new Wall(800 - 150, 250, 300, 100, CoinFlip())); // top
 
-                    if(CoinFlip(rng)) {
-                        walls.Add(new Wall(800 - 150, 550, 300, 100, CoinFlip(rng))); // bottom
+                    if(CoinFlip()) {
+                        walls.Add(new Wall(800 - 150, 550, 300, 100, CoinFlip())); // bottom
+                    } else {
+                        AddRock(800, 600);
                     }
-                    if(CoinFlip(rng)) {
-                        walls.Add(new Wall(300, 450 - 150, 100, 300, CoinFlip(rng))); // left
+                    if(CoinFlip()) {
+                        walls.Add(new Wall(300, 450 - 150, 100, 300, CoinFlip())); // left
+                    } else {
+                        AddRock(350, 450);
                     }
-                    if(CoinFlip(rng)) {
-                        walls.Add(new Wall(1600 - 300 - 100, 450 - 150, 100, 300, CoinFlip(rng))); // right
+                    if(CoinFlip()) {
+                        walls.Add(new Wall(1600 - 300 - 100, 450 - 150, 100, 300, CoinFlip())); // right
+                    } else {
+                        AddRock(1250, 450);
                     }
 
-                    spawnSpots.Add(new Vector2(100 + 75, 450)); // left
+                    /*spawnSpots.Add(new Vector2(100 + 75, 450)); // left
                     spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
 
                     spawnSpots.Add(new Vector2(1600 - 300 - 50, 200)); // top right
@@ -128,24 +134,33 @@ namespace DeathChain
                     spawnSpots.Add(new Vector2(300 + 50, 900 - 200)); // bottom left
 
                     spawnSpots.Add(new Vector2(800, 200)); // middle
-                    spawnSpots.Add(new Vector2(800, 450)); // top middle
+                    spawnSpots.Add(new Vector2(800, 450)); // top middle*/
                     break;
             }
         }
 
-        private void MakeMediumRoom(Random rng) {
+        private void MakeMediumRoom() {
             // 2000 x 1200
             switch(0) {
                 case 0: // center dashed line
-                    walls.Add(new Wall(1000 - 300, 600 - 50, 600, 100, CoinFlip(rng))); // middle line
-                    if(CoinFlip(rng)) {
-                        walls.Add(new Wall(100, 600 - 50, 250, 100, CoinFlip(rng))); // left dash of middle line
+                    walls.Add(new Wall(1000 - 300, 600 - 50, 600, 100, CoinFlip())); // middle line
+                    if(CoinFlip()) {
+                        walls.Add(new Wall(100, 600 - 50, 250, 100, CoinFlip())); // left dash of middle line
+                    } else {
+                        AddRock(350, 600);
                     }
-                    if(CoinFlip(rng)) {
-                        walls.Add(new Wall(2000 - 100 - 250, 600 - 50, 250, 100, CoinFlip(rng))); // right dash of middle line
+                    if(CoinFlip()) {
+                        walls.Add(new Wall(2000 - 100 - 250, 600 - 50, 250, 100, CoinFlip())); // right dash of middle line
+                    } else {
+                        AddRock(1650, 600);
                     }
 
-                    spawnSpots.Add(new Vector2(1000, 300)); // center top
+                    AddRock(525, 350);
+                    AddRock(525, 850);
+                    AddRock(1475, 350);
+                    AddRock(1475, 850);
+
+                    /*spawnSpots.Add(new Vector2(1000, 300)); // center top
 
                     // left column (350 - 700)
                     spawnSpots.Add(new Vector2(525 + 150, 300)); // top
@@ -161,7 +176,43 @@ namespace DeathChain
                     spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
                     spawnSpots.Add(new Vector2(2000 - 100 - 150, 100 + 150)); // top right
                     spawnSpots.Add(new Vector2(100 + 150, 1200 - 100 - 150)); // bottom left
-                    spawnSpots.Add(new Vector2(2000 - 100 - 150, 1200 - 100 - 150)); // bottom right
+                    spawnSpots.Add(new Vector2(2000 - 100 - 150, 1200 - 100 - 150)); // bottom right*/
+                    break;
+
+                case 1: // window
+                    Rectangle topLeft = new Rectangle(0, 0, 1000, 600);
+                    Rectangle topRight = new Rectangle(1000, 0, 1000, 600);
+                    Rectangle bottomLeft = new Rectangle(0, 600, 1000, 600);
+                    Rectangle bottomRight = new Rectangle(1000, 600, 1000, 600);
+                    topLeft.Inflate(-300, -200);
+                    topRight.Inflate(-300, -200);
+                    bottomLeft.Inflate(-300, -200);
+                    bottomRight.Inflate(-300, -200);
+                    topLeft.Offset(100, 100);
+                    topRight.Offset(-100, 100);
+                    bottomLeft.Offset(100, -100);
+                    bottomRight.Offset(-100, -100);
+
+                    if(Game1.RNG.NextDouble() < 0.75) {
+                        walls.Add(new Wall(topLeft.X, topLeft.Y, topLeft.Width, topLeft.Height, CoinFlip()));
+                    } else {
+                        AddRock(topLeft.Center.X, topLeft.Center.Y);
+                    }
+                    if(Game1.RNG.NextDouble() < 0.75) {
+                        walls.Add(new Wall(topRight.X, topRight.Y, topRight.Width, topRight.Height, CoinFlip()));
+                    } else {
+                        AddRock(topRight.Center.X, topRight.Center.Y);
+                    }
+                    if(Game1.RNG.NextDouble() < 0.75) {
+                        walls.Add(new Wall(bottomLeft.X, bottomLeft.Y, bottomLeft.Width, bottomLeft.Height, CoinFlip()));
+                    } else {
+                        AddRock(bottomLeft.Center.X, bottomLeft.Center.Y);
+                    }
+                    if(Game1.RNG.NextDouble() < 0.75) {
+                        walls.Add(new Wall(bottomRight.X, bottomRight.Y, bottomRight.Width, bottomRight.Height, CoinFlip()));
+                    } else {
+                        AddRock(bottomRight.Center.X, bottomRight.Center.Y);
+                    }
                     break;
             }
         }
@@ -223,13 +274,38 @@ namespace DeathChain
             }
         }
 
-        private bool CoinFlip(Random rng) {
-            return rng.NextDouble() < 0.5;
+        // must be called after the walls are placed
+        private void DefineSpawnSpots(int width, int height) {
+            int tileWidth = 150;
+
+            // cut the region into tiles
+            for(int x = 0; x < width; x += tileWidth) {
+                for(int y = 0; y < height - 300; y += tileWidth) { // don't place at bottom
+                    Rectangle tile = new Rectangle(x, y, tileWidth, tileWidth);
+                    
+                    // check if tile collides with any walls / pits
+                    bool clear = true;
+                    foreach(Wall wall in walls) {
+                        if(wall.Hitbox.Intersects(tile)) {
+                            clear = false;
+                            break;
+                        }
+                    }
+
+                    if(clear) {
+                        spawnSpots.Add(new Vector2(tile.Center.X, tile.Center.Y));
+                    }
+                }
+            }
         }
 
-        private void AddRock(int x, int y, Random rng) {
-            int width = 50;
-            if(CoinFlip(rng)) {
+        private bool CoinFlip() {
+            return Game1.RNG.NextDouble() < 0.5;
+        }
+
+        private void AddRock(int x, int y) {
+            int width = 70;
+            if(CoinFlip()) {
                 walls.Add(new Wall(x - width / 2, y - width / 2, width, width, false));
             }
         }
