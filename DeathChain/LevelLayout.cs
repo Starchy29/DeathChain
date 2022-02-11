@@ -81,29 +81,15 @@ namespace DeathChain
                     if(makeLeft) {
                         walls.Add(new Wall(DIST, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip()));
                     } else {
-                        //spawnSpots.Add(new Vector2(700, 500)); // lower left
-                        //spawnSpots.Add(new Vector2(600, 400)); // upper left
                         AddRock(350, 300);
                         AddRock(550, 600);
                     }
                     if(makeRight) {
                         walls.Add(new Wall(800, DIST, 800 - DIST, 900 - 2 * DIST, CoinFlip()));
                     } else {
-                        //spawnSpots.Add(new Vector2(900, 500)); // lower right
-                        //spawnSpots.Add(new Vector2(1000, 400)); // upper right
                         AddRock(1250, 300);
                         AddRock(1050, 600);
                     }
-
-                    // corners
-                    /*spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
-                    spawnSpots.Add(new Vector2(1600 - 100 - 150, 100 + 150)); // top right
-                    spawnSpots.Add(new Vector2(100 + 150, 900 - 100 - 150)); // bottom left
-                    spawnSpots.Add(new Vector2(1600 - 100 - 150, 900 - 100 - 150)); // bottom right
-
-                    // sides
-                    spawnSpots.Add(new Vector2(100 + 75, 450)); // left
-                    spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right*/
                     break;
 
                 case 1: // dashed box
@@ -124,24 +110,13 @@ namespace DeathChain
                     } else {
                         AddRock(1250, 450);
                     }
-
-                    /*spawnSpots.Add(new Vector2(100 + 75, 450)); // left
-                    spawnSpots.Add(new Vector2(1600 - 100 - 75, 450)); // right
-
-                    spawnSpots.Add(new Vector2(1600 - 300 - 50, 200)); // top right
-                    spawnSpots.Add(new Vector2(1600 - 300 - 50, 900 - 200)); // bottom right
-                    spawnSpots.Add(new Vector2(300 + 50, 200)); // top left
-                    spawnSpots.Add(new Vector2(300 + 50, 900 - 200)); // bottom left
-
-                    spawnSpots.Add(new Vector2(800, 200)); // middle
-                    spawnSpots.Add(new Vector2(800, 450)); // top middle*/
                     break;
             }
         }
 
         private void MakeMediumRoom() {
             // 2000 x 1200
-            switch(0) {
+            switch(Game1.RNG.Next(0, 2)) {
                 case 0: // center dashed line
                     walls.Add(new Wall(1000 - 300, 600 - 50, 600, 100, CoinFlip())); // middle line
                     if(CoinFlip()) {
@@ -159,24 +134,6 @@ namespace DeathChain
                     AddRock(525, 850);
                     AddRock(1475, 350);
                     AddRock(1475, 850);
-
-                    /*spawnSpots.Add(new Vector2(1000, 300)); // center top
-
-                    // left column (350 - 700)
-                    spawnSpots.Add(new Vector2(525 + 150, 300)); // top
-                    spawnSpots.Add(new Vector2(525, 600)); // middle
-                    spawnSpots.Add(new Vector2(525 + 150, 900)); // bottom
-
-                    // right column (1300 - 1650)
-                    spawnSpots.Add(new Vector2(1475 - 150, 300)); // top
-                    spawnSpots.Add(new Vector2(1475, 600)); // middle
-                    spawnSpots.Add(new Vector2(1475 - 150, 900)); // bottom
-
-                    // corners
-                    spawnSpots.Add(new Vector2(100 + 150, 100 + 150)); // top left
-                    spawnSpots.Add(new Vector2(2000 - 100 - 150, 100 + 150)); // top right
-                    spawnSpots.Add(new Vector2(100 + 150, 1200 - 100 - 150)); // bottom left
-                    spawnSpots.Add(new Vector2(2000 - 100 - 150, 1200 - 100 - 150)); // bottom right*/
                     break;
 
                 case 1: // window

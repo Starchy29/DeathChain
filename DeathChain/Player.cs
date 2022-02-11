@@ -526,7 +526,7 @@ namespace DeathChain
             float maxSpeed = MAX_SPEED; // default player speed
             switch(possessType) {
                 case EnemyTypes.Zombie:
-                    maxSpeed = Zombie.MAX_SPEED + 50;
+                    maxSpeed = Zombie.MAX_SPEED + 100;
                     break;
                 case EnemyTypes.Scarecrow:
                 case EnemyTypes.Mushroom:
