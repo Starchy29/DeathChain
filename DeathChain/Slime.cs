@@ -15,14 +15,13 @@ namespace DeathChain
         public static readonly Projectile SLIMEBALL = new Projectile(500, 500, 30, Graphics.SlimeBall);
         public static readonly Zone SlimePuddle = new Zone(Vector2.Zero, false, 60, PUDDLE_DURATION, 0.5f, new Texture2D[] {Graphics.Button}, true, null);
 
-        private float wanderTime;
         private float puddleTime;
 
         public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
             timer = 1f + (float)Game1.RNG.NextDouble() * 4f;
             puddleTime = 0f;
             sprite = Graphics.Slime;
-            drawBox = new Rectangle(-5, -15, 60, 70);
+            drawBox = new Rectangle(-5, -20, 60, 70);
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {

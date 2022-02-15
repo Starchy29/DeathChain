@@ -60,7 +60,7 @@ namespace DeathChain
 
             Input.Setup();
             Camera.Start();
-            state = GameState.Game;
+            state = GameState.Menu;
             SetupMenus();
             currentMenu = mainMenu;
         }

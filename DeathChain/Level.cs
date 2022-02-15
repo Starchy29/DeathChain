@@ -231,6 +231,7 @@ namespace DeathChain
                 ability.Draw(sb);
             }
 
+            enemies.Sort((enemy1, enemy2) => { return enemy1.Hitbox.Bottom - enemy2.Hitbox.Bottom; }); // draw enemies from back to front
             foreach(Enemy enemy in enemies) { // enemies before walls so if clipping happens, it's hidden
                 enemy.Draw(sb);
             }
