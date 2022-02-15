@@ -18,8 +18,8 @@ namespace DeathChain
 
         public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 1, MAX_SPEED) {
             sprite = Graphics.Blight;
-            drawBox.Inflate(6, 6);
-            drawBox.Offset(0, -3);
+            drawBox.Inflate(5, 15);
+            drawBox.Offset(0, -15);
             timer = 1f + (float)Game1.RNG.NextDouble() * 3f;
             moveTimer = 0f;
 
