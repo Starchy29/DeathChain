@@ -254,6 +254,14 @@ namespace DeathChain
                     }
                 }
             }
+
+            // shuffle spawn spots
+            for(int i = 0; i < spawnSpots.Count; i++) {
+                int swapI = Game1.RNG.Next(0, spawnSpots.Count);
+                Vector2 swapper = spawnSpots[swapI];
+                spawnSpots[swapI] = spawnSpots[i];
+                spawnSpots[i] = swapper;
+            }
         }
 
         private bool CoinFlip() {

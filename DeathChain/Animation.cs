@@ -16,19 +16,20 @@ namespace DeathChain
         Oscillate, // rebound that loops forever
     }
 
-    // Animations will be defined as class members, then auto-copied when assigned since they are a struct. Do not update on the original.
-    public struct Animation
+    // Animations will be defined as class members
+    public class Animation
     {
         private Texture2D[] sprites;
         private AnimationType type;
-        private readonly float secondsPerFrame; // how fast the sprites change
+        private float secondsPerFrame; // how fast the sprites change
         private float timer;
         private bool backwards;
         private int frame;
 
+        public Animation Next { get; set; } // chain animations together
         public Texture2D CurrentSprite { get { return sprites[frame]; } }
 
-        // Define an animation that will be copied from. Sprite array must contain at least one element
+        // Sprite array must contain at least one element
         public Animation(Texture2D[] sprites, AnimationType type, float secondsPerFrame, bool startAtEnd = false) {
             this.sprites = sprites;
             this.type = type;
@@ -56,6 +57,28 @@ namespace DeathChain
             }
         }
 
+        // copy from an existing animation
+        public Animation(Animation other, bool reversed = false) {
+            this.sprites = other.sprites;
+            this.type = other.type;
+            this.secondsPerFrame = other.secondsPerFrame;
+            this.backwards = other.backwards;
+            this.frame = other.frame;
+            timer = 0;
+
+            if(reversed) {
+                backwards = !backwards;
+                if(type == AnimationType.Hold) {
+                    type = AnimationType.Reverse;
+                    frame = sprites.Length - 1;
+                }
+                else if(type == AnimationType.Reverse) {
+                    type = AnimationType.Hold;
+                    frame = 0;
+                }
+            }
+        }
+
         // move the animation forward the indicated amount
         public void Update(float deltaTime) {
             timer += deltaTime;
@@ -70,6 +93,12 @@ namespace DeathChain
                     if(frame < 0) {
                         switch(type) {
                             case AnimationType.Reverse:
+                                if(Next != null) {
+                                    BecomeNext();
+                                } else {
+                                    frame++; // stay on first frame
+                                }
+                                break;
                             case AnimationType.Rebound:
                                 frame++; // stay on first frame
                                 break;
@@ -88,7 +117,11 @@ namespace DeathChain
                     if(frame >= sprites.Length) {
                         switch(type) {
                             case AnimationType.Hold:
-                                frame--; // stay on last frame
+                                if(Next != null) {
+                                    BecomeNext();
+                                } else {
+                                    frame--; // stay on last frame
+                                }
                                 break;
                             case AnimationType.Rebound:
                             case AnimationType.Oscillate:
@@ -120,6 +153,16 @@ namespace DeathChain
                     frame = sprites.Length - 1;
                     break;
             }
+        }
+
+        private void BecomeNext() {
+            this.sprites = Next.sprites;
+            this.type = Next.type;
+            this.secondsPerFrame = Next.secondsPerFrame;
+            this.backwards = Next.backwards;
+            this.frame = Next.frame;
+            timer = 0;
+            Next = null;
         }
     }
 }

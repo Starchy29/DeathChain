@@ -60,7 +60,7 @@ namespace DeathChain
 
             Input.Setup();
             Camera.Start();
-            state = GameState.Menu;
+            state = GameState.Game;
             SetupMenus();
             currentMenu = mainMenu;
         }
@@ -215,18 +215,16 @@ namespace DeathChain
                     break;
             }
 
-            spriteBatch.End();
-
             // add black bars
-            spriteBatch.Begin(); // reset scaling and everything
             if(xOffset > 0) {
-                spriteBatch.Draw(Graphics.Pixel, new Rectangle(0, 0, xOffset, GraphicsDevice.Viewport.Height), Color.Black); // left
-                spriteBatch.Draw(Graphics.Pixel, new Rectangle(GraphicsDevice.Viewport.Width - xOffset, 0, xOffset, GraphicsDevice.Viewport.Height), Color.Black); // right
+                spriteBatch.Draw(Graphics.Pixel, new Rectangle(-StartScreenWidth, 0, StartScreenWidth, StartScreenHeight), Color.Black); // left
+                spriteBatch.Draw(Graphics.Pixel, new Rectangle(StartScreenWidth, 0, StartScreenWidth, StartScreenHeight), Color.Black); // right
             }
             else if(yOffset > 0) {
-                spriteBatch.Draw(Graphics.Pixel, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, yOffset), Color.Black); // top
-                spriteBatch.Draw(Graphics.Pixel, new Rectangle(0, GraphicsDevice.Viewport.Height - yOffset, GraphicsDevice.Viewport.Width, yOffset), Color.Black); // bottom
+                spriteBatch.Draw(Graphics.Pixel, new Rectangle(0, -StartScreenHeight, StartScreenWidth, StartScreenHeight), Color.Black); // top
+                spriteBatch.Draw(Graphics.Pixel, new Rectangle(0, StartScreenHeight, StartScreenWidth, StartScreenHeight), Color.Black); // bottom
             }
+
             spriteBatch.End();
 
             base.Draw(gameTime);

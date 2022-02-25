@@ -14,8 +14,6 @@ namespace DeathChain
 
         private delegate bool EdgeCheck(Rectangle tester, Rectangle outermost);
 
-        private static Random rng = new Random(); 
-
         private List<Particle> particles;
         private List<Entity> abilities;
         private List<Enemy> enemies;
@@ -55,13 +53,14 @@ namespace DeathChain
             //enemies.Add(new Zombie(1300, 500));
             //enemies.Add(new Zombie(1300, 700));
 
-            //enemies.Add(new Mushroom(300, 450));
-            //enemies.Add(new Mushroom(1300, 450));
+            enemies.Add(new Mushroom(300, 450));
+            enemies.Add(new Mushroom(1300, 450));
 
             //enemies.Add(new Slime(300, 450));
             //enemies.Add(new Blight(300, 450));
+            //enemies.Add(new Beast(300, 450));
 
-            enemies.Add(new Scarecrow(300, 450));
+            //enemies.Add(new Scarecrow(300, 450));
 
             DefineCameraSpace();
         }
@@ -86,6 +85,8 @@ namespace DeathChain
             enemyTypes[1].Add(EnemyTypes.Slime);
             enemyTypes[1].Add(EnemyTypes.Scarecrow);
 
+            enemyTypes[2].Add(EnemyTypes.Beast);
+
             // choose a level shape
             LevelLayout layout;
             if(difficulty <= 3) {
@@ -100,45 +101,21 @@ namespace DeathChain
             enterDist = EDGE_BUFFER + 25;
 
             // choose a floorplan
-            List<Wall> addWalls = layout.Walls;
-            foreach(Wall addWall in addWalls) {
-                walls.Add(addWall);
-            }
-
-            // shuffle spawn spots
-            Random rng = new Random();
+            this.walls = layout.Walls;
             List<Vector2> spawnSpots = layout.SpawnSpots;
-            for(int i = 0; i < spawnSpots.Count; i++) {
-                int swapI = rng.Next(0, spawnSpots.Count);
-                Vector2 swapper = spawnSpots[swapI];
-                spawnSpots[swapI] = spawnSpots[i];
-                spawnSpots[i] = swapper;
-            }
             
             // add enemies
-           bool spawnFirst = true;
-            while(difficulty > 0 && spawnSpots.Count > 0) {
-                // determine max difficulty value of next enemy
-                int maxDiff = 2;
-                if(spawnFirst && difficulty <= 3) {
-                    // make sure there are at least two enemies
-                    maxDiff = difficulty - 1; // gaurantees that a second enemy will spawn
-                    spawnFirst = false;
-                }
-                else if(difficulty < 3) {
-                    // don't make an enemy that would exceed the max difficulty value
-                    maxDiff = difficulty;
-                }
-
+            Stack<int> difficulties = CreateDifficulties(difficulty);
+            while(difficulties.Count > 0 && spawnSpots.Count > 0) {
                 // choose next enemy
-                int enemyDiff = rng.Next(1, maxDiff + 1);
-                difficulty -= enemyDiff;
+                int enemyDiff = difficulties.Pop();
 
-                List<EnemyTypes> enemyOptions = enemyTypes[enemyDiff - 1];
-                Vector2 position = spawnSpots[0];
+                List<EnemyTypes> enemyOptions = enemyTypes[enemyDiff];
+                Vector2 position = spawnSpots[0]; // pop spawn spot
                 spawnSpots.RemoveAt(0);
 
-                switch(enemyOptions[rng.Next(0, enemyOptions.Count)]) {
+                // add next enemy based on chosen type
+                switch(enemyOptions[Game1.RNG.Next(0, enemyOptions.Count)]) {
                     case EnemyTypes.Zombie:
                         enemies.Add(new Zombie((int)position.X, (int)position.Y));
                         break;
@@ -154,6 +131,9 @@ namespace DeathChain
                     case EnemyTypes.Scarecrow:
                         enemies.Add(new Scarecrow((int)position.X, (int)position.Y));
                         break;
+                    case EnemyTypes.Beast:
+                        enemies.Add(new Beast((int)position.X, (int)position.Y));
+                        break;
                 }
             }
 
@@ -161,7 +141,7 @@ namespace DeathChain
         }
 
         public void Update(float deltaTime, Player player) {
-            // start of level room enter aniation
+            // start of level room enter animation
             if(enterDist > 0) {
                 enterDist -= player.WalkIn(deltaTime);
                 if(enterDist <= 0) {
@@ -269,6 +249,68 @@ namespace DeathChain
 
             bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)(bottomRight.X - topLeft.X), (int)(bottomRight.Y - topLeft.Y));
             bounds.Inflate(EDGE_BUFFER, EDGE_BUFFER);
+        }
+
+        // Creates a list of possible difficulty breakdowns based on the total difficulty and returns a random one
+        // There should be between 3 and 5 enemies per level.
+        // Enemy difficulties are 1-3
+        private Stack<int> CreateDifficulties(int difficulty) {
+            // handle special cases
+            if(difficulty <= 0) {
+                return new Stack<int>();
+            }
+            else if(difficulty == 1) {
+                Stack<int> res1 = new Stack<int>();
+                res1.Push(0);
+                return res1;
+            }
+            else if(difficulty == 2) {
+                Stack<int> res2 = new Stack<int>();
+                res2.Push(0);
+                res2.Push(0);
+                return res2;
+            }
+
+            // the first index of each array is the number of 1 difficulty enemies. Index 1 is difficulty 2 and index 2 is difficulty 3
+            List<int[]> difficultyOptions = new List<int[]>();
+            difficultyOptions.Add(new int[3]{ 3, 0, 0 });
+            difficulty -= 3;
+            
+            // "recursively" determine all possibilities
+            for(int c = 0; c < difficulty; c++) {
+                List<int[]> nextOptions = new List<int[]>();
+
+                // fill next options by adding a new 1 power enemy or powering up an existing one
+                foreach(int[] option in difficultyOptions) {
+                    if(option[0] + option[1] + option[2] < 5) { // don't create more than 5 enemies
+                        nextOptions.Add(new int[3]{ option[0] + 1, option[1], option[2] }); // add another 1 power enemy
+                    }
+                    if(option[0] > 1) { // leave at least 1 power 1 enemy
+                        nextOptions.Add(new int[3]{ option[0] - 1, option[1] + 1, option[2] }); // upgrade a 1 power to 2 power
+                    }
+                    if(option[1] > 0) { // must have a 2 power enemy to power up
+                        nextOptions.Add(new int[3] { option[0], option[1] - 1, option[2] + 1 }); // upgrade a 2 power to 3 power
+                    }
+                }
+
+                // pass to current options
+                difficultyOptions = nextOptions;
+            }
+
+            if(difficultyOptions.Count <= 0) {
+                return new Stack<int>();
+            }
+
+            // convert result to a more useful form
+            Stack<int> result = new Stack<int>();
+            int[] resultArr = difficultyOptions[Game1.RNG.Next(difficultyOptions.Count)]; // choose a random option here
+            for(int difficultyIndex = 0; difficultyIndex <= 2; difficultyIndex++) { // for each difficulty value
+                for(int counter = 0; counter < resultArr[difficultyIndex]; counter++) { // add that difficulty value this number of times
+                    result.Push(difficultyIndex);
+                }
+            }
+
+            return result;
         }
     }
 }

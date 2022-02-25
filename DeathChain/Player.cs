@@ -14,7 +14,8 @@ namespace DeathChain
         Mushroom,
         Slime,
         Blight,
-        Scarecrow
+        Scarecrow,
+        Beast
     }
 
     public enum PlayerState {
@@ -53,7 +54,7 @@ namespace DeathChain
         private Dictionary<EnemyTypes, Ability[]> abilities;
         private SpriteEffects flips;
         private Vector2 selector; // used for abilities that select a spot on the level
-        private Direction wasFacing = Direction.Down;
+        //private Direction wasFacing = Direction.Down;
         private Direction facing = Direction.Down; // help choose which animation to use
         private float decayTimer; // tracks how long until the possessed body loses a health
 
@@ -109,10 +110,24 @@ namespace DeathChain
         }
 
         public override void Update(Level level, float deltaTime) {
-            flips = SpriteEffects.None;
-
+            // choose correct animation
             if(possessType == EnemyTypes.None) {
-                if(Input.IsPressed(Inputs.Right) && !Input.IsPressed(Inputs.Left)) {
+                currentAnimation = forward;
+                flips = SpriteEffects.None;
+
+                if(Input.IsPressed(Inputs.Right)) {
+                    currentAnimation = side;
+                }
+                if(Input.IsPressed(Inputs.Left)) {
+                    currentAnimation = side;
+                    flips = SpriteEffects.FlipHorizontally;
+                }
+                if(Input.IsPressed(Inputs.Up)) {
+                    currentAnimation = back;
+                    flips = SpriteEffects.FlipHorizontally;
+                }
+
+                /*if(Input.IsPressed(Inputs.Right) && !Input.IsPressed(Inputs.Left)) {
                     facing = Direction.Right;
                 }
                 else if(Input.IsPressed(Inputs.Left) && !Input.IsPressed(Inputs.Right)) {
@@ -140,11 +155,11 @@ namespace DeathChain
                             currentAnimation = side;
                             break;
                     }
-                }
+                }*/
             }
 
             currentAnimation.Update(deltaTime);
-            wasFacing = facing; // detect change in animation next frame
+            //wasFacing = facing; // detect change in animation next frame
 
             bool checkWalls = true;
             bool checkPits = true;
@@ -213,7 +228,8 @@ namespace DeathChain
                         state = PlayerState.Normal;
                         timer = 0;
                         cooldowns[1] = 2f;
-                        currentAnimation = Mushroom.Shoot;
+                        currentAnimation = new Animation(Mushroom.Hide, true);
+                        currentAnimation.Next = new Animation(Mushroom.Shoot);
                     }
                     break;
 
@@ -538,6 +554,9 @@ namespace DeathChain
                 case EnemyTypes.Blight:
                     maxSpeed = Blight.MAX_SPEED;
                     break;
+                case EnemyTypes.Beast:
+                    maxSpeed = Beast.MAX_SPEED;
+                    break;
             }
             return maxSpeed;
         }
@@ -568,7 +587,7 @@ namespace DeathChain
         private void Block(Level level) {
             state = PlayerState.Block;
             timer = 2f; // max block time
-            currentAnimation = Mushroom.Hide;
+            currentAnimation = new Animation(Mushroom.Hide);
         }
 
         private void FireSpore(Level level) {

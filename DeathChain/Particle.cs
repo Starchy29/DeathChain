@@ -34,7 +34,7 @@ namespace DeathChain
             area.X = (int)midpoint.X - area.Width / 2;
             area.Y = (int)midpoint.Y - area.Height / 2;
             this.duration = other.duration;
-            this.animation = other.animation; // copies because struct
+            this.animation = new Animation(other.animation); // copies because struct
             this.rotation = rotation;
             timer = 0;
         }

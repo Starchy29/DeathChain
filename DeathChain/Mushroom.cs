@@ -10,6 +10,7 @@ namespace DeathChain
 {
     public class Mushroom : Enemy
     {
+        // each entity should copy from these
         public static readonly Animation Shoot = new Animation(Graphics.Mushroom, AnimationType.Rebound, 0.05f, true);
         public static readonly Animation Hide = new Animation(Graphics.MushroomHide, AnimationType.Hold, 0.01f);
         public static readonly Particle SporeCloud = new Particle(new Rectangle(0, 0, 100, 100), Graphics.SporeBurst, 0.25f);
@@ -22,7 +23,7 @@ namespace DeathChain
             blocking = false;
             blockTimer = 0f;
             sprite = null;
-            currentAnimation = Shoot;
+            currentAnimation = new Animation(Shoot);
             drawBox.Inflate(5, 5); // make mushroom appear larger
         }
 
@@ -30,11 +31,13 @@ namespace DeathChain
             currentAnimation.Update(deltaTime);
 
             if(blocking) {
-                tint = Color.Pink;
                 blockTimer -= deltaTime;
+
+                // end block
                 if(blockTimer <= 0) {
                     blocking = false;
-                    currentAnimation = Shoot;
+                    currentAnimation = new Animation(Hide, true);
+                    currentAnimation.Next = new Animation(Shoot);
                     blockTimer = -6f; // cooldown
                 }
             } else {
@@ -49,7 +52,7 @@ namespace DeathChain
                     aim.Normalize();
                     level.Abilities.Add(new BounceSpore(Midpoint, aim, false));
 
-                    currentAnimation.Restart();
+                    currentAnimation.Restart(); // restart shoot animation to animate
                     level.Particles.Add(new Particle(SporeCloud, Midpoint - new Vector2(0, 25)));
                 }
 
@@ -60,7 +63,7 @@ namespace DeathChain
                     foreach(Entity projectile in level.Abilities) {
                         if(projectile is Projectile && ((Projectile)projectile).FromPlayer && DistanceTo(projectile) <= 150f) {
                             blocking = true;
-                            currentAnimation = Hide;
+                            currentAnimation = new Animation(Hide);
                             blockTimer = 0.5f; // block duration
                         }
                     }

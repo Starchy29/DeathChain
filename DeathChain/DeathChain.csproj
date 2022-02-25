@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Animation.cs" />
     <Compile Include="Audio.cs" />
+    <Compile Include="Beast.cs" />
     <Compile Include="Blight.cs" />
     <Compile Include="BounceSpore.cs" />
     <Compile Include="Button.cs" />
