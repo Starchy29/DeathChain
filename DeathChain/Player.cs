@@ -440,6 +440,7 @@ namespace DeathChain
             drawBox = playerDrawBox;
             currentAnimation = forward;
             cooldowns[0] = 0;
+            currentAttack = null;
         }
 
         public void TakeDamage(Level level, int damage = 1) {
@@ -528,7 +529,7 @@ namespace DeathChain
             reverseSlash = !reverseSlash;
             int dirMult = (reverseSlash ? 1 : -1);
 
-            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, new Texture2D[1] { Graphics.Slash});
+            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, new Texture2D[1] { Graphics.Slash });
         }
 
         private void BeastSlash(Level level) {

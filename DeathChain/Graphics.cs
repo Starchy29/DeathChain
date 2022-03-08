@@ -18,6 +18,7 @@ namespace DeathChain
         public static Texture2D[] PlayerFront { get; set; }
         public static Texture2D[] PlayerSide { get; set; }
         public static Texture2D[] PlayerBack { get; set; }
+        public static Texture2D SlashTest { get; set; }
 
         public static Texture2D[] Mushroom { get; set; } // shoot animation, freezes on first frame when idle
         public static Texture2D[] MushroomHide { get; set; } // shoot animation, freezes on first frame when idle

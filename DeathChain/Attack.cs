@@ -38,6 +38,7 @@ namespace DeathChain
 
             if(sprites != null) {
                 currentAnimation = new Animation(sprites, AnimationType.Hold, duration / sprites.Length); // animation evenly occupies entire attack
+                sprite = sprites[0];
             } else {
                 sprite = Graphics.Pixel;
             }
@@ -72,6 +73,14 @@ namespace DeathChain
                     hitEntities.Add(Game1.Player);
                 }
             }
+        }
+
+        public override void Draw(SpriteBatch sb) {
+            SpriteEffects flipped = SpriteEffects.None;
+            if(Game1.RotateVector(startAim, rotateSpeed * timePassed).X > 0) {
+                flipped = SpriteEffects.FlipHorizontally;
+            }
+            Game1.RotateDraw(sb, sprite, DrawBox, Color.White, rotateSpeed * timePassed + (float)Math.PI / 2f, flipped);
         }
     }
 }
