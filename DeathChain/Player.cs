@@ -34,6 +34,9 @@ namespace DeathChain
         public const int SELECT_DIST = 100; // distance from a dead enemy that the player can possess them
         public const int MAX_SPEED = 400;
         private const float DECAY_RATE = 5f;
+        private const float ACCEL = 10000.0f;
+        private float friction = 2000f;
+
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
         private readonly Animation side = new Animation(Graphics.PlayerSide, AnimationType.Loop, 0.1f);
@@ -41,22 +44,18 @@ namespace DeathChain
 
         private EnemyTypes possessType; // the type of enemy the player is controlling currently
         private PlayerState state;
-        private const float ACCEL = 10000.0f;
-        private float friction = 2000f;
+        
         private int health;
         private int ghostHealth; // the ghost form keeps health even when forms change
-        private float timer;
+        private float timer; // used for anything, each state uses it for up to one thing
         private float invulnTime; // after getting hit
-        private Vector2 aim;
-        private Rectangle attackArea;
-        private List<Enemy> hitEnemies; // when attacking, makes sure each attack ony hits an enemy once
         private double[] cooldowns; // cooldowns for the 3 abilities.
         private Dictionary<EnemyTypes, Ability[]> abilities;
         private SpriteEffects flips;
         private Vector2 selector; // used for abilities that select a spot on the level
-        //private Direction wasFacing = Direction.Down;
-        private Direction facing = Direction.Down; // help choose which animation to use
         private float decayTimer; // tracks how long until the possessed body loses a health
+        private Attack currentAttack;
+        private bool reverseSlash;
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
@@ -72,7 +71,6 @@ namespace DeathChain
         public Player() : base(Vector2.Zero, 50, 50) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
-            hitEnemies = new List<Enemy>();
             health = 5;
             ghostHealth = 5;
             drawBox = playerDrawBox;
@@ -93,10 +91,12 @@ namespace DeathChain
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
             abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
             abilities[EnemyTypes.Scarecrow] = new Ability[3] { FlameBurst, Teleport, FlameSpiral };
+            abilities[EnemyTypes.Beast] = new Ability[3] { BeastSlash, Lunge, null };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
             abilityIcons[Slash] = Graphics.Slash;
+            abilityIcons[BeastSlash] = Graphics.Slash;
             abilityIcons[Dash] = Graphics.Dash;
             abilityIcons[Lunge] = Graphics.Dash;
             abilityIcons[Block] = Graphics.Shield;
@@ -115,47 +115,19 @@ namespace DeathChain
                 currentAnimation = forward;
                 flips = SpriteEffects.None;
 
+                
+                if(Input.IsPressed(Inputs.Up)) { // first so right and left get override priority
+                    currentAnimation = back;
+                    flips = SpriteEffects.FlipHorizontally;
+                }
                 if(Input.IsPressed(Inputs.Right)) {
                     currentAnimation = side;
+                    flips = SpriteEffects.None;
                 }
                 if(Input.IsPressed(Inputs.Left)) {
                     currentAnimation = side;
                     flips = SpriteEffects.FlipHorizontally;
                 }
-                if(Input.IsPressed(Inputs.Up)) {
-                    currentAnimation = back;
-                    flips = SpriteEffects.FlipHorizontally;
-                }
-
-                /*if(Input.IsPressed(Inputs.Right) && !Input.IsPressed(Inputs.Left)) {
-                    facing = Direction.Right;
-                }
-                else if(Input.IsPressed(Inputs.Left) && !Input.IsPressed(Inputs.Right)) {
-                    facing = Direction.Left;
-                    flips = SpriteEffects.FlipHorizontally;
-                }
-                else if(Input.IsPressed(Inputs.Up) && !Input.IsPressed(Inputs.Down)) {
-                    facing = Direction.Up;
-                    flips = SpriteEffects.FlipHorizontally;
-                }
-                else {
-                    facing = Direction.Down;
-                }
-
-                if(facing != wasFacing) {
-                    switch(facing) {
-                        case Direction.Down:
-                            currentAnimation = forward;
-                            break;
-                        case Direction.Up:
-                            currentAnimation = back;
-                            break;
-                        case Direction.Right:
-                        case Direction.Left:
-                            currentAnimation = side;
-                            break;
-                    }
-                }*/
             }
 
             currentAnimation.Update(deltaTime);
@@ -193,21 +165,12 @@ namespace DeathChain
 
                 case PlayerState.Slash:
                     Move(deltaTime, GetMaxSpeed() / 2);
-                    GenerateAttack(50, 50);
-                    foreach(Enemy enemy in level.Enemies) {
-                        if(enemy.Hitbox.Intersects(attackArea) && !hitEnemies.Contains(enemy)) {
-                            // damage enemy
-                            enemy.TakeDamage(level);
-                            enemy.Push(aim * 500);
-                            hitEnemies.Add(enemy);
-                        }
-                    }
+                    currentAttack.Update(level, deltaTime);
 
-                    timer -= deltaTime;
-                    if(timer <= 0) {
-                        timer = 0;
+                    if(!currentAttack.IsActive) {
                         state = PlayerState.Normal;
                         cooldowns[0] = 0.4;
+                        currentAttack = null;
                     }
                     break;
 
@@ -381,19 +344,8 @@ namespace DeathChain
 
         public override void Draw(SpriteBatch sb) {
             // draw attack
-            switch (state) {
-                case PlayerState.Slash:
-                    if(attackArea != null) {
-                        //sb.Draw(Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White);
-                        SpriteEffects flips = SpriteEffects.None;
-                        Vector2 aim = Midpoint - attackArea.Center.ToVector2();
-                        if(aim.X < 0) {
-                            flips = SpriteEffects.FlipVertically;
-                        }
-                        float rotation = (float)Math.Atan2(aim.Y, aim.X);
-                        Game1.RotateDraw(sb, Graphics.Slash, new Rectangle(attackArea.X + (int)Camera.Shift.X, attackArea.Y + (int)Camera.Shift.Y, attackArea.Width, attackArea.Height), Color.White, rotation, flips);
-                    }
-                    break;
+            if(currentAttack != null) {
+                currentAttack.Draw(sb);
             }
 
             // draw selectors
@@ -417,6 +369,10 @@ namespace DeathChain
             }
             else if(possessType == EnemyTypes.Blight) {
                 currentAnimation = new Animation(new Texture2D[] { Graphics.Blight }, AnimationType.Hold, 1f);
+                tint = Color.Gray;
+            }
+            else if(possessType == EnemyTypes.Beast) {
+                currentAnimation = new Animation(new Texture2D[] { Graphics.Beast }, AnimationType.Hold, 1f);
                 tint = Color.Gray;
             }
 
@@ -569,19 +525,24 @@ namespace DeathChain
 
         private void Slash(Level level) {
             state = PlayerState.Slash;
-            timer = 0.2f;
-            aim = Input.GetAim();
-            hitEnemies.Clear();
+            reverseSlash = !reverseSlash;
+            int dirMult = (reverseSlash ? 1 : -1);
 
-            GenerateAttack(50, 50);
+            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, new Texture2D[1] { Graphics.Slash});
+        }
+
+        private void BeastSlash(Level level) {
+            state = PlayerState.Slash;
+            reverseSlash = !reverseSlash;
+            int dirMult = (reverseSlash ? 1 : -1);
+
+            currentAttack = new Attack(this, Beast.ATTACK_SIZE, Game1.RotateVector(Input.GetAim(), dirMult * Beast.ATTACK_ANGLE / 2f), -dirMult * Beast.ATTACK_ANGLE, Beast.ATTACK_DURATION, new Texture2D[1] { Graphics.Slash});
         }
 
         private void Lunge(Level level) {
             state = PlayerState.Lunge;
             timer = Zombie.LUNGE_DURATION;
-            aim = Input.GetAim();
-            velocity = aim * Zombie.LUNGE_SPEED;
-            GenerateAttack(50, 50);
+            velocity = Input.GetAim() * Zombie.LUNGE_SPEED;
         }
 
         private void Block(Level level) {
@@ -630,12 +591,6 @@ namespace DeathChain
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2(1, 0), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(2 * Math.PI / 3), (float)Math.Sin(2 * Math.PI / 3)), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(-2 * Math.PI / 3), (float)Math.Sin(-2 * Math.PI / 3)), true));
-        }
-
-        // generates an attack area relative to the player. Uses the aim variable
-        private void GenerateAttack(int length, int dist) {
-            Vector2 rectMid = Midpoint + aim * dist;
-            attackArea = new Rectangle((int)rectMid.X - length / 2, (int)rectMid.Y - length / 2, length, length);
         }
 
         // when player enters a room, walk up for a bit, returns distance travelled

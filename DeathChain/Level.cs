@@ -53,12 +53,12 @@ namespace DeathChain
             //enemies.Add(new Zombie(1300, 500));
             //enemies.Add(new Zombie(1300, 700));
 
-            enemies.Add(new Mushroom(300, 450));
-            enemies.Add(new Mushroom(1300, 450));
+            //enemies.Add(new Mushroom(300, 450));
+            //enemies.Add(new Mushroom(1300, 450));
 
             //enemies.Add(new Slime(300, 450));
             //enemies.Add(new Blight(300, 450));
-            //enemies.Add(new Beast(300, 450));
+            enemies.Add(new Beast(300, 450));
 
             //enemies.Add(new Scarecrow(300, 450));
 

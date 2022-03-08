@@ -137,6 +137,7 @@ namespace DeathChain
             Graphics.Scarecrow = Content.Load<Texture2D>("scarecrow");
 
             Graphics.Blight = Content.Load<Texture2D>("blight");
+            Graphics.Beast = Content.Load<Texture2D>("beast");
 
             Graphics.Slash = Content.Load<Texture2D>("slash");
             Graphics.Button = Content.Load<Texture2D>("button");
@@ -170,6 +171,9 @@ namespace DeathChain
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            if(!Game.IsActive) {
+                return;
+            }
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -245,6 +249,10 @@ namespace DeathChain
         public static void RotateDraw(SpriteBatch sb, Texture2D sprite, Rectangle location, Color color, float radians, SpriteEffects flips = SpriteEffects.None) {
             location.Offset(location.Width / 2, location.Height / 2);
             sb.Draw(sprite, location, null, color, radians, new Vector2(sprite.Width / 2f, sprite.Height / 2f), flips, 1f);
+        }
+
+        public static Vector2 RotateVector(Vector2 vector, float radians) {
+            return Vector2.Transform(vector, Matrix.CreateRotationZ(radians));
         }
 
         private void SetupMenus() {

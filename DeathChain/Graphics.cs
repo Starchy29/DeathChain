@@ -33,6 +33,7 @@ namespace DeathChain
 
         public static Texture2D Scarecrow { get; set; }
         public static Texture2D Blight { get; set; }
+        public static Texture2D Beast { get; set; }
 
         public static Texture2D Slash { get; set; }
         public static Texture2D Button { get; set; }
