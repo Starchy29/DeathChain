@@ -529,7 +529,7 @@ namespace DeathChain
             reverseSlash = !reverseSlash;
             int dirMult = (reverseSlash ? 1 : -1);
 
-            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, new Texture2D[1] { Graphics.Slash });
+            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, Graphics.SlashEffect, reverseSlash);
         }
 
         private void BeastSlash(Level level) {
@@ -537,7 +537,7 @@ namespace DeathChain
             reverseSlash = !reverseSlash;
             int dirMult = (reverseSlash ? 1 : -1);
 
-            currentAttack = new Attack(this, Beast.ATTACK_SIZE, Game1.RotateVector(Input.GetAim(), dirMult * Beast.ATTACK_ANGLE / 2f), -dirMult * Beast.ATTACK_ANGLE, Beast.ATTACK_DURATION, new Texture2D[1] { Graphics.Slash});
+            currentAttack = new Attack(this, Beast.ATTACK_SIZE, Game1.RotateVector(Input.GetAim(), dirMult * Beast.ATTACK_ANGLE / 2f), -dirMult * Beast.ATTACK_ANGLE, Beast.ATTACK_DURATION, Graphics.SlashEffect, reverseSlash);
         }
 
         private void Lunge(Level level) {

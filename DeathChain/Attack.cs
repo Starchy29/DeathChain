@@ -17,8 +17,10 @@ namespace DeathChain
         private float timePassed;
         private Vector2 startAim;
         List<Entity> hitEntities;
+        private float drawRotation;
+        private SpriteEffects flips; // flip sprites when attacking the other rotation
 
-        public Attack(Entity user, int diameter, Vector2 startAim, float rotation, float duration, Texture2D[] sprites) : base(user.Midpoint + (user.Width + diameter / 2f) / 2f * startAim, diameter, diameter) {
+        public Attack(Entity user, int diameter, Vector2 startAim, float rotation, float duration, Texture2D[] sprites, bool reversed = false) : base(user.Midpoint + (user.Width + diameter / 2f) / 2f * startAim, diameter, diameter) {
             if(duration <= 0) {
                 throw new ArgumentException("Attempted to create an attack with non-positive duration");
             }
@@ -38,13 +40,21 @@ namespace DeathChain
 
             if(sprites != null) {
                 currentAnimation = new Animation(sprites, AnimationType.Hold, duration / sprites.Length); // animation evenly occupies entire attack
-                sprite = sprites[0];
+                //sprite = sprites[0];
             } else {
                 sprite = Graphics.Pixel;
+            }
+
+            drawRotation = (float)Math.Atan2(startAim.Y, startAim.X) + rotation / 2f;
+            flips = SpriteEffects.None;
+            if(reversed) {
+                flips = SpriteEffects.FlipVertically;
             }
         }
 
         public override void Update(Level level, float deltaTime) {
+            currentAnimation.Update(deltaTime);
+
             // update duration timer
             timePassed += deltaTime;
             if(timePassed >= duration) {
@@ -76,11 +86,7 @@ namespace DeathChain
         }
 
         public override void Draw(SpriteBatch sb) {
-            SpriteEffects flipped = SpriteEffects.None;
-            if(Game1.RotateVector(startAim, rotateSpeed * timePassed).X > 0) {
-                flipped = SpriteEffects.FlipHorizontally;
-            }
-            Game1.RotateDraw(sb, sprite, DrawBox, Color.White, rotateSpeed * timePassed + (float)Math.PI / 2f, flipped);
+            Game1.RotateDraw(sb, currentAnimation.CurrentSprite, DrawBox, Color.White, drawRotation, flips);
         }
     }
 }

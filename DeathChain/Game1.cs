@@ -104,6 +104,10 @@ namespace DeathChain
                 Graphics.PlayerBack[i] = Content.Load<Texture2D>("player back " + i);
             }
             Graphics.SlashTest = Content.Load<Texture2D>("swipe test");
+            Graphics.SlashEffect = new Texture2D[10];
+            for(int i = 0; i < 10; i++) {
+                Graphics.SlashEffect[i] = Content.Load<Texture2D>("slash " + i);
+            }
 
             Graphics.Mushroom = new Texture2D[4];
             Graphics.MushroomHide = new Texture2D[10];
