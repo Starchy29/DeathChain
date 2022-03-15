@@ -10,13 +10,12 @@ namespace DeathChain
 {
     class Blight : Enemy
     {
-        public const int MAX_SPEED = 500;
-        //private const float COOLDOWN = -1f;
+        public const int MAX_SPEED = 450;
         public const int EXPLOSION_RADIUS = 110;
         public const float STARTUP = 0.1f;
         private List<Vector2> directionOptions;
 
-        public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 1, MAX_SPEED) {
+        public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 2, MAX_SPEED) {
             sprite = Graphics.Blight;
             drawBox.Inflate(5, 15);
             drawBox.Offset(0, -15);

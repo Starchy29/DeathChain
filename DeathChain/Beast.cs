@@ -13,7 +13,7 @@ namespace DeathChain
         public const int MAX_SPEED = 150;
         public const int ATTACK_SIZE = 100;
         public const float ATTACK_ANGLE = (float)Math.PI / 2; // total angle travelled, centered at aim
-        public const float ATTACK_DURATION = 0.5f;
+        public const float ATTACK_DURATION = 0.2f;
 
         private bool rushing;
         private Attack slash;

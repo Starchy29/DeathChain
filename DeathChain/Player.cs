@@ -36,6 +36,7 @@ namespace DeathChain
         private const float DECAY_RATE = 5f;
         private const float ACCEL = 10000.0f;
         private float friction = 2000f;
+        private const int WIDTH = 50;
 
         private readonly Rectangle playerDrawBox = new Rectangle(0, -15, 50, 65);
         private readonly Animation forward = new Animation(Graphics.PlayerFront, AnimationType.Loop, 0.1f);
@@ -56,6 +57,7 @@ namespace DeathChain
         private float decayTimer; // tracks how long until the possessed body loses a health
         private Attack currentAttack;
         private bool reverseSlash;
+        private float unpossessTimer;
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
@@ -68,7 +70,7 @@ namespace DeathChain
             }
         } }
 
-        public Player() : base(Vector2.Zero, 50, 50) {
+        public Player() : base(Vector2.Zero, WIDTH, WIDTH) {
             state = PlayerState.Normal;
             velocity = Vector2.Zero;
             health = 5;
@@ -111,7 +113,7 @@ namespace DeathChain
 
         public override void Update(Level level, float deltaTime) {
             // choose correct animation
-            if(possessType == EnemyTypes.None) {
+            if(possessType == EnemyTypes.None && state == PlayerState.Normal) {
                 currentAnimation = forward;
                 flips = SpriteEffects.None;
 
@@ -131,7 +133,6 @@ namespace DeathChain
             }
 
             currentAnimation.Update(deltaTime);
-            //wasFacing = facing; // detect change in animation next frame
 
             bool checkWalls = true;
             bool checkPits = true;
@@ -171,6 +172,9 @@ namespace DeathChain
                         state = PlayerState.Normal;
                         cooldowns[0] = 0.4;
                         currentAttack = null;
+                        /*if(!Possessing) {
+                            drawBox = playerDrawBox;
+                        }*/
                     }
                     break;
 
@@ -235,7 +239,7 @@ namespace DeathChain
                     if(!overWall && !Input.IsPressed(Inputs.Secondary)) {
                         state = PlayerState.Normal;
                         Midpoint = selector;
-                        cooldowns[1] = 0.4f;
+                        cooldowns[1] = 0.5f;
                     }
                     break;
             }
@@ -312,13 +316,10 @@ namespace DeathChain
 
                     invulnTime = 0.5f;
                 }
-                else if(Possessing) {
-                    Unpossess();
-                }
             }
 
             // timers
-            for (int i = 0; i < 3; i++) {
+            for(int i = 0; i < 3; i++) { // decrease cooldowns
                 if(cooldowns[i] > 0) {
                     cooldowns[i] -= deltaTime;
                     if(cooldowns[i] < 0) {
@@ -326,9 +327,11 @@ namespace DeathChain
                     }
                 }
             }
-            if(invulnTime > 0) {
+
+            if(invulnTime > 0) { // decrease invuln time
                 invulnTime -= deltaTime;
             }
+
             if(Possessing) {
                 // lose health over time when possessing
                 decayTimer -= deltaTime;
@@ -338,6 +341,16 @@ namespace DeathChain
                     if(health <= 0) {
                         Unpossess();
                     }
+                }
+
+                if(Input.IsPressed(Inputs.Possess)) {
+                    unpossessTimer += deltaTime;
+                    if(unpossessTimer > 0.5f) {
+                        Unpossess();
+                        unpossessTimer = 0f;
+                    }
+                } else {
+                    unpossessTimer = 0;
                 }
             }
         }
@@ -438,6 +451,8 @@ namespace DeathChain
             possessType = EnemyTypes.None;
             state = PlayerState.Normal;
             drawBox = playerDrawBox;
+            width = WIDTH;
+            height = WIDTH;
             currentAnimation = forward;
             cooldowns[0] = 0;
             currentAttack = null;
@@ -448,6 +463,7 @@ namespace DeathChain
                 // don't take damage when blocking
                 level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
                 invulnTime = 0.3f; // prevent rapid particles
+                Input.Vibrate(0.4f, 0.1f);
                 return;
             }
 
@@ -456,10 +472,12 @@ namespace DeathChain
                 level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
 
                 if(Possessing) {
-                    invulnTime = 0.5f;
+                    invulnTime = 1f;
+                    Input.Vibrate(0.6f, 0.2f);
                 } else {
                     ghostHealth -= damage;
                     invulnTime = 2f;
+                    Input.Vibrate(1.0f, 0.2f);
                 }
 
                 if(health <= 0) {
@@ -509,7 +527,7 @@ namespace DeathChain
                     maxSpeed = Slime.MAX_SPEED + 50;
                     break;
                 case EnemyTypes.Blight:
-                    maxSpeed = Blight.MAX_SPEED;
+                    maxSpeed = Blight.MAX_SPEED + 20;
                     break;
                 case EnemyTypes.Beast:
                     maxSpeed = Beast.MAX_SPEED;
@@ -530,6 +548,11 @@ namespace DeathChain
             int dirMult = (reverseSlash ? 1 : -1);
 
             currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, Graphics.SlashEffect, reverseSlash);
+
+            /*if(!Possessing) {
+                currentAnimation = new Animation(Graphics.PlayerForwardSlash, AnimationType.Hold, 0.15f / 5f);
+                drawBox = new Rectangle(-20, -15, 90, 90);
+            }*/
         }
 
         private void BeastSlash(Level level) {
@@ -573,7 +596,7 @@ namespace DeathChain
         }
 
         private void Explode(Level level) {
-            cooldowns[0] = 1.5f;
+            cooldowns[0] = 1.2f;
             level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, new Texture2D[] { Graphics.Button }));
         }
 

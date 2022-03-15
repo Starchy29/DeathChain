@@ -15,7 +15,7 @@ namespace DeathChain
         private Particle trail;
         private float trailTimer;
         private readonly float trailFreq;
-        private float distanceLeft;
+        protected float distanceLeft;
         public bool FromPlayer { get { return fromPlayer; } }
 
         public Projectile(Vector2 midpoint, Vector2 velocity, float range, int length, bool fromPlayer, Texture2D sprite, Particle burst = null, Particle trail = null)

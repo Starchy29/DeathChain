@@ -62,7 +62,7 @@ namespace DeathChain
             }
         }
 
-        protected bool Collides(Entity other) {
+        protected virtual bool Collides(Entity other) {
             return this.Hitbox.Intersects(other.Hitbox);
         }
 

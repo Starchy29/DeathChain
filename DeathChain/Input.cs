@@ -33,6 +33,7 @@ namespace DeathChain
         private static bool mouseClicked;
         private static Inputs buffer;
         private static float bufferTime;
+        private static float vibrationDuration;
 
         private static Dictionary<Inputs, List<Buttons>> gamepadBinds = new Dictionary<Inputs, List<Buttons>>();
         private static Dictionary<Inputs, List<Keys>> keyboardBinds = new Dictionary<Inputs, List<Keys>>();
@@ -45,10 +46,10 @@ namespace DeathChain
             gamepadBinds[Inputs.Secondary] = new List<Buttons>() { Buttons.A };
             gamepadBinds[Inputs.Tertiary] = new List<Buttons>() { Buttons.B };
             gamepadBinds[Inputs.Possess] = new List<Buttons>() { Buttons.Y };
-            gamepadBinds[Inputs.Up] = new List<Buttons>() { Buttons.LeftThumbstickUp };
-            gamepadBinds[Inputs.Down] = new List<Buttons>() { Buttons.LeftThumbstickDown };
-            gamepadBinds[Inputs.Left] = new List<Buttons>() { Buttons.LeftThumbstickLeft };
-            gamepadBinds[Inputs.Right] = new List<Buttons>() { Buttons.LeftThumbstickRight };
+            gamepadBinds[Inputs.Up] = new List<Buttons>() { Buttons.LeftThumbstickUp, Buttons.DPadUp };
+            gamepadBinds[Inputs.Down] = new List<Buttons>() { Buttons.LeftThumbstickDown, Buttons.DPadDown };
+            gamepadBinds[Inputs.Left] = new List<Buttons>() { Buttons.LeftThumbstickLeft, Buttons.DPadLeft };
+            gamepadBinds[Inputs.Right] = new List<Buttons>() { Buttons.LeftThumbstickRight, Buttons.DPadRight };
             gamepadBinds[Inputs.Pause] = new List<Buttons>() { Buttons.Start, Buttons.Back };
 
             keyboardBinds[Inputs.Up] = new List<Keys>() { Keys.W, Keys.Up };
@@ -89,6 +90,14 @@ namespace DeathChain
                 if(PressedThisFrame(input)) {
                     buffer = input;
                     bufferTime = 0.2f;
+                }
+            }
+
+            // handle controller vibration
+            if(vibrationDuration > 0) {
+                vibrationDuration -= deltaTime;
+                if(vibrationDuration <= 0) {
+                    GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
                 }
             }
         }
@@ -208,6 +217,11 @@ namespace DeathChain
             MouseState mouse = Mouse.GetState();
             Rectangle stats = Game1.Game.WindowData; // x and y are the offset, width and height are the scale
             return new Vector2((mouse.X - stats.X) * Game1.StartScreenWidth / stats.Width, (mouse.Y - stats.Y) * Game1.StartScreenHeight / stats.Height);
+        }
+
+        public static void Vibrate(float amount, float duration) {
+            GamePad.SetVibration(PlayerIndex.One, amount, amount);
+            vibrationDuration = duration;
         }
     }
 }

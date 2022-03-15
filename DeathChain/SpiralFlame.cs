@@ -33,5 +33,14 @@ namespace DeathChain
 
             base.Update(level, deltaTime);
         }
+
+        protected override bool Collides(Entity other) {
+            if(distanceLeft > 1400) {
+                // don't collide for first 200 units of travel
+                return false;
+            }
+
+            return base.Collides(other);
+        }
     }
 }
