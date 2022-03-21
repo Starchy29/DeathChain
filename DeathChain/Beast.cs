@@ -16,7 +16,6 @@ namespace DeathChain
         public const float ATTACK_DURATION = 0.2f;
 
         private bool rushing;
-        private Attack slash;
 
         public Beast(int x, int y) : base(EnemyTypes.Beast, new Vector2(x, y), 100, 100, 4, MAX_SPEED) {
             sprite = Graphics.Beast;
@@ -44,7 +43,7 @@ namespace DeathChain
                         if(playerDist < 200) {
                             // slash
                             if(direction != Vector2.Zero) {
-                                slash = new Attack(this, ATTACK_SIZE, Game1.RotateVector(direction, -ATTACK_ANGLE / 2f), ATTACK_ANGLE, ATTACK_DURATION, new Texture2D[1] { Graphics.Slash });
+                                attack = new Attack(this, ATTACK_SIZE, Game1.RotateVector(direction, -ATTACK_ANGLE / 2f), ATTACK_ANGLE, ATTACK_DURATION, Graphics.SlashEffect);
                             }
                         } else {
                             // rush
@@ -59,25 +58,10 @@ namespace DeathChain
                 }
 
                 // check swipe attack
-                if(slash != null) {
-                    slash.Update(level, deltaTime);
-                    if(!slash.IsActive) {
-                        slash = null;
-                    }
-                }
-
                 List<Direction> collisions = CheckWallCollision(level, true);
                 if(collisions.Count > 0) {
                     ChangeDirection();
                 }
-            }
-        }
-
-        public override void Draw(SpriteBatch sb) {
-            base.Draw(sb);
-
-            if(slash != null) {
-                slash.Draw(sb);
             }
         }
     }

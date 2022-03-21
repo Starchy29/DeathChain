@@ -52,5 +52,11 @@ namespace DeathChain
         public static Texture2D DeathClock { get; set; }
 
         public static Texture2D PoisonPit { get; set; }
+
+        // draws an image at the specified location, but rotates at that position
+        public static void RotateDraw(SpriteBatch sb, Texture2D sprite, Rectangle location, Color color, float radians, SpriteEffects flips = SpriteEffects.None) {
+            location.Offset(location.Width / 2, location.Height / 2);
+            sb.Draw(sprite, location, null, color, radians, new Vector2(sprite.Width / 2f, sprite.Height / 2f), flips, 1f);
+        }
     }
 }

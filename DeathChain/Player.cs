@@ -206,7 +206,7 @@ namespace DeathChain
                     if(direction != Vector2.Zero) {
                         direction.Normalize();
                     }
-                    direction += Input.GetAim();
+                    direction += Input.GetMoveDirection();
                     if(direction != Vector2.Zero) {
                         direction.Normalize();
                     }
@@ -547,11 +547,16 @@ namespace DeathChain
             reverseSlash = !reverseSlash;
             int dirMult = (reverseSlash ? 1 : -1);
 
-            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, 0.15f, Graphics.SlashEffect, reverseSlash);
+            const float DURATION = 0.15f;
+            currentAttack = new Attack(this, 50, Game1.RotateVector(Input.GetAim(), dirMult * (float)Math.PI / 6f), -dirMult * (float)Math.PI / 3f, DURATION, Graphics.SlashEffect, reverseSlash);
 
+            // animate
             /*if(!Possessing) {
-                currentAnimation = new Animation(Graphics.PlayerForwardSlash, AnimationType.Hold, 0.15f / 5f);
+                currentAnimation = new Animation(Graphics.PlayerForwardSlash, AnimationType.Hold, DURATION / Graphics.PlayerForwardSlash.Length); 
                 drawBox = new Rectangle(-20, -15, 90, 90);
+                if(!reverseSlash) {
+                    flips = SpriteEffects.FlipHorizontally;
+                }
             }*/
         }
 
@@ -566,7 +571,7 @@ namespace DeathChain
         private void Lunge(Level level) {
             state = PlayerState.Lunge;
             timer = Zombie.LUNGE_DURATION;
-            velocity = Input.GetAim() * Zombie.LUNGE_SPEED;
+            velocity = Input.GetMoveDirection() * Zombie.LUNGE_SPEED;
         }
 
         private void Block(Level level) {

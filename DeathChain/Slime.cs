@@ -11,7 +11,7 @@ namespace DeathChain
     class Slime : Enemy
     {
         public const float PUDDLE_DURATION = 6f;
-        public const int MAX_SPEED = 180;                        // speed range size
+        public const int MAX_SPEED = 180;                        // speed, range, size
         public static readonly Projectile SLIMEBALL = new Projectile(600, 500, 30, Graphics.SlimeBall);
         public static readonly Zone SlimePuddle = new Zone(Vector2.Zero, false, 60, PUDDLE_DURATION, 0.5f, new Texture2D[] {Graphics.Button}, true, null);
 

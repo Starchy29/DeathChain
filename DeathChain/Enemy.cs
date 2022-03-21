@@ -20,6 +20,7 @@ namespace DeathChain
         protected Vector2 direction; // the direction this moves towards, determined by sub classes
         protected int maxSpeed;
         protected float moveTimer;
+        protected Attack attack; // melee attacks
 
         private EnemyTypes type;
 
@@ -36,6 +37,7 @@ namespace DeathChain
             maxHealth = health;
         }
 
+        // subclasses use AliveUpdate() since they all behave the same when dead
         public sealed override void Update(Level level, float deltaTime) {
             if(enemyTimer > 0) {
                 enemyTimer -= deltaTime;
@@ -59,8 +61,17 @@ namespace DeathChain
 
                 position += velocity * deltaTime;
 
+                // check contact damage
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
                     Game1.Player.TakeDamage(level, 1);
+                }
+
+                // check attack
+                if(attack != null) {
+                    attack.Update(level, deltaTime);
+                    if(!attack.IsActive) {
+                        attack = null;
+                    }
                 }
             } 
             else if(enemyTimer <= 0) {
@@ -82,6 +93,10 @@ namespace DeathChain
                 tint = Color.Black;
             }
             base.Draw(sb);
+
+            if(attack != null) {
+                attack.Draw(sb);
+            }
         }
 
         protected abstract void AliveUpdate(Level level, float deltaTime);
@@ -93,6 +108,7 @@ namespace DeathChain
                 // die
                 alive = false;
                 enemyTimer = 5; // time before body despawns;
+                attack = null;
             }
         }
 

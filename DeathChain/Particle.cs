@@ -48,7 +48,7 @@ namespace DeathChain
             Rectangle drawZone = area;
             drawZone.Offset(Camera.Shift.X, Camera.Shift.Y);
 
-            Game1.RotateDraw(sb, animation.CurrentSprite, drawZone, Color.White, rotation);
+            Graphics.RotateDraw(sb, animation.CurrentSprite, drawZone, Color.White, rotation);
         }
     }
 }

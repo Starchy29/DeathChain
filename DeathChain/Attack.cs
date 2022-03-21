@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace DeathChain
 {
     // a melee attack that can swipe around a source
-    class Attack : Entity
+    public class Attack : Entity
     {
         private Entity user;
         private float duration;
@@ -86,7 +86,7 @@ namespace DeathChain
         }
 
         public override void Draw(SpriteBatch sb) {
-            Game1.RotateDraw(sb, currentAnimation.CurrentSprite, DrawBox, Color.White, drawRotation, flips);
+            Graphics.RotateDraw(sb, currentAnimation.CurrentSprite, DrawBox, Color.White, drawRotation, flips);
         }
     }
 }

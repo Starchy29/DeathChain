@@ -17,14 +17,10 @@ namespace DeathChain
         private const float ATTACK_COOLDOWN = 2f;
 
         private bool lunging; // only 2 states
-        private float slashTime; // time left in slash
-        private Random rng;
-        private Rectangle slashBox;
 
         public Zombie(int x, int y) : base(EnemyTypes.Zombie, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
             sprite = Graphics.Zombie;
             lunging = false;
-            rng = new Random(x * y);
             drawBox.Inflate(20, 16);
             drawBox.Offset(0, -15);
         }
@@ -32,10 +28,11 @@ namespace DeathChain
         protected override void AliveUpdate(Level level, float deltaTime) {
             if(lunging) {
                 if(timer < 0) {
-                    // pausing
+                    // pausing before attack
                     timer += deltaTime;
                     if(timer >= 0) {
-                        if(rng.NextDouble() <= 0.4) {
+                        // choose an attack
+                        if(Game1.RNG.NextDouble() <= 0.4) { // 40% chance to lunge
                             // lunge
                             timer = LUNGE_DURATION;
                             direction = Game1.Player.Midpoint - Midpoint;
@@ -48,7 +45,8 @@ namespace DeathChain
                             // slash
                             lunging = false;
                             timer = ATTACK_COOLDOWN;
-                            slashTime = 0.2f;
+                            Vector2 aim = Game1.Player.Midpoint - Midpoint;
+                            attack = new Attack(this, 50, Game1.RotateVector(aim, -(float)Math.PI / 6f), (float)Math.PI / 3f, 0.2f, Graphics.SlashEffect);
                         }
                     }
                 }
@@ -78,7 +76,7 @@ namespace DeathChain
                 if(timer <= 0) {
                     timer += 0.4f; // how often it checks whether or not to attack
                     if(Vector2.Distance(Game1.Player.Midpoint, Midpoint) <= 180) { // attack player if close enough
-                        if(rng.NextDouble() <= 0.7) {
+                        if(Game1.RNG.NextDouble() <= 0.7) {
                             // begin attack
                             timer = -0.4f; // pause time at start of attack
                             velocity = Vector2.Zero;
@@ -89,37 +87,7 @@ namespace DeathChain
                 }
             }
 
-            // slash check
-            if(slashTime > 0) {
-                slashTime -= deltaTime;
-                if(slashTime <= 0) {
-                    timer = 2; // attack cooldown
-                }
-
-                slashBox = Hitbox;
-                Vector2 aim = Game1.Player.Midpoint - Midpoint;
-                if(aim.Length() > 0) {
-                    aim.Normalize();
-                }
-                slashBox.Offset(aim * 50);
-
-                // check if hit player
-                if(slashBox.Intersects(Game1.Player.Hitbox)) {
-                    Game1.Player.TakeDamage(level);
-                }
-            }
-
             CheckWallCollision(level, true);
-        }
-
-        public override void Draw(SpriteBatch sb) {
-            base.Draw(sb);
-
-            // draw slash
-            slashBox.Offset(Camera.Shift);
-            if(alive && slashTime > 0 && slashBox != null) {
-                sb.Draw(Graphics.Slash, slashBox, Color.White);
-            }
         }
     }
 }

@@ -60,7 +60,7 @@ namespace DeathChain
 
             Input.Setup();
             Camera.Start();
-            state = GameState.Game;
+            state = GameState.Menu;
             SetupMenus();
             currentMenu = mainMenu;
         }
@@ -255,12 +255,6 @@ namespace DeathChain
             currentMenu = mainMenu;
         }
 
-        // draws an image at the specified location, but rotates at that position
-        public static void RotateDraw(SpriteBatch sb, Texture2D sprite, Rectangle location, Color color, float radians, SpriteEffects flips = SpriteEffects.None) {
-            location.Offset(location.Width / 2, location.Height / 2);
-            sb.Draw(sprite, location, null, color, radians, new Vector2(sprite.Width / 2f, sprite.Height / 2f), flips, 1f);
-        }
-
         public static Vector2 RotateVector(Vector2 vector, float radians) {
             return Vector2.Transform(vector, Matrix.CreateRotationZ(radians));
         }
@@ -272,15 +266,23 @@ namespace DeathChain
             mainMenu = new Menu(null, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { 
                     state = GameState.Game; 
-                    difficulty = 2;
+                    difficulty = 0;
                     player = new Player(); // must be before current level is changed
                     currentLevel = new Level(difficulty); 
+                }),
+
+                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2 + H * 2), W, H, "Exit", () => {
+                    Exit();
                 })
             });
 
             pauseMenu = new Menu(null, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Resume", () => {
                     state = GameState.Game;
+                }),
+
+                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2 + H * 2), W, H, "Quit", () => {
+                    currentMenu = mainMenu;
                 })
             });
         }
@@ -315,7 +317,6 @@ namespace DeathChain
                 case PlatformID.Win32Windows:
                 case PlatformID.WinCE:
                     return '\\';
-                // OSs other than Mac/Windows are not supported
                 default:
                     throw new SystemException("Unknown Operating System");
             }

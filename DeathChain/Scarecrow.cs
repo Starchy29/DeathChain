@@ -10,18 +10,16 @@ namespace DeathChain
 {
     class Scarecrow : Enemy
     {
-        Random rng;
         public const int BURST_RANGE = 150;
         public static Explosion FlameBurst = new Explosion(Vector2.Zero, false, 70, 0.2f, new Texture2D[] { Graphics.Button });
         private float teleCooldown;
 
         public Scarecrow(int x, int y) : base(EnemyTypes.Scarecrow, new Vector2(x, y), 50, 50, 3, 0) {
-            rng = new Random(x - y);
             sprite = Graphics.Scarecrow;
             drawBox.Inflate(20, 20);
             drawBox.Offset(0, -10);
-            timer = (float)rng.NextDouble() * 3f + 1f;
-            teleCooldown = (float)rng.NextDouble() * 3f + 1f;
+            timer = (float)Game1.RNG.NextDouble() * 3f + 1f;
+            teleCooldown = (float)Game1.RNG.NextDouble() * 3f + 1f;
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
