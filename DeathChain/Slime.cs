@@ -22,39 +22,41 @@ namespace DeathChain
             puddleTime = 0f;
             sprite = Graphics.Slime;
             drawBox = new Rectangle(-5, -20, 60, 70);
+
+            startupDuration = 0.2f;
+            cooldownDuration = 1.5f; // changes each attack, average
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
             // wander
             moveTimer -= deltaTime;
             if(moveTimer <= 0) {
-                ChangeDirection();
-            }
-
-            if(timer < 0.2f) { // freeze when about to shoot
-                direction = Vector2.Zero;
+                ChooseRandomDirection();
             }
 
             List<Direction> collisions = CheckWallCollision(level, true);
             if(collisions.Count > 0) {
-                ChangeDirection();
+                ChooseRandomDirection();
             }
 
-            // attacks
-            timer -= deltaTime;
-            if(timer <= 0) {
-                timer = 1f + (float)Game1.RNG.NextDouble(); // shoot cooldown
+            if(OffCooldown()) {
+                Attack();
+            }
+        }
+
+        protected override void AttackEffects(Level level) {
+            cooldownDuration = 1f + (float)Game1.RNG.NextDouble(); // shoot cooldown
+            ChooseRandomDirection(); // start moving again
+
+            if(Game1.RNG.NextDouble() < 0.3) {
+                // 30% chance puddle
+                level.Abilities.Add(new Zone(SlimePuddle, Midpoint, false));
+            } else {
+                // 70% chance slimeballs
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(1, 0), false));
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(-1, 0), false));
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, 1), false));
                 level.Abilities.Add(new Projectile(SLIMEBALL, Midpoint, new Vector2(0, -1), false));
-                ChangeDirection(); // start moving again
-            }
-
-            puddleTime -= deltaTime;
-            if(puddleTime <= 0) {
-                puddleTime = PUDDLE_DURATION; // cooldown
-                level.Abilities.Add(new Zone(SlimePuddle, Midpoint, false));
             }
         }
     }

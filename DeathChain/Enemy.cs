@@ -15,12 +15,16 @@ namespace DeathChain
         protected int health;
         private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
-        protected float timer;
-        private float enemyTimer; // alive: red flash when hit, dead: despawn timer
+        protected float timer; // for sub-classes to use however they want
+        private float enemyTimer; // alive: red flash duration when hit, dead: despawn timer
         protected Vector2 direction; // the direction this moves towards, determined by sub classes
         protected int maxSpeed;
-        protected float moveTimer;
+        protected float moveTimer; // for wandering, how long until this changes direction
         protected Attack attack; // melee attacks
+
+        private float attackTimer; 
+        protected float startupDuration; // pause before attacking for reacting
+        protected float cooldownDuration; // time after attacking when it can't attack anymore
 
         private EnemyTypes type;
 
@@ -35,16 +39,49 @@ namespace DeathChain
             this.type = type;
             this.maxSpeed = maxSpeed;
             maxHealth = health;
+            startupDuration = 0.4f;
+            cooldownDuration = 2f;
         }
 
         // subclasses use AliveUpdate() since they all behave the same when dead
         public sealed override void Update(Level level, float deltaTime) {
+            if(currentAnimation != null) {
+                currentAnimation.Update(deltaTime);
+            }
+
             if(enemyTimer > 0) {
                 enemyTimer -= deltaTime;
             }
 
             if(alive) {
-                AliveUpdate(level, deltaTime); // changes direction variable
+                if(attackTimer > 0) {
+                    // pause before attack
+                    direction = Vector2.Zero;
+                    attackTimer -= deltaTime;
+                    if(attackTimer <= 0) {
+                        AttackEffects(level);
+                        attackTimer = -cooldownDuration;
+                    }
+
+                    CheckWallCollision(level, true);
+                } else {
+                    AliveUpdate(level, deltaTime); // changes direction variable
+
+                    // check attack
+                    if(attack != null) {
+                        attack.Update(level, deltaTime);
+                        if(!attack.IsActive) {
+                            attack = null;
+                        }
+                    }
+
+                    if(attackTimer < 0) {
+                        attackTimer += deltaTime;
+                        if(attackTimer >= 0) {
+                            attackTimer = 0;
+                        }
+                    }
+                }
 
                 // move in target direction
                 if(direction != Vector2.Zero) {
@@ -65,16 +102,8 @@ namespace DeathChain
                 if(Hitbox.Intersects(Game1.Player.Hitbox)) {
                     Game1.Player.TakeDamage(level, 1);
                 }
-
-                // check attack
-                if(attack != null) {
-                    attack.Update(level, deltaTime);
-                    if(!attack.IsActive) {
-                        attack = null;
-                    }
-                }
             } 
-            else if(enemyTimer <= 0) {
+            else if(enemyTimer <= 0) { // death
                 // decay body after some time
                 IsActive = false;
             }
@@ -101,6 +130,17 @@ namespace DeathChain
 
         protected abstract void AliveUpdate(Level level, float deltaTime);
 
+        protected virtual void AttackEffects(Level level) { } // probably all enemies should override this
+
+        // enters the pause before attacking. Call this to attack
+        protected void Attack() {
+            attackTimer = startupDuration;
+        }
+
+        protected bool OffCooldown() {
+            return attackTimer == 0;
+        }
+
         public virtual void TakeDamage(Level level, int damage = 1) {
             health -= damage;
             enemyTimer = 0.1f; // red flash duration
@@ -117,7 +157,7 @@ namespace DeathChain
             foreach(Enemy enemy in level.Enemies) {
                 if(enemy != this && enemy.alive && Vector2.Distance(Midpoint, enemy.Midpoint) <= 100) {
                     Vector2 moveAway = Midpoint - enemy.Midpoint;
-                    velocity += moveAway * 10 * deltaTime;
+                    velocity += moveAway * 15 * deltaTime;
                 }
             }
         }
@@ -146,7 +186,7 @@ namespace DeathChain
             }
         }
 
-        protected void ChangeDirection(List<Vector2> options = null) {
+        protected void ChooseRandomDirection(List<Vector2> options = null) {
             moveTimer += 1f; // how often this changes direction
 
             if(options == null) {

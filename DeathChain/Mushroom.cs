@@ -25,11 +25,12 @@ namespace DeathChain
             sprite = null;
             currentAnimation = new Animation(Shoot);
             drawBox.Inflate(5, 5); // make mushroom appear larger
+
+            startupDuration = 0.2f;
+            cooldownDuration = 2f;
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
-            currentAnimation.Update(deltaTime);
-
             if(blocking) {
                 blockTimer -= deltaTime;
 
@@ -41,19 +42,9 @@ namespace DeathChain
                     blockTimer = -6f; // cooldown
                 }
             } else {
-                tint = Color.White;
-                if(timer > 0) {
-                    timer -= deltaTime;
-                }
-                if(timer <= 0 && DistanceTo(Game1.Player) <= 900) { // range
-                    // fire
-                    timer = 2f; // shoot cooldown
-                    Vector2 aim = Game1.Player.Midpoint - Midpoint;
-                    aim.Normalize();
-                    level.Abilities.Add(new BounceSpore(Midpoint, aim, false));
-
-                    currentAnimation.Restart(); // restart shoot animation to animate
-                    level.Particles.Add(new Particle(SporeCloud, Midpoint - new Vector2(0, 25)));
+                if(OffCooldown() && DistanceTo(Game1.Player) <= 900) { // range
+                    Attack();
+                    currentAnimation.Restart(); // restart shoot animation to animate, use it as a telegraph
                 }
 
                 // block
@@ -69,6 +60,14 @@ namespace DeathChain
                     }
                 }
             }
+        }
+
+        protected override void AttackEffects(Level level) {
+            // fire
+            Vector2 aim = Game1.Player.Midpoint - Midpoint;
+            aim.Normalize();
+            level.Abilities.Add(new BounceSpore(Midpoint, aim, false));
+            level.Particles.Add(new Particle(SporeCloud, Midpoint - new Vector2(0, 25)));
         }
 
         public override void TakeDamage(Level level, int damage = 1) {

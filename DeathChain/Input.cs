@@ -225,6 +225,11 @@ namespace DeathChain
                     angle = gamepad.ThumbSticks.Left;
                 }
 
+                // check for DPad input
+                if(angle == Vector2.Zero) {
+                    angle = GetDPadDirection();
+                }
+
                 if(angle == Vector2.Zero) {
                     // use last aim if not currently aiming
                     angle = lastAim;

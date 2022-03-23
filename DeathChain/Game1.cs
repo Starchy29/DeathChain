@@ -32,6 +32,7 @@ namespace DeathChain
 
         private Menu mainMenu;
         private Menu pauseMenu;
+        private Menu gameOverMenu;
 
         public const int StartScreenWidth = 1600;
         public const int StartScreenHeight = 900;
@@ -246,8 +247,14 @@ namespace DeathChain
 
         public void NextLevel() {
             difficulty++;
-            currentLevel = new Level(difficulty);
-            Camera.Update(currentLevel);
+            if(difficulty >= 11) {
+                // win
+                currentMenu = gameOverMenu;
+                state = GameState.Game;
+            } else {
+                currentLevel = new Level(difficulty);
+                Camera.Update(currentLevel);
+            }
         }
 
         public void Lose() {
@@ -284,6 +291,12 @@ namespace DeathChain
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2 + H * 2), W, H, "Quit", () => {
                     currentMenu = mainMenu;
                 })
+            });
+
+            gameOverMenu = new Menu(null, new List<Button>() {
+                new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Quit", () => {
+                    currentMenu = mainMenu;
+                }),
             });
         }
 

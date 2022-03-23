@@ -67,6 +67,7 @@ namespace DeathChain
             // click button
             if(selected != null && (Input.MouseJustClicked() || Input.JustPressed(Inputs.Select))) {
                 selected.Click();
+                selected = buttons[0];
             }
         }
 

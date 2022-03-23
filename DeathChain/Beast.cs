@@ -11,6 +11,7 @@ namespace DeathChain
     class Beast : Enemy
     {
         public const int MAX_SPEED = 150;
+        public const int RUSH_SPEED = 1000;
         public const int ATTACK_SIZE = 100;
         public const float ATTACK_ANGLE = (float)Math.PI / 2; // total angle travelled, centered at aim
         public const float ATTACK_DURATION = 0.2f;
@@ -23,45 +24,66 @@ namespace DeathChain
             // image is 100x150
             drawBox.Inflate(10, 35);
             drawBox.Offset(0, -35);
+
+            startupDuration = 0.4f;
+            cooldownDuration = 3f;
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
-            if(rushing) {
-
-            } else {
-                // move
-                float playerDist = DistanceTo(Game1.Player);
-                if(playerDist <= 400) { // player detection range
-                    // approach player
+            if(!rushing) {
+                if(DistanceTo(Game1.Player) <= 450) { // player detection range
+                    // seek player
                     direction = Game1.Player.Midpoint - Midpoint;
                     PassWalls(level);
 
                     // attack
-                    timer -= deltaTime;
-                    if(timer <= 0) {
-                        timer += 3f; // attack cooldown
-                        if(playerDist < 200) {
-                            // slash
-                            if(direction != Vector2.Zero) {
-                                attack = new Attack(this, ATTACK_SIZE, Game1.RotateVector(direction, -ATTACK_ANGLE / 2f), ATTACK_ANGLE, ATTACK_DURATION, Graphics.SlashEffect);
-                            }
-                        } else {
-                            // rush
-                        }
+                    if(OffCooldown()) {
+                        Attack();
                     }
                 } else {
                     // wander
                     moveTimer -= deltaTime;
-                    if (moveTimer <= 0) {
-                        ChangeDirection();
+                    if(moveTimer <= 0) {
+                        ChooseRandomDirection();
                     }
                 }
+            }
 
-                // check swipe attack
-                List<Direction> collisions = CheckWallCollision(level, true);
-                if(collisions.Count > 0) {
-                    ChangeDirection();
+            List<Direction> collisions = CheckWallCollision(level, true);
+            if(collisions.Count > 0) {
+                if(rushing) {
+                    // determine whether or not to end rush based on how much speed is left
+                    if(velocity.LengthSquared() > (RUSH_SPEED - 200) * (RUSH_SPEED - 200)) {
+                        // give speed back
+                        velocity.Normalize();
+                        velocity *= RUSH_SPEED;
+                    } else {
+                        // end rush
+                        rushing = false;
+                        maxSpeed = MAX_SPEED;
+                    }
+                } else {
+                    ChooseRandomDirection();
                 }
+            }
+        }
+
+        protected override void AttackEffects(Level level) {
+            if(DistanceTo(Game1.Player) < 250) {
+                // slash
+                Vector2 aim = Game1.Player.Midpoint - Midpoint;
+                if(aim != Vector2.Zero) {
+                    attack = new Attack(this, ATTACK_SIZE, Game1.RotateVector(aim, -ATTACK_ANGLE / 2f), ATTACK_ANGLE, ATTACK_DURATION, Graphics.SlashEffect);
+                }
+            } else {
+                // rush
+                rushing = true;
+                maxSpeed = RUSH_SPEED;
+                direction = Game1.Player.Midpoint - Midpoint;
+                if(direction != Vector2.Zero) {
+                    direction.Normalize();
+                }
+                velocity = direction * RUSH_SPEED / 2; // starting speed
             }
         }
     }

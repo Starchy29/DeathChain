@@ -31,40 +31,35 @@ namespace DeathChain
             directionOptions.Add(new Vector2(-diagonal.X, diagonal.Y));
             directionOptions.Add(new Vector2(diagonal.X, -diagonal.Y));
             directionOptions.Add(new Vector2(-diagonal.X, -diagonal.Y));
+
+            startupDuration = 0.7f;
+            cooldownDuration = 3f; // changes every explosion, averages 3
         }
 
         protected override void AliveUpdate(Level level, float deltaTime) {
-            if(timer < 0)  {
-                // pause before explosion
-                timer += deltaTime;
-                if(timer >= 0) {
-                    // explode
-                    timer = 2f + (float)Game1.RNG.NextDouble() * 2f; // time until enext explosion
-                    ChangeDirection(directionOptions);
-                    level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, new Texture2D[] { Graphics.Button }));
-                }
-            }
-            else {
-                // change directions sometimes
-                moveTimer -= deltaTime;
-                if(moveTimer <= 0) {
-                    ChangeDirection(directionOptions);
-                }
-
-                // stop and explode every interval
-                timer -= deltaTime;
-                if(timer <= 0) {
-                    // start pause before explosion
-                    timer = -0.7f;
-                    direction = Vector2.Zero;
-                }
+            // explode sometimes
+            if(OffCooldown()) {
+                Attack();
             }
 
-            PassWalls(level);
+            // change directions sometimes
+            moveTimer -= deltaTime;
+            if(moveTimer <= 0) {
+                ChooseRandomDirection(directionOptions);
+            }
+
+            //PassWalls(level);
+
             List<Direction> collisions = CheckWallCollision(level, true);
             if(timer > 0 && collisions.Count > 0) {
-                ChangeDirection(directionOptions);
+                ChooseRandomDirection(directionOptions);
             }
+        }
+
+        protected override void AttackEffects(Level level) {
+            cooldownDuration = 2f + (float)Game1.RNG.NextDouble() * 2f; // time until next explosion
+            ChooseRandomDirection(directionOptions);
+            level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, new Texture2D[] { Graphics.Button }));
         }
     }
 }

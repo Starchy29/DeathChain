@@ -24,7 +24,8 @@ namespace DeathChain
         Slash,
         Lunge,
         Block,
-        Teleport
+        Teleport,
+        Rush
     }
 
     public delegate void Ability(Level level);
@@ -58,6 +59,7 @@ namespace DeathChain
         private Attack currentAttack;
         private bool reverseSlash;
         private float unpossessTimer;
+        private List<Enemy> recentlyHitEnemies;
 
         private readonly Dictionary<Ability, Texture2D> abilityIcons;
 
@@ -76,6 +78,7 @@ namespace DeathChain
             health = 5;
             ghostHealth = 5;
             drawBox = playerDrawBox;
+            recentlyHitEnemies = new List<Enemy>();
 
             sprite = null;
             currentAnimation = forward;
@@ -93,7 +96,7 @@ namespace DeathChain
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
             abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
             abilities[EnemyTypes.Scarecrow] = new Ability[3] { FlameBurst, Teleport, FlameSpiral };
-            abilities[EnemyTypes.Beast] = new Ability[3] { BeastSlash, Lunge, null };
+            abilities[EnemyTypes.Beast] = new Ability[3] { BeastSlash, Rush, null };
 
             // setup ability icons
             abilityIcons = new Dictionary<Ability, Texture2D>();
@@ -101,6 +104,7 @@ namespace DeathChain
             abilityIcons[BeastSlash] = Graphics.Slash;
             abilityIcons[Dash] = Graphics.Dash;
             abilityIcons[Lunge] = Graphics.Dash;
+            abilityIcons[Rush] = Graphics.Dash;
             abilityIcons[Block] = Graphics.Shield;
             abilityIcons[FireSpore] = Graphics.SporeLogo;
             abilityIcons[FireSlimes] = Graphics.SporeLogo;
@@ -140,6 +144,37 @@ namespace DeathChain
             switch(state) {
                 case PlayerState.Normal:
                     Move(deltaTime, GetMaxSpeed());
+                    break;
+
+                case PlayerState.Rush:
+                    // check if hit a wall last frame
+                    if(velocity.LengthSquared() < 500 * 500) {
+                        state = PlayerState.Normal;
+                        recentlyHitEnemies.Clear();
+                        break;
+                    }
+
+                    // charge straight forward with acceleration
+                    Vector2 acceleration = velocity;
+                    if(acceleration != Vector2.Zero) {
+                        acceleration.Normalize();
+                        acceleration *= deltaTime * 4000; // enemy acceleration
+                    }
+                    velocity += acceleration;
+                    float maxSpeed = 1200;
+                    if(velocity.LengthSquared() > maxSpeed * maxSpeed) {
+                        velocity.Normalize();
+                        velocity *= maxSpeed;
+                    }
+                    position += velocity * deltaTime;
+
+                    // contact damage with enemies
+                    foreach(Enemy enemy in level.Enemies) {
+                        if(!recentlyHitEnemies.Contains(enemy) && Collides(enemy)) {
+                            enemy.TakeDamage(level);
+                            recentlyHitEnemies.Add(enemy);
+                        }
+                    }
                     break;
 
                 case PlayerState.Dash:
@@ -459,7 +494,7 @@ namespace DeathChain
         }
 
         public void TakeDamage(Level level, int damage = 1) {
-            if(invulnTime <= 0 && state == PlayerState.Block) {
+            if(invulnTime <= 0 && (state == PlayerState.Block || state == PlayerState.Rush)) {
                 // don't take damage when blocking
                 level.Particles.Add(new Particle(Mushroom.SporeCloud, Midpoint - new Vector2(0, 25)));
                 invulnTime = 0.3f; // prevent rapid particles
@@ -530,7 +565,7 @@ namespace DeathChain
                     maxSpeed = Blight.MAX_SPEED + 20;
                     break;
                 case EnemyTypes.Beast:
-                    maxSpeed = Beast.MAX_SPEED;
+                    maxSpeed = Beast.MAX_SPEED + 50;
                     break;
             }
             return maxSpeed;
@@ -572,6 +607,17 @@ namespace DeathChain
             state = PlayerState.Lunge;
             timer = Zombie.LUNGE_DURATION;
             velocity = Input.GetMoveDirection() * Zombie.LUNGE_SPEED;
+        }
+
+        private void Rush(Level level) {
+            state = PlayerState.Rush;
+            Vector2 direction = Input.GetMoveDirection();
+            if(direction == Vector2.Zero) {
+                direction = Input.GetAim(); // use last aim
+            }
+            velocity = direction * (Beast.RUSH_SPEED - 300); // starting speed
+
+            cooldowns[1] = 4f;
         }
 
         private void Block(Level level) {

@@ -22,9 +22,9 @@ namespace DeathChain
         protected int width;
         protected int height;
         protected Rectangle drawBox; // relative to position in local space
-        protected Texture2D sprite;
         protected Color tint;
-        protected Vector2 velocity;
+        protected Vector2 velocity; // here because of checkCollisions
+        protected Texture2D sprite;
         protected Animation currentAnimation;
 
         public bool IsActive { get; set; }
