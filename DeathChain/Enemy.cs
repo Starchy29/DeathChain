@@ -21,6 +21,7 @@ namespace DeathChain
         protected int maxSpeed;
         protected float moveTimer; // for wandering, how long until this changes direction
         protected Attack attack; // melee attacks
+        private SpriteEffects flips;
 
         private float attackTimer; 
         protected float startupDuration; // pause before attacking for reacting
@@ -85,7 +86,14 @@ namespace DeathChain
 
                 // move in target direction
                 if(direction != Vector2.Zero) {
-                    direction.Normalize();
+                    direction.Normalize(); 
+
+                    // face move direction
+                    if(direction.X > 0) {
+                        flips = SpriteEffects.FlipHorizontally;
+                    } else {
+                        flips = SpriteEffects.None;
+                    }
                 }
                 velocity += direction * ACCEL * deltaTime;
                 ApplyFriction(deltaTime);
@@ -121,7 +129,13 @@ namespace DeathChain
                 // temporary
                 tint = Color.Black;
             }
-            base.Draw(sb);
+            
+            // copy of base.Draw() with flips
+            if(sprite != null) {
+                sb.Draw(sprite, DrawBox, null, tint, 0, Vector2.Zero, flips, 0f);
+            } else {
+                sb.Draw(currentAnimation.CurrentSprite, DrawBox, tint);
+            }
 
             if(attack != null) {
                 attack.Draw(sb);
@@ -164,23 +178,41 @@ namespace DeathChain
 
         // moves around walls
         protected void PassWalls(Level level) {
-            if(direction != Vector2.Zero) {
-                direction.Normalize();
-            }
-
             Rectangle future = Hitbox;
-            future.Offset(direction * width);
+            Vector2 playerSeek = Game1.Player.Midpoint - Midpoint;
+            if(playerSeek != Vector2.Zero) {
+                playerSeek.Normalize();
+            }
+            future.Offset(playerSeek * width);
             foreach(Wall wall in level.Walls) {
                 if(wall.Hitbox.Intersects(future)) { // about to move into wall
-                    Vector2 newDirection = wall.Midpoint - Midpoint; // direction from this to wall center
-                    newDirection.X /= wall.Width; // factor in wall dimensions
-                    newDirection.Y /= wall.Height;
-                    newDirection.Normalize();
-                    newDirection = new Vector2(newDirection.Y, -newDirection.X); // now perpendicular to wall center
-                    if(Vector2.Dot(direction, newDirection) < 0) {
-                        newDirection *= -1; // use other perpendicular direction because it is closer
+                    // determine which direction to move around the wall, assume moving counter clockwise
+                    direction = new Vector2(0, 0);
+                    if(Hitbox.Bottom - 5 < wall.Hitbox.Top) { // above
+                        direction += new Vector2(-1, 0); // addition allows diagonals at the corners
                     }
-                    direction = newDirection;
+                    if(Hitbox.Top + 5 > wall.Hitbox.Bottom) { // below
+                        direction += new Vector2(1, 0);
+                    }
+                    if(Hitbox.Left + 5 > wall.Hitbox.Right) { // right
+                        direction += new Vector2(0, -1);
+                    }
+                    if(Hitbox.Right - 5 < wall.Hitbox.Left) { // left
+                        direction += new Vector2(0, 1);
+                    }
+
+                    // check if should go clockwise
+                    float playerAngle = Game1.GetVectorAngle(Game1.Player.Midpoint - wall.Midpoint);
+                    float enemyAngle = Game1.GetVectorAngle(Midpoint - wall.Midpoint);
+
+                    if(enemyAngle > Math.PI && playerAngle < Math.PI) {
+                        // account for crossing 2PI / 0 boundary
+                        enemyAngle -= 2 * (float)Math.PI;
+                    }
+
+                    if(enemyAngle < playerAngle && enemyAngle > playerAngle - (float)Math.PI) {
+                        direction *= -1;
+                    }
                     break;
                 }
             }

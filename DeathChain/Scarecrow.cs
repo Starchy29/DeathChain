@@ -30,9 +30,6 @@ namespace DeathChain
             }
             if(timer <= 0) {
                 // teleport if not in a good position
-                Rectangle bounds = level.Bounds;
-                bounds.Inflate(-200, -200);
-
                 Vector2 toPlayer = Game1.Player.Midpoint - Midpoint;
                 float playDist = toPlayer.Length();
                 if(toPlayer != Vector2.Zero) {
@@ -47,7 +44,23 @@ namespace DeathChain
                     Midpoint += -toPlayer * Game1.RNG.Next(100, 300);
                 }
 
-                timer = 5f + (float)Game1.RNG.NextDouble() * 3f;            
+                // keep in level
+                Rectangle bounds = level.Bounds;
+                bounds.Inflate(-200, -200);
+                if(Midpoint.X < bounds.Left) {
+                    Midpoint = new Vector2(bounds.Left, Midpoint.Y);
+                }
+                else if(Midpoint.X > bounds.Right) {
+                    Midpoint = new Vector2(bounds.Right, Midpoint.Y);
+                }
+                if(Midpoint.Y < bounds.Top) {
+                    Midpoint = new Vector2(Midpoint.X, bounds.Top);
+                }
+                else if(Midpoint.Y > bounds.Bottom) {
+                    Midpoint = new Vector2(Midpoint.X, bounds.Bottom);
+                }
+
+                timer = 5f + (float)Game1.RNG.NextDouble() * 3f;
             }
 
             CheckWallCollision(level, true); // move outside of walls

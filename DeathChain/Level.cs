@@ -8,6 +8,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace DeathChain
 {
+    public enum SpecialLevels {
+        Start,
+    }
+
     public class Level
     {
         public const int EDGE_BUFFER = 100;
@@ -65,6 +69,29 @@ namespace DeathChain
             DefineCameraSpace();
         }
 
+        // create a special level structure
+        public Level(SpecialLevels levelType) {
+            particles = new List<Particle>();
+            abilities = new List<Entity>();
+            enemies = new List<Enemy>();
+            walls = new List<Wall>();
+
+            cleared = true;
+
+            switch (levelType) {
+                case SpecialLevels.Start:
+                    int halfExit = 75;
+                    walls.Add(new Wall(0, 0, EDGE_BUFFER, Game1.StartScreenHeight, false)); // left
+                    walls.Add(new Wall(Game1.StartScreenWidth - EDGE_BUFFER, 0, EDGE_BUFFER, Game1.StartScreenHeight, false)); // right
+                    walls.Add(new Wall(EDGE_BUFFER, Game1.StartScreenHeight - EDGE_BUFFER, Game1.StartScreenWidth, EDGE_BUFFER, false)); // bottom
+                    walls.Add(new Wall(EDGE_BUFFER, 0, Game1.StartScreenWidth / 2 - EDGE_BUFFER - halfExit, EDGE_BUFFER, false)); // top left
+                    walls.Add(new Wall(Game1.StartScreenWidth / 2 + halfExit, 0, Game1.StartScreenWidth / 2 - EDGE_BUFFER - halfExit, EDGE_BUFFER, false)); // top left
+                    break;
+            }
+
+            DefineCameraSpace();
+        }
+
         // create a random level with a certain difficulty
         public Level(int difficulty) {
             particles = new List<Particle>();
@@ -95,6 +122,7 @@ namespace DeathChain
             } else {
                 layout = new LevelLayout(0);
             }
+
             endY = layout.EndY;
             Game1.Player.Midpoint = layout.Start;
             start = layout.Start;
@@ -198,21 +226,20 @@ namespace DeathChain
             }
         }
 
+        // draw the entire level, including player. Order matters a lot
         public void Draw(SpriteBatch sb) {
-            // draw background
-            sb.Draw(Graphics.Pixel, new Rectangle(0, 0, Game1.StartScreenWidth, Game1.StartScreenHeight), Color.DarkGreen * 0.5f);
+            sb.Draw(Graphics.Pixel, new Rectangle(0, 0, Game1.StartScreenWidth, Game1.StartScreenHeight), Color.DarkGreen * 0.5f); // draw backgrund
 
-            // draw level
-            foreach (Wall wall in walls) { // allow entites to overlap with walls
+            foreach(Wall wall in walls) { // allow entites to overlap with walls
                 wall.Draw(sb);
             }
 
-            foreach(Entity ability in abilities) { // projectiles under enemies looks better
+            foreach(Entity ability in abilities) {
                 ability.Draw(sb);
             }
 
             enemies.Sort((enemy1, enemy2) => { return enemy1.Hitbox.Bottom - enemy2.Hitbox.Bottom; }); // draw enemies from back to front
-            foreach(Enemy enemy in enemies) { // enemies before walls so if clipping happens, it's hidden
+            foreach(Enemy enemy in enemies) { 
                 enemy.Draw(sb);
             }
 

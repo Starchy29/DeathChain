@@ -12,6 +12,7 @@ namespace DeathChain
     static class Graphics
     {
         public static SpriteFont Font { get; set; }
+        public static SpriteFont TitleFont { get; set; }
 
         public static Texture2D Pixel { get; set; }
 
@@ -34,7 +35,10 @@ namespace DeathChain
         public static Texture2D SlimeBall { get; set; }
 
         public static Texture2D Scarecrow { get; set; }
+
         public static Texture2D Blight { get; set; }
+        public static Texture2D[] BlightExplosion { get; set; }
+
         public static Texture2D Beast { get; set; }
 
         public static Texture2D Slash { get; set; }

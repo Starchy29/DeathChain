@@ -240,7 +240,7 @@ namespace DeathChain
                 return new Vector2(angle.X, -angle.Y);
             } else {
                 // mouse aim
-                Vector2 aim = Mouse.GetState().Position.ToVector2() - Game1.Player.Midpoint;
+                Vector2 aim = GetMousePosition() - (Game1.Player.Midpoint + Camera.Shift);
                 if(aim == Vector2.Zero) {
                     aim = new Vector2(0, 1);
                 } else {
@@ -251,7 +251,7 @@ namespace DeathChain
         }
 
         public static bool IsMouseClicked() {
-            return Mouse.GetState().LeftButton == ButtonState.Pressed;
+            return mouse.LeftButton == ButtonState.Pressed;
         }
 
         public static bool MouseJustClicked() {

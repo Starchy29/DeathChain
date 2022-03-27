@@ -58,12 +58,6 @@ namespace DeathChain
             instance = this;
 
             Window.ClientSizeChanged += OnResize;
-
-            Input.Setup();
-            Camera.Start();
-            state = GameState.Menu;
-            SetupMenus();
-            currentMenu = mainMenu;
         }
 
         /// <summary>
@@ -90,6 +84,7 @@ namespace DeathChain
             Audio.ForestSong = Content.Load<SoundEffect>("Haunting Dread");
 
             Graphics.Font = Content.Load<SpriteFont>("File");
+            Graphics.TitleFont = Content.Load<SpriteFont>("Title");
 
             Graphics.Pixel = Content.Load<Texture2D>("Pixel");
             Graphics.PlayerFront = new Texture2D[3];
@@ -148,6 +143,11 @@ namespace DeathChain
             Graphics.Scarecrow = Content.Load<Texture2D>("scarecrow");
 
             Graphics.Blight = Content.Load<Texture2D>("blight");
+            Graphics.BlightExplosion = new Texture2D[13];
+            for(int i = 0; i < 13; i++) {
+                Graphics.BlightExplosion[i] = Content.Load<Texture2D>("blight explosion " + i);
+            }
+
             Graphics.Beast = Content.Load<Texture2D>("beast");
 
             Graphics.Slash = Content.Load<Texture2D>("slash");
@@ -171,6 +171,11 @@ namespace DeathChain
             currentLevel = new Level(2);
             SoundEffect.MasterVolume = 0.3f;
             //Audio.PlaySong(Songs.Forest);
+            SetupMenus();
+            Input.Setup();
+            Camera.Start();
+            state = GameState.Menu;
+            currentMenu = mainMenu;
         }
 
         protected override void UnloadContent() { }
@@ -250,7 +255,7 @@ namespace DeathChain
             if(difficulty >= 11) {
                 // win
                 currentMenu = gameOverMenu;
-                state = GameState.Game;
+                state = GameState.Menu;
             } else {
                 currentLevel = new Level(difficulty);
                 Camera.Update(currentLevel);
@@ -266,16 +271,37 @@ namespace DeathChain
             return Vector2.Transform(vector, Matrix.CreateRotationZ(radians));
         }
 
+        // right is 0, down is PI/2 because monogame is flipped
+        public static float GetVectorAngle(Vector2 vector) {
+            // tan(theta) = y / x;
+
+            if(vector.X == 0) {
+                if(vector.Y > 0) {
+                    return (float)Math.PI / 2;
+                } else {
+                    return -(float)Math.PI / 2;
+                }
+            }
+
+            float angle = (float)Math.Atan2(vector.Y, vector.X);
+            if(angle < 0) {
+                // keep results 0-2PI
+                angle += 2 * (float)Math.PI;
+            }
+            return angle;
+        }
+
         private void SetupMenus() {
             const int W = 400;
             const int H = 100;
 
-            mainMenu = new Menu(null, new List<Button>() {
+            mainMenu = new Menu(null, "Death Chain", 200, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Start", () => { 
                     state = GameState.Game; 
                     difficulty = 0;
                     player = new Player(); // must be before current level is changed
-                    currentLevel = new Level(difficulty); 
+                    currentLevel = new Level(SpecialLevels.Start);
+                    player.Midpoint = new Vector2(StartScreenWidth / 2, StartScreenHeight / 2); // override level constructor placement
                 }),
 
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2 + H * 2), W, H, "Exit", () => {
@@ -283,7 +309,7 @@ namespace DeathChain
                 })
             });
 
-            pauseMenu = new Menu(null, new List<Button>() {
+            pauseMenu = new Menu(null, "Paused", 200, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Resume", () => {
                     state = GameState.Game;
                 }),
@@ -293,7 +319,7 @@ namespace DeathChain
                 })
             });
 
-            gameOverMenu = new Menu(null, new List<Button>() {
+            gameOverMenu = new Menu(null, "Game Over", 200, new List<Button>() {
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2), W, H, "Quit", () => {
                     currentMenu = mainMenu;
                 }),

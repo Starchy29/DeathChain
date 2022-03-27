@@ -648,7 +648,7 @@ namespace DeathChain
 
         private void Explode(Level level) {
             cooldowns[0] = 1.2f;
-            level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, new Texture2D[] { Graphics.Button }));
+            level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, Graphics.BlightExplosion));
         }
 
         private void Teleport(Level level) {

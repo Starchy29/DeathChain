@@ -13,27 +13,22 @@ namespace DeathChain
         private Texture2D background;
         private List<Button> buttons;
         private Button selected;
+        private String title;
+        private Vector2 titlePos;
 
         public Menu BackMenu { get; set; } // the menu to go back to
 
-        public Menu(Texture2D background, List<Button> buttons) {
+        public Menu(Texture2D background, String title, int titleHeight, List<Button> buttons) {
             this.background = background;
             this.buttons = buttons;
+            this.title = title;
+
+            Vector2 stringDim = Graphics.TitleFont.MeasureString(title);
+            titlePos = new Vector2((Game1.StartScreenWidth - stringDim.X) / 2, titleHeight);
         }
 
         // highlight the selected button and check if it is clicked
         public void Update() {
-            /*foreach(Button button in buttons) {
-                button.Update(buttons);
-            }
-
-            // if using the gamepad when nothing is selected yet, select the first button
-            if(Input.GamepadConnected && buttons.Find((Button button) => { return button.Selected; }) == null 
-                && (Input.JustPressed(Inputs.Up) || Input.JustPressed(Inputs.Down) || Input.JustPressed(Inputs.Left) || Input.JustPressed(Inputs.Right))
-            ) {
-                buttons[0].Selected = true;
-            }*/
-
             // check gamepad input
             if(Input.GamepadConnected) {
                 Direction[] directions = new Direction[4] { Direction.Right, Direction.Left, Direction.Up, Direction.Down };
@@ -78,6 +73,10 @@ namespace DeathChain
 
             foreach(Button button in buttons) {
                 button.Draw(sb, selected == button);
+            }
+
+            if(title != null) {
+                sb.DrawString(Graphics.TitleFont, title, titlePos, Color.White);
             }
         }
     }

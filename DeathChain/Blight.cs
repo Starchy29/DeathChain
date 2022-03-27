@@ -59,7 +59,7 @@ namespace DeathChain
         protected override void AttackEffects(Level level) {
             cooldownDuration = 2f + (float)Game1.RNG.NextDouble() * 2f; // time until next explosion
             ChooseRandomDirection(directionOptions);
-            level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, new Texture2D[] { Graphics.Button }));
+            level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, Graphics.BlightExplosion));
         }
     }
 }
