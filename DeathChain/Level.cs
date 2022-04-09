@@ -62,7 +62,7 @@ namespace DeathChain
 
             //enemies.Add(new Slime(300, 450));
             //enemies.Add(new Blight(300, 450));
-            enemies.Add(new Beast(300, 450));
+            enemies.Add(new Beast(300, 450, 3));
 
             //enemies.Add(new Scarecrow(300, 450));
 
@@ -145,22 +145,22 @@ namespace DeathChain
                 // add next enemy based on chosen type
                 switch(enemyOptions[Game1.RNG.Next(0, enemyOptions.Count)]) {
                     case EnemyTypes.Zombie:
-                        enemies.Add(new Zombie((int)position.X, (int)position.Y));
+                        enemies.Add(new Zombie((int)position.X, (int)position.Y, enemyDiff + 1));
                         break;
                     case EnemyTypes.Mushroom:
-                        enemies.Add(new Mushroom((int)position.X, (int)position.Y));
+                        enemies.Add(new Mushroom((int)position.X, (int)position.Y, enemyDiff + 1));
                         break;
                     case EnemyTypes.Slime:
-                        enemies.Add(new Slime((int)position.X, (int)position.Y));
+                        enemies.Add(new Slime((int)position.X, (int)position.Y, enemyDiff + 1));
                         break;
                     case EnemyTypes.Blight:
-                        enemies.Add(new Blight((int)position.X, (int)position.Y));
+                        enemies.Add(new Blight((int)position.X, (int)position.Y, enemyDiff + 1));
                         break;
                     case EnemyTypes.Scarecrow:
-                        enemies.Add(new Scarecrow((int)position.X, (int)position.Y));
+                        enemies.Add(new Scarecrow((int)position.X, (int)position.Y, enemyDiff + 1));
                         break;
                     case EnemyTypes.Beast:
-                        enemies.Add(new Beast((int)position.X, (int)position.Y));
+                        enemies.Add(new Beast((int)position.X, (int)position.Y, enemyDiff + 1));
                         break;
                 }
             }
@@ -238,16 +238,16 @@ namespace DeathChain
                 ability.Draw(sb);
             }
 
+            foreach(Particle particle in particles) {
+                particle.Draw(sb);
+            }
+
             enemies.Sort((enemy1, enemy2) => { return enemy1.Hitbox.Bottom - enemy2.Hitbox.Bottom; }); // draw enemies from back to front
             foreach(Enemy enemy in enemies) { 
                 enemy.Draw(sb);
             }
 
             Game1.Player.Draw(sb);
-
-            foreach(Particle particle in particles) { // particles are typically small enough to fit on top of entities
-                particle.Draw(sb);
-            }
 
             Game1.Player.DrawUI(sb);
         }

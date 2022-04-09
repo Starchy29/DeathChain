@@ -11,9 +11,9 @@ namespace DeathChain
     class Scarecrow : Enemy
     {
         public const int BURST_RANGE = 150;
-        public static Explosion FlameBurst = new Explosion(Vector2.Zero, false, 70, 0.2f, new Texture2D[] { Graphics.Button });
+        public static Explosion FlameBurst = new Explosion(Vector2.Zero, false, 70, 0.2f, Graphics.FlameBurst, null);
 
-        public Scarecrow(int x, int y) : base(EnemyTypes.Scarecrow, new Vector2(x, y), 50, 50, 3, 0) {
+        public Scarecrow(int x, int y, int difficulty) : base(EnemyTypes.Scarecrow, new Vector2(x, y), 50, 50, 3, 0, difficulty) {
             sprite = Graphics.Scarecrow;
             drawBox.Inflate(20, 20);
             drawBox.Offset(0, -10);

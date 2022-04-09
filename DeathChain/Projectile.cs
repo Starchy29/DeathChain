@@ -18,8 +18,8 @@ namespace DeathChain
         protected float distanceLeft;
         public bool FromPlayer { get { return fromPlayer; } }
 
-        public Projectile(Vector2 midpoint, Vector2 velocity, float range, int length, bool fromPlayer, Texture2D sprite, Particle burst = null, Particle trail = null)
-            : base(midpoint, length, length, sprite) {
+        public Projectile(Vector2 midpoint, Vector2 velocity, float range, int length, bool fromPlayer, Texture2D[] sprites, Particle burst = null, Particle trail = null)
+            : base(midpoint, length, length) {
             this.velocity = velocity;
             this.fromPlayer = fromPlayer;
             this.burst = burst;
@@ -30,11 +30,13 @@ namespace DeathChain
                 trailFreq = length / speed;
             }
             this.distanceLeft = range;
+
+            currentAnimation = new Animation(sprites, AnimationType.Loop, 0.2f);
         }
 
         // create a projectile blueprint
-        public Projectile(float speed, float range, int length, Texture2D sprite, Particle burst = null, Particle trail = null) :
-            this(Vector2.Zero, new Vector2(speed, 0), range, length, false, sprite, burst, trail) { } // the literal values here will be set to the correct value when copied, so they can be anything
+        public Projectile(float speed, float range, int length, Texture2D[] sprites, Particle burst = null, Particle trail = null) :
+            this(Vector2.Zero, new Vector2(speed, 0), range, length, false, sprites, burst, trail) { } // the literal values here will be set to the correct value when copied, so they can be anything
 
         // copy a projectile from an existing one
         public Projectile(Projectile other, Vector2 midpoint, Vector2 aim, bool fromPlayer) :
@@ -50,9 +52,12 @@ namespace DeathChain
             this.trailTimer = other.trailTimer;
             this.trailFreq = other.trailFreq;
             this.distanceLeft = other.distanceLeft;
+            this.currentAnimation = new Animation(other.currentAnimation);
         }
 
         public override void Update(Level level, float deltaTime) {
+            currentAnimation.Update(deltaTime);
+
             Vector2 displacement = velocity * deltaTime;
             position += displacement;
             distanceLeft -= displacement.Length();
@@ -109,11 +114,11 @@ namespace DeathChain
         public override void Draw(SpriteBatch sb) {
             float rotation = 0f;
             if(velocity != Vector2.Zero) {
-                rotation = (float)Math.Atan2(velocity.X, velocity.Y);
+                rotation = Game1.GetVectorAngle(velocity);
             }
 
-            if(sprite != null) {
-                Graphics.RotateDraw(sb, sprite, DrawBox, tint, rotation);
+            if(currentAnimation.CurrentSprite != null) {
+                Graphics.RotateDraw(sb, currentAnimation.CurrentSprite, DrawBox, tint, rotation);
             }
         }
 

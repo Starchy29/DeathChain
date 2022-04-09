@@ -12,14 +12,11 @@ namespace DeathChain
     {
         public const float PUDDLE_DURATION = 6f;
         public const int MAX_SPEED = 180;                        // speed, range, size
-        public static readonly Projectile SLIMEBALL = new Projectile(600, 500, 30, Graphics.SlimeBall);
-        public static readonly Zone SlimePuddle = new Zone(Vector2.Zero, false, 60, PUDDLE_DURATION, 0.5f, new Texture2D[] {Graphics.Button}, true, null);
+        public static readonly Projectile SLIMEBALL = new Projectile(600, 500, 30, new Texture2D[] { Graphics.SlimeBall });
+        public static readonly Zone SlimePuddle = new Zone(Vector2.Zero, false, 60, PUDDLE_DURATION, 0.5f, Graphics.SlimePuddle, true, null);
 
-        private float puddleTime;
-
-        public Slime(int x, int y) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
+        public Slime(int x, int y, int difficulty) : base(EnemyTypes.Slime, new Vector2(x, y), 50, 50, 3, MAX_SPEED, difficulty) {
             timer = 1f + (float)Game1.RNG.NextDouble() * 4f;
-            puddleTime = 0f;
             sprite = Graphics.Slime;
             drawBox = new Rectangle(-5, -20, 60, 70);
 

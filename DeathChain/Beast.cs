@@ -18,12 +18,12 @@ namespace DeathChain
 
         private bool rushing;
 
-        public Beast(int x, int y) : base(EnemyTypes.Beast, new Vector2(x, y), 100, 100, 4, MAX_SPEED) {
+        public Beast(int x, int y, int difficulty) : base(EnemyTypes.Beast, new Vector2(x, y), 100, 100, 4, MAX_SPEED, difficulty) {
             sprite = Graphics.Beast;
 
-            // image is 100x150
-            drawBox.Inflate(10, 35);
-            drawBox.Offset(0, -35);
+            // image is 100x180
+            drawBox.Inflate(10, 50);
+            drawBox.Offset(0, -50);
 
             startupDuration = 0.4f;
             cooldownDuration = 3f;

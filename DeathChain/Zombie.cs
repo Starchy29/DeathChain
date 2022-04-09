@@ -18,11 +18,11 @@ namespace DeathChain
 
         private bool lunging; // only 2 states
 
-        public Zombie(int x, int y) : base(EnemyTypes.Zombie, new Vector2(x, y), 50, 50, 3, MAX_SPEED) {
+        public Zombie(int x, int y, int difficulty) : base(EnemyTypes.Zombie, new Vector2(x, y), 50, 50, 3, MAX_SPEED, difficulty) {
             sprite = Graphics.Zombie;
             lunging = false;
-            drawBox.Inflate(20, 16);
-            drawBox.Offset(0, -15);
+            drawBox.Inflate(24, 25); // 50x60
+            drawBox.Offset(0, -13);
             startupDuration = 0.4f;
             cooldownDuration = ATTACK_COOLDOWN;
         }

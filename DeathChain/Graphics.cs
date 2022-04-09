@@ -33,11 +33,15 @@ namespace DeathChain
 
         public static Texture2D Slime { get; set; }
         public static Texture2D SlimeBall { get; set; }
+        public static Texture2D[] SlimePuddle { get; set; }
 
         public static Texture2D Scarecrow { get; set; }
+        public static Texture2D[] SpiralFlame { get; set; }
+        public static Texture2D[] FlameBurst { get; set; }
 
         public static Texture2D Blight { get; set; }
         public static Texture2D[] BlightExplosion { get; set; }
+        public static Texture2D[] BlightDissipate { get; set; }
 
         public static Texture2D Beast { get; set; }
 

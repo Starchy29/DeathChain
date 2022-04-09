@@ -36,14 +36,13 @@ namespace DeathChain
 
         // copy from an existing zone
         public Zone(Zone other, Vector2 midpoint, bool fromPlayer) : base(midpoint, other.width, other.height) {
-            currentAnimation = other.currentAnimation;
+            currentAnimation = new Animation(other.currentAnimation);
             this.fromPlayer = fromPlayer;
 
             this.duration = other.duration;
             hitZone = new Circle(midpoint, other.hitZone.Radius); // shrink hitzone a bit
             this.startup = other.startup;
             this.dissipation = other.dissipation;
-            
         }
 
         public override void Update(Level level, float deltaTime) {

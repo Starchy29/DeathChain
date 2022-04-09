@@ -11,11 +11,12 @@ namespace DeathChain
     class Blight : Enemy
     {
         public const int MAX_SPEED = 450;
-        public const int EXPLOSION_RADIUS = 110;
+        public const int EXPLOSION_RADIUS = 130;
         public const float STARTUP = 0.1f;
+        public static Particle DISSIPATION = new Particle(new Rectangle(0, 0, EXPLOSION_RADIUS * 2, EXPLOSION_RADIUS * 2), Graphics.BlightDissipate, 0.35f); // rectangle width and height matter, but not the others
         private List<Vector2> directionOptions;
 
-        public Blight(int x, int y) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 2, MAX_SPEED) {
+        public Blight(int x, int y, int difficulty) : base(EnemyTypes.Blight, new Vector2(x, y), 50, 50, 1, MAX_SPEED, difficulty) {
             sprite = Graphics.Blight;
             drawBox.Inflate(5, 15);
             drawBox.Offset(0, -15);
@@ -59,7 +60,7 @@ namespace DeathChain
         protected override void AttackEffects(Level level) {
             cooldownDuration = 2f + (float)Game1.RNG.NextDouble() * 2f; // time until next explosion
             ChooseRandomDirection(directionOptions);
-            level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, Graphics.BlightExplosion));
+            level.Abilities.Add(new Explosion(Midpoint, false, EXPLOSION_RADIUS, STARTUP, Graphics.BlightExplosion, DISSIPATION));
         }
     }
 }

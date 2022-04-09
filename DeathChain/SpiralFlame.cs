@@ -14,7 +14,7 @@ namespace DeathChain
         private Vector2 pivot;
 
         public SpiralFlame(Vector2 midpoint, Vector2 aim, bool fromPlayer) 
-            : base(midpoint, aim, 1600, 50, fromPlayer, Graphics.Pixel, null, null)
+            : base(midpoint, aim, 1600, 50, fromPlayer, Graphics.SpiralFlame, null, null)
         { 
             pivot = midpoint;
         }
@@ -41,6 +41,18 @@ namespace DeathChain
             }
 
             return base.Collides(other);
+        }
+
+        // spin in opposite direction
+        public override void Draw(SpriteBatch sb) {
+            float rotation = 0f;
+            if(velocity != Vector2.Zero) {
+                rotation = -Game1.GetVectorAngle(velocity); // negative here is only thing different from Projectile.Draw()
+            }
+
+            if(currentAnimation.CurrentSprite != null) {
+                Graphics.RotateDraw(sb, currentAnimation.CurrentSprite, DrawBox, tint, rotation);
+            }
         }
     }
 }

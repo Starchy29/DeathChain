@@ -69,8 +69,8 @@ namespace DeathChain
             keyboardBinds[Inputs.Right] = new List<Keys>() { Keys.Right, Keys.D };
 
             keyboardBinds[Inputs.Attack] = new List<Keys>() { }; // mouse left click
-            keyboardBinds[Inputs.Secondary] = new List<Keys>() { Keys.Space };
-            keyboardBinds[Inputs.Tertiary] = new List<Keys>() { }; // mouse right click
+            keyboardBinds[Inputs.Secondary] = new List<Keys>() { }; // mouse right click
+            keyboardBinds[Inputs.Tertiary] = new List<Keys>() { Keys.Space }; 
             keyboardBinds[Inputs.Possess] = new List<Keys>() { Keys.E };
 
             keyboardBinds[Inputs.Pause] = new List<Keys>() { Keys.Escape, Keys.Enter };
@@ -128,7 +128,7 @@ namespace DeathChain
             }
             else { // keyboard
                 if(input == Inputs.Attack && Mouse.GetState().LeftButton == ButtonState.Pressed ||
-                    input == Inputs.Tertiary && Mouse.GetState().RightButton == ButtonState.Pressed
+                    input == Inputs.Secondary && Mouse.GetState().RightButton == ButtonState.Pressed
                 ) {
                     return true;
                 }

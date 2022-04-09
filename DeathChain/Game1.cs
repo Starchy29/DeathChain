@@ -58,6 +58,9 @@ namespace DeathChain
             instance = this;
 
             Window.ClientSizeChanged += OnResize;
+
+            Dictionary<String, int> test = new Dictionary<string, int>();
+            List<String> keys = test.Keys.ToList();
         }
 
         /// <summary>
@@ -139,13 +142,27 @@ namespace DeathChain
 
             Graphics.Slime = Content.Load<Texture2D>("slime");
             Graphics.SlimeBall = Content.Load<Texture2D>("slimeball");
+            Graphics.SlimePuddle = new Texture2D[13];
+            for(int i = 0; i < 13; i++) {
+                Graphics.SlimePuddle[i] = Content.Load<Texture2D>("puddle " + i);
+            }
 
             Graphics.Scarecrow = Content.Load<Texture2D>("scarecrow");
+            Graphics.SpiralFlame = new Texture2D[1];
+            Graphics.SpiralFlame[0] = Content.Load<Texture2D>("spiral flame 0");
+            Graphics.FlameBurst = new Texture2D[16];
+            for(int i = 0; i < 16; i++) {
+                Graphics.FlameBurst[i] = Content.Load<Texture2D>("flame burst " + i);
+            }
 
             Graphics.Blight = Content.Load<Texture2D>("blight");
             Graphics.BlightExplosion = new Texture2D[13];
             for(int i = 0; i < 13; i++) {
                 Graphics.BlightExplosion[i] = Content.Load<Texture2D>("blight explosion " + i);
+            }
+            Graphics.BlightDissipate = new Texture2D[6];
+            for(int i = 0; i < 6; i++) {
+                Graphics.BlightDissipate[i] = Content.Load<Texture2D>("blight dissipate " + i);
             }
 
             Graphics.Beast = Content.Load<Texture2D>("beast");
@@ -187,7 +204,7 @@ namespace DeathChain
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if(!Game.IsActive) {
+            if(!Game.IsActive) { // freeze when not in focus
                 return;
             }
 
@@ -264,7 +281,7 @@ namespace DeathChain
 
         public void Lose() {
             state = GameState.Menu;
-            currentMenu = mainMenu;
+            currentMenu = gameOverMenu;
         }
 
         public static Vector2 RotateVector(Vector2 vector, float radians) {
@@ -302,6 +319,7 @@ namespace DeathChain
                     player = new Player(); // must be before current level is changed
                     currentLevel = new Level(SpecialLevels.Start);
                     player.Midpoint = new Vector2(StartScreenWidth / 2, StartScreenHeight / 2); // override level constructor placement
+                    Camera.Update(currentLevel);
                 }),
 
                 new Button(new Vector2(StartScreenWidth / 2, StartScreenHeight / 2 + H * 2), W, H, "Exit", () => {

@@ -13,7 +13,7 @@ namespace DeathChain
         protected const int ACCEL = 2000;
 
         protected int health;
-        private int maxHealth; // tells the player how much health to have when possessing this
+        //private int maxHealth; // tells the player how much health to have when possessing this
         protected bool alive; // alive determines if the player can possess this, isActive determines if it should be deleted
         protected float timer; // for sub-classes to use however they want
         private float enemyTimer; // alive: red flash duration when hit, dead: despawn timer
@@ -22,6 +22,7 @@ namespace DeathChain
         protected float moveTimer; // for wandering, how long until this changes direction
         protected Attack attack; // melee attacks
         private SpriteEffects flips;
+        private int difficulty; // 1-3
 
         private float attackTimer; 
         protected float startupDuration; // pause before attacking for reacting
@@ -31,15 +32,17 @@ namespace DeathChain
 
         public EnemyTypes Type { get { return type; } }
         public bool Alive { get { return alive; } }
-        public int MaxHealth { get { return maxHealth; } }
+        //public int MaxHealth { get { return maxHealth; } }
+        public int Difficulty { get { return difficulty; } }
         public Rectangle DrawRect { get { return drawBox; } }
 
-        public Enemy(EnemyTypes type, Vector2 midpoint, int width, int height, int health, int maxSpeed) : base(midpoint, width, height, Graphics.Pixel) {
+        public Enemy(EnemyTypes type, Vector2 midpoint, int width, int height, int health, int maxSpeed, int difficulty) : base(midpoint, width, height, Graphics.Pixel) {
             alive = true;
             this.health = health;
             this.type = type;
             this.maxSpeed = maxSpeed;
-            maxHealth = health;
+            //maxHealth = health;
+            this.difficulty = difficulty;
             startupDuration = 0.4f;
             cooldownDuration = 2f;
         }

@@ -13,7 +13,7 @@ namespace DeathChain
         private int bouncesLeft = 2;
 
         public BounceSpore(Vector2 midpoint, Vector2 aim, bool fromPlayer)
-            : base(midpoint, aim * 800, 1200, 20, fromPlayer, Graphics.Spore,
+            : base(midpoint, aim * 800, 1200, 20, fromPlayer, new Texture2D[] {Graphics.Spore},
                   new Particle(new Rectangle(0, 0, 20, 20), Graphics.SporeBreak, 0.1f),
                   new Particle(new Rectangle(0, 0, 20, 20), Graphics.SporeTrail, 0.1f)
         ) {}

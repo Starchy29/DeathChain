@@ -25,7 +25,8 @@ namespace DeathChain
         Lunge,
         Block,
         Teleport,
-        Rush
+        Rush,
+        CorpseSelect, // mushroom can teleport to corpses
     }
 
     public delegate void Ability(Level level);
@@ -34,7 +35,7 @@ namespace DeathChain
     {
         public const int SELECT_DIST = 100; // distance from a dead enemy that the player can possess them
         public const int MAX_SPEED = 400;
-        private const float DECAY_RATE = 5f;
+        private const float DECAY_RATE = 8f;
         private const float ACCEL = 10000.0f;
         private float friction = 2000f;
         private const int WIDTH = 50;
@@ -92,7 +93,7 @@ namespace DeathChain
             abilities = new Dictionary<EnemyTypes, Ability[]>();
             abilities[EnemyTypes.None] = new Ability[3] { Slash, null, null };
             abilities[EnemyTypes.Zombie] = new Ability[3] { Slash, Lunge, null };
-            abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, null };
+            abilities[EnemyTypes.Mushroom] = new Ability[3] { FireSpore, Block, CorpseWarp };
             abilities[EnemyTypes.Slime] = new Ability[3] { FireSlimes, DropPuddle, null };
             abilities[EnemyTypes.Blight] = new Ability[3] { Explode, null, null };
             abilities[EnemyTypes.Scarecrow] = new Ability[3] { FlameBurst, Teleport, FlameSpiral };
@@ -111,6 +112,7 @@ namespace DeathChain
             abilityIcons[DropPuddle] = Graphics.Drop;
             abilityIcons[Explode] = Graphics.ExplosionLogo;
             abilityIcons[Teleport] = Graphics.Dash;
+            abilityIcons[CorpseWarp] = Graphics.Dash;
             abilityIcons[FlameBurst] = Graphics.ExplosionLogo;
             abilityIcons[FlameSpiral] = Graphics.SporeLogo;
         }
@@ -120,7 +122,6 @@ namespace DeathChain
             if(possessType == EnemyTypes.None && state == PlayerState.Normal) {
                 currentAnimation = forward;
                 flips = SpriteEffects.None;
-
                 
                 if(Input.IsPressed(Inputs.Up)) { // first so right and left get override priority
                     currentAnimation = back;
@@ -136,6 +137,16 @@ namespace DeathChain
                 }
             }
 
+            // flip enemy sprite if necessary
+            if(Possessing) {
+                if(Input.IsPressed(Inputs.Right)) {
+                    flips = SpriteEffects.FlipHorizontally;
+                }
+                if(Input.IsPressed(Inputs.Left)) {
+                    flips = SpriteEffects.None;
+                }
+            }
+
             currentAnimation.Update(deltaTime);
 
             bool checkWalls = true;
@@ -147,13 +158,6 @@ namespace DeathChain
                     break;
 
                 case PlayerState.Rush:
-                    // check if hit a wall last frame
-                    if(velocity.LengthSquared() < 500 * 500) {
-                        state = PlayerState.Normal;
-                        recentlyHitEnemies.Clear();
-                        break;
-                    }
-
                     // charge straight forward with acceleration
                     Vector2 acceleration = velocity;
                     if(acceleration != Vector2.Zero) {
@@ -175,6 +179,8 @@ namespace DeathChain
                             recentlyHitEnemies.Add(enemy);
                         }
                     }
+
+                    // ends on wall collision, checked below
                     break;
 
                 case PlayerState.Dash:
@@ -277,11 +283,53 @@ namespace DeathChain
                         cooldowns[1] = 0.5f;
                     }
                     break;
+
+                case PlayerState.CorpseSelect:
+                    selector = new Vector2(9999, 9999); // off screen
+
+                    // find corpse closest to aim
+                    Vector2 aim = Input.GetAim();
+                    Enemy chosenCorpse = null;
+                    float greatestDot = 0; // useless default value
+                    foreach(Enemy enemy in level.Enemies) {
+                        if(!enemy.Alive) {
+                            Vector2 comparer = enemy.Midpoint - Midpoint;
+                            if(comparer != Vector2.Zero) {
+                                comparer.Normalize();
+                                float dot = Vector2.Dot(comparer, aim);
+                                if(chosenCorpse == null || dot > greatestDot) {
+                                    greatestDot = dot;
+                                    chosenCorpse = enemy;
+                                }
+                            } else {
+                                // tiny chance that this is directly on top of another
+                                chosenCorpse = enemy;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(chosenCorpse != null) {
+                        selector = chosenCorpse.Midpoint;
+                    }
+
+                    // end selection when released
+                    if(!Input.IsPressed(Inputs.Tertiary)) {
+                        state = PlayerState.Normal;
+                        if(chosenCorpse != null) {
+                            Midpoint = selector;
+                        }
+                    }
+                    break;
             }
 
             // check wall collision
             if(checkWalls) {
-                CheckWallCollision(level, checkPits);
+                List<Direction> collisions = CheckWallCollision(level, checkPits);
+                if(state == PlayerState.Rush && collisions.Count > 0) {
+                    state = PlayerState.Normal;
+                    recentlyHitEnemies.Clear();
+                }
             }
 
             // abilities
@@ -317,24 +365,15 @@ namespace DeathChain
                     }
 
                     // actually possess now
-                    if(Possessing) {
-                        if(health >= 6 && health < 10) {
-                            health++;
-                        }
-                        else if(health >= 3) {
-                            health += (possessTarget.MaxHealth <= 1 ? 1 : 2);
-                        }
-                        else {
-                            health += possessTarget.MaxHealth;
-                        }
-
-                        if(health < possessTarget.MaxHealth) {
-                            health = possessTarget.MaxHealth;
-                        }
-                    } else {
-                        health = possessTarget.MaxHealth;
+                    if(!Possessing) {
                         decayTimer = DECAY_RATE;
+                        health = 0;
                     }
+                    health += possessTarget.Difficulty;
+                    if(health > 10) {
+                        health = 10;
+                    }
+
                     possessTarget.IsActive = false;
                     possessType = possessTarget.Type;
                     position = possessTarget.Position;
@@ -348,8 +387,6 @@ namespace DeathChain
                     for(int i = 0; i < 3; i++) {
                         cooldowns[i] = 0;
                     }
-
-                    invulnTime = 0.5f;
                 }
             }
 
@@ -369,18 +406,21 @@ namespace DeathChain
 
             if(Possessing) {
                 // lose health over time when possessing
-                decayTimer -= deltaTime;
-                if(decayTimer <= 0) {
-                    health--;
-                    decayTimer = DECAY_RATE;
-                    if(health <= 0) {
-                        Unpossess();
+                if(!level.Cleared) {
+                    decayTimer -= deltaTime;
+                    if(decayTimer <= 0) {
+                        health--;
+                        decayTimer = DECAY_RATE;
+                        if(health <= 0) {
+                            Unpossess();
+                        }
                     }
                 }
 
+                // unpossess if button is held
                 if(Input.IsPressed(Inputs.Possess)) {
                     unpossessTimer += deltaTime;
-                    if(unpossessTimer > 0.5f) {
+                    if(unpossessTimer > 0.3f) {
                         Unpossess();
                         unpossessTimer = 0f;
                     }
@@ -399,6 +439,9 @@ namespace DeathChain
             // draw selectors
             if(state == PlayerState.Teleport) {
                 sb.Draw(Graphics.Scarecrow, new Rectangle((int)(selector.X + Camera.Shift.X - width / 2 + drawBox.X), (int)(selector.Y + Camera.Shift.Y - height / 2 + drawBox.Y), drawBox.Width, drawBox.Height), Color.Black);
+            }
+            else if(state == PlayerState.CorpseSelect) {
+                sb.Draw(Graphics.Mushroom[0], new Rectangle((int)(selector.X + Camera.Shift.X - width / 2 + drawBox.X), (int)(selector.Y + Camera.Shift.Y - height / 2 + drawBox.Y), drawBox.Width, drawBox.Height), Color.Black);
             }
 
             // TEMPORARY: make sprite match the current enemy
@@ -648,7 +691,7 @@ namespace DeathChain
 
         private void Explode(Level level) {
             cooldowns[0] = 1.2f;
-            level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, Graphics.BlightExplosion));
+            level.Abilities.Add(new Explosion(Midpoint, true, Blight.EXPLOSION_RADIUS, Blight.STARTUP, Graphics.BlightExplosion, Blight.DISSIPATION));
         }
 
         private void Teleport(Level level) {
@@ -666,6 +709,10 @@ namespace DeathChain
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2(1, 0), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(2 * Math.PI / 3), (float)Math.Sin(2 * Math.PI / 3)), true));
             level.Abilities.Add(new SpiralFlame(Midpoint, new Vector2((float)Math.Cos(-2 * Math.PI / 3), (float)Math.Sin(-2 * Math.PI / 3)), true));
+        }
+
+        private void CorpseWarp(Level level) {
+            state = PlayerState.CorpseSelect;
         }
 
         // when player enters a room, walk up for a bit, returns distance travelled
