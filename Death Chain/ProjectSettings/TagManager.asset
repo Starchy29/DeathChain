@@ -11,13 +11,13 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Wall
+  - Pit
+  - Attack
+  - GroundEnemy
+  - AirEnemy
+  - BurrowEnemy
+  - Border
   - 
   - 
   - 

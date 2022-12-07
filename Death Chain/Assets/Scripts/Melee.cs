@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// tracks the status of the player, no matter which object they are possessing at the moment
-public class PlayerScript : MonoBehaviour
+// a melee attack
+public class Melee : MonoBehaviour
 {
+    private List<GameObject> hitEnemies;
+    private bool ally;
+
     // Start is called before the first frame update
     void Start()
     {
