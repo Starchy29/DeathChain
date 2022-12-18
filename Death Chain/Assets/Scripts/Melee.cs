@@ -5,8 +5,7 @@ using UnityEngine;
 // a melee attack
 public class Melee : MonoBehaviour
 {
-    private List<GameObject> hitEnemies;
-    private bool ally;
+    public bool IsAlly { get; set; }
 
     // Start is called before the first frame update
     void Start()

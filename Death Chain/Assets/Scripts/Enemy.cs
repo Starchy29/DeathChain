@@ -12,12 +12,6 @@ public abstract class Enemy : MonoBehaviour
     protected Controller controller;
 
     private Rigidbody2D body;
-
-    // abilities
-    public delegate void AbilityEffect();
-    private AbilityEffect[] abilities;
-    private float[] cooldownStats; // amount of time each ability goes on cooldown
-    private float[] cooldownTimers; // timer for how much longer the ability is on cooldown
     
     // how is health handled?
 
@@ -25,22 +19,15 @@ public abstract class Enemy : MonoBehaviour
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
-        abilities = new AbilityEffect[3];
-        cooldownStats = new float[3];
-        cooldownTimers = new float[3];
         ChildStart();
     }
     protected abstract void ChildStart();
 
-    // function for children to add their abilities in their ChildStart() method
-    protected void AddAbility(int slot, AbilityEffect effectFunction, float cooldown) {
-        abilities[slot] = effectFunction;
-        cooldownStats[slot] = cooldown;
-    }
-
     // Update is called once per frame
     void Update()
     {
+        controller.Update(gameObject);
+
         // apply friction
         const float FRICTION = 20;
         if (body.velocity != Vector2.zero) {
@@ -66,11 +53,16 @@ public abstract class Enemy : MonoBehaviour
             }
         }
 
-        // using abilities
-        int abilitySlot = controller.GetUsedAbility();
-        if(abilitySlot >= 0 && abilities[abilitySlot] != null && cooldownTimers[abilitySlot] <= 0) { // if using an ability and that ability is off cooldown
-            abilities[abilitySlot]();
-            cooldownTimers[abilitySlot] = cooldownStats[abilitySlot];
-        }
+        // figure out knockback
+
+        // abilities handled in each sub class
+        UpdateAbilities();
+    }
+
+    public abstract void UpdateAbilities();
+
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        //Debug.Log(collision.);
     }
 }
