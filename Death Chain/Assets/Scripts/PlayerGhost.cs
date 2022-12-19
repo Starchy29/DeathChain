@@ -10,7 +10,7 @@ public class PlayerGhost : Enemy
     private const float SLASH_CD = 0.4f;
     private const float SHOOT_CD = 0.8f;
     private const float SLASH_WIDTH = 70.0f / 180 * Mathf.PI; // as an angle
-    private const float SLASH_RANGE = 0.5f;
+    private const float SLASH_RANGE = 1.5f;
 
     private float slashCooldown;
     private float shootCooldown;
@@ -24,11 +24,11 @@ public class PlayerGhost : Enemy
     protected override void ChildStart()
     {
         controller = new PlayerController();
-        ally = true;
+        isAlly = true;
         maxSpeed = BASE_WALK_SPEED;
     }
 
-    public override void UpdateAbilities() {
+    protected override void UpdateAbilities() {
         if(currentSlash != null) {
             const float SLASH_SPEED = 4.0f; // angle per second
             slashAngle += SLASH_SPEED * Time.deltaTime * (clockwise ? -1 : 1);

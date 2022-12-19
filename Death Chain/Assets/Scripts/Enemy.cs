@@ -5,15 +5,22 @@ using UnityEngine;
 public abstract class Enemy : MonoBehaviour
 {
     private bool dead; // enemies lie on the ground for some time when dead so the player can possess them
-    protected bool ally = false; // whether or not this is fighting for the player
-    protected bool unmoving = false; // true means this enemy does not move and cannot receive knockback
+    protected bool isAlly = false; // whether or not this is fighting for the player
+    protected bool sturdy = false; // true means this enemy cannot receive knockback
 
-    protected float maxSpeed;
+    protected float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
     protected Controller controller;
 
     private Rigidbody2D body;
-    
-    // how is health handled?
+    private Statuses statuses = new Statuses();
+    protected int health;
+
+    private float poisonTimer; // tracks when to deal poison damage
+
+    public float DamageMultiplier { get { 
+        return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 1); 
+    } }
+    public bool IsAlly { get { return isAlly; } }
 
     // Start is called before the first frame update
     void Start()
@@ -41,15 +48,23 @@ public abstract class Enemy : MonoBehaviour
         }
 
         // movement
-        const float ACCEL = 80;
-        Vector2 moveDirection = controller.GetMoveDirection();
-        if(moveDirection != Vector2.zero) {
-            body.velocity += moveDirection * Time.deltaTime * ACCEL;
+        float currentMaxSpeed = maxSpeed;
+        if(statuses.HasStatus(Status.Freeze)) {
+            currentMaxSpeed = 0;
+        } else {
+            currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
+        }
+        if(maxSpeed > 0) {
+            const float ACCEL = 80;
+            Vector2 moveDirection = controller.GetMoveDirection();
+            if(moveDirection != Vector2.zero) {
+                body.velocity += moveDirection * Time.deltaTime * ACCEL;
             
-            // cap speed
-            if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
-                body.velocity = body.velocity.normalized;
-                body.velocity *= maxSpeed;
+                // cap speed
+                if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
+                    body.velocity = body.velocity.normalized;
+                    body.velocity *= maxSpeed;
+                }
             }
         }
 
@@ -57,12 +72,32 @@ public abstract class Enemy : MonoBehaviour
 
         // abilities handled in each sub class
         UpdateAbilities();
+
+        // manage poison damage
+        if(statuses.HasStatus(Status.Poison)) {
+            poisonTimer -= Time.deltaTime;
+            if(poisonTimer <= 0) {
+                poisonTimer += 0.5f; // poison tick rate
+                TakeDamage(1); // damage per tick
+            }
+        }
     }
 
-    public abstract void UpdateAbilities();
+    protected abstract void UpdateAbilities();
 
-    public void OnTriggerEnter2D(Collider2D collision)
-    {
-        //Debug.Log(collision.);
+    public void TakeDamage(int amount) {
+        if(statuses.HasStatus(Status.Vulnerability)) {
+            amount *= 2;
+        }
+        if(statuses.HasStatus(Status.Resistance)) {
+            amount /= 2;
+        }
+
+        health -= amount;
+    }
+
+    // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration
+    public void ApplyStatus(Status effect, float duration = 60 * 60) {
+        statuses.Add(effect, duration);
     }
 }
