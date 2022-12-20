@@ -10,7 +10,7 @@ public class PlayerGhost : Enemy
     private const float SLASH_CD = 0.4f;
     private const float SHOOT_CD = 0.8f;
     private const float SLASH_WIDTH = 70.0f / 180 * Mathf.PI; // as an angle
-    private const float SLASH_RANGE = 1.5f;
+    private const float SLASH_RANGE = 0.5f;//1.0f;
 
     private float slashCooldown;
     private float shootCooldown;
@@ -20,6 +20,8 @@ public class PlayerGhost : Enemy
     private float slashAngle; // the current angle relative to the player the slash should be
     private float targetAngle; // the angle that determines the slash is complete
     private bool clockwise; // which way the slash should go, alternates every time
+
+    public GameObject ShotPrefab;
 
     protected override void ChildStart()
     {
@@ -56,7 +58,7 @@ public class PlayerGhost : Enemy
                         maxSpeed = SLASH_WALK_SPEED; // slow while slashing
 
                         currentSlash = Instantiate(SlashPrefab);
-                        //currentSlash.GetComponent<Melee>().IsAlly = this.ally;
+                        currentSlash.GetComponent<Attack>().User = this.gameObject;
 
                         Vector2 aimVec = controller.GetAimDirection();
                         slashAngle = Mathf.Atan2(aimVec.y, aimVec.x) + SLASH_WIDTH / 2 * (clockwise ? 1 : -1);
@@ -70,10 +72,12 @@ public class PlayerGhost : Enemy
                 case 1: // shoot
                     if(shootCooldown <= 0) {
                         shootCooldown = SHOOT_CD;
+                        GameObject shot = Instantiate(ShotPrefab);
+                        shot.transform.position = transform.position;
+                        Projectile script = shot.GetComponent<Projectile>();
+                        script.User = this.gameObject;
+                        script.SetDirection(controller.GetAimDirection());
                     }
-                    break;
-
-                case 3: // possess
                     break;
 
                 case 143:

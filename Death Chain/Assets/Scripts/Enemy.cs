@@ -18,7 +18,7 @@ public abstract class Enemy : MonoBehaviour
     private float poisonTimer; // tracks when to deal poison damage
 
     public float DamageMultiplier { get { 
-        return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 1); 
+        return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); 
     } }
     public bool IsAlly { get { return isAlly; } }
 
@@ -34,6 +34,7 @@ public abstract class Enemy : MonoBehaviour
     void Update()
     {
         controller.Update(gameObject);
+        statuses.Update();
 
         // apply friction
         const float FRICTION = 20;
@@ -94,6 +95,12 @@ public abstract class Enemy : MonoBehaviour
         }
 
         health -= amount;
+        Debug.Log(health);
+
+        // check for death
+        if(health <= 0) {
+
+        }
     }
 
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration

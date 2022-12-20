@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// base class for all attacks
-public abstract class Attack : MonoBehaviour
+// base class for all attacks. Must have an attached trigger collider on the attack layer
+public class Attack : MonoBehaviour
 {
     public GameObject User { get; set; } // must be set by the attack user on creation
-    protected int damage;
+    [SerializeField] protected int damage;
 
-    public void OnTriggerEnter2D(Collider2D collision)
-    {
+    public void OnTriggerEnter2D(Collider2D collision) {
         switch(collision.gameObject.layer) {
             case 6: // wall
             case 12: // border wall
@@ -28,6 +27,6 @@ public abstract class Attack : MonoBehaviour
         }
     }
 
-    protected void OnEnemyCollision(Enemy hitEnemy) { }
-    protected void OnWallCollision() { }
+    protected virtual void OnEnemyCollision(Enemy hitEnemy) { }
+    protected virtual void OnWallCollision() { }
 }
