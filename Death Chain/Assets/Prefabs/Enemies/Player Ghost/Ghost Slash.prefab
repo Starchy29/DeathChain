@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3459951391140047294}
   - component: {fileID: 3459951391140047295}
   - component: {fileID: 3459951391140047292}
-  - component: {fileID: 4456165938858679575}
+  - component: {fileID: 7135516317184142174}
   m_Layer: 8
   m_Name: Ghost Slash
   m_TagString: Untagged
@@ -102,7 +102,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.25
---- !u!114 &4456165938858679575
+--- !u!114 &7135516317184142174
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,7 +111,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3459951391140047293}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07497c363b5f10a47a78e9b9be9a4c07, type: 3}
+  m_Script: {fileID: 11500000, guid: 17b889382bca22e4ba962aae34d98bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
+  range: 0.8
+  width: 90
+  speed: 300

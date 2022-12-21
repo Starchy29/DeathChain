@@ -12,15 +12,16 @@ public abstract class Enemy : MonoBehaviour
     protected Controller controller;
 
     private Rigidbody2D body;
-    private Statuses statuses = new Statuses();
+    private Statuses statuses = new Statuses(); // conveniently track all status effects
     protected int health;
 
     private float poisonTimer; // tracks when to deal poison damage
+    private bool knocked = false; // true means movement is locked as this is being pushed
 
     public float DamageMultiplier { get { 
-        return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); 
-    } }
+            return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
+    public bool IsPlayer { get { return controller is PlayerController; } }
 
     // Start is called before the first frame update
     void Start()
@@ -47,29 +48,32 @@ public abstract class Enemy : MonoBehaviour
                 body.velocity = Vector2.zero;
             }
         }
-
-        // movement
-        float currentMaxSpeed = maxSpeed;
-        if(statuses.HasStatus(Status.Freeze)) {
-            currentMaxSpeed = 0;
-        } else {
-            currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
-        }
-        if(maxSpeed > 0) {
-            const float ACCEL = 80;
-            Vector2 moveDirection = controller.GetMoveDirection();
-            if(moveDirection != Vector2.zero) {
-                body.velocity += moveDirection * Time.deltaTime * ACCEL;
+        
+        if(!knocked) {
+            // regular movement
+            float currentMaxSpeed = maxSpeed;
+            if(statuses.HasStatus(Status.Freeze)) {
+                currentMaxSpeed = 0;
+            } else {
+                currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
+            }
+            if(maxSpeed > 0) {
+                const float ACCEL = 80;
+                Vector2 moveDirection = controller.GetMoveDirection();
+                if(moveDirection != Vector2.zero) {
+                    body.velocity += moveDirection * Time.deltaTime * ACCEL;
             
-                // cap speed
-                if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
-                    body.velocity = body.velocity.normalized;
-                    body.velocity *= maxSpeed;
+                    // cap speed
+                    if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
+                        body.velocity = body.velocity.normalized;
+                        body.velocity *= maxSpeed;
+                    }
                 }
             }
         }
-
-        // figure out knockback
+        else if(body.velocity == Vector2.zero) { // check for end of knockback
+            knocked = false;
+        }
 
         // abilities handled in each sub class
         UpdateAbilities();
@@ -101,6 +105,11 @@ public abstract class Enemy : MonoBehaviour
         if(health <= 0) {
 
         }
+    }
+
+    public void Push(Vector2 force) {
+        knocked = true;
+        body.velocity += force;
     }
 
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration

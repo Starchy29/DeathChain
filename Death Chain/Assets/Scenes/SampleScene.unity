@@ -231,6 +231,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5353949509718061720, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
+      propertyPath: m_Constraints
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061724, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_Name
       value: PlayerGhost
@@ -432,7 +436,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7060183951580795020, guid: b1a363565c59a6745ac13ec9f096eccf, type: 3}
       propertyPath: m_Constraints
-      value: 7
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7060183951580795022, guid: b1a363565c59a6745ac13ec9f096eccf, type: 3}
       propertyPath: m_RootOrder
