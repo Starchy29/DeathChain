@@ -5,8 +5,14 @@ using UnityEngine;
 // Base class for player and AI controllers
 public abstract class Controller
 {
-    // Called every frame by Enemy, which passes itself as the parameter. Allows important utility like tracking last aim and player position
-    public virtual void Update(GameObject controlTarget) { }
+    protected GameObject controlled; // the entity this is controlling
+
+    public Controller(GameObject controlled) {
+        this.controlled = controlled;
+    }
+
+    // Called every frame by Enemy. Allows important utility like tracking last aim and player position
+    public virtual void Update() { }
 
     // returns a unit vector that represents the direction this character wants to move. Can return the zero vector if not moving
     public abstract Vector2 GetMoveDirection();

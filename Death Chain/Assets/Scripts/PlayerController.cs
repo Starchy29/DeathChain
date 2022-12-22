@@ -8,10 +8,9 @@ public class PlayerController : Controller
     private int controllerIndex;
     private bool useKeyboard;
     private Vector2 lastAim = Vector2.up; // the last direction the player held. Used when the player is not aiming
-    private Vector3 playerPosition; // needed for mouse aim
 
     // multiplayer controls: enter a big controller index to make it the keyboard user
-    public PlayerController(int controllerIndex = 0) {
+    public PlayerController(GameObject controlTarget, int controllerIndex = 99) : base(controlTarget) {
         this.controllerIndex = controllerIndex;
         useKeyboard = false;
 
@@ -23,13 +22,12 @@ public class PlayerController : Controller
     }
 
     // default for single player
-    public PlayerController() {
+    public PlayerController(GameObject controlTarget) : base(controlTarget) {
         controllerIndex = 0;
         useKeyboard = true;
     }
 
-    public override void Update(GameObject controlTarget) {
-        playerPosition = controlTarget.transform.position;
+    public override void Update() {
         lastAim = GetAimDirection();
     }
 
@@ -86,9 +84,6 @@ public class PlayerController : Controller
             if(controller.bButton.wasPressedThisFrame || controller.leftShoulder.wasPressedThisFrame) {
                 return 2;
             }
-            if(controller.yButton.wasPressedThisFrame || controller.rightShoulder.wasPressedThisFrame) {
-                return 3;
-            }
         }
 
         if(useKeyboard) {
@@ -101,9 +96,6 @@ public class PlayerController : Controller
             }
             if(Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) {
                 return 2;
-            }
-            if(Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) {
-                return 3;
             }
         }
 
@@ -129,7 +121,7 @@ public class PlayerController : Controller
         if(useKeyboard && Mouse.current != null) {
             // use mouse for aim
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            Vector2 playerToMouse = mouseWorldPos - playerPosition;
+            Vector2 playerToMouse = mouseWorldPos - controlled.transform.position;
             if(playerToMouse != Vector2.zero) {
                 playerToMouse.Normalize();
                 return playerToMouse;

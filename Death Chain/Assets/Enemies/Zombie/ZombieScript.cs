@@ -8,7 +8,7 @@ public class ZombieScript : Enemy
     protected override void ChildStart()
     {
         health = 20;
-        controller = new AIController();
+        controller = new AIController(gameObject, AIMode.Still, AIMode.Still);
     }
 
     protected override void UpdateAbilities() {

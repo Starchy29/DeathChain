@@ -21,9 +21,10 @@ public class PlayerGhost : Enemy
 
     protected override void ChildStart()
     {
-        controller = new PlayerController();
+        controller = new PlayerController(gameObject);
         isAlly = true;
         maxSpeed = BASE_WALK_SPEED;
+        health = 20;
     }
 
     protected override void UpdateAbilities() {

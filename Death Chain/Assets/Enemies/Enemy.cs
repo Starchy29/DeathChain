@@ -4,29 +4,31 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    private bool dead; // enemies lie on the ground for some time when dead so the player can possess them
+    private Rigidbody2D body;
+    private Statuses statuses = new Statuses(); // conveniently track all status effects
+    private float poisonTimer; // tracks when to deal poison damage
+    private bool knocked = false; // true means movement is locked as this is being pushed
+    private float corpseTimer; // for ai enemies that die
+    
+    protected int health;
     protected bool isAlly = false; // whether or not this is fighting for the player
     protected bool sturdy = false; // true means this enemy cannot receive knockback
-
     protected float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
     protected Controller controller;
 
-    private Rigidbody2D body;
-    private Statuses statuses = new Statuses(); // conveniently track all status effects
-    protected int health;
-
-    private float poisonTimer; // tracks when to deal poison damage
-    private bool knocked = false; // true means movement is locked as this is being pushed
-
+    public int Health { get { return health; } }
     public float DamageMultiplier { get { 
             return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
+    public bool IsCorpse { get { return corpseTimer > 0; } }
+    public bool DeleteThis { get; private set; } // tells the entity tracker to delete this and remove it from the list
 
     // Start is called before the first frame update
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
+        GameObject.Find("EntityTracker").GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         ChildStart();
     }
     protected abstract void ChildStart();
@@ -34,7 +36,15 @@ public abstract class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        controller.Update(gameObject);
+        if(IsCorpse) {
+            corpseTimer -= Time.deltaTime;
+            if(corpseTimer <= 0) {
+                // delete corpse after some time
+                DeleteThis = true;
+            }
+        }
+
+        controller.Update();
         statuses.Update();
 
         // apply friction
@@ -83,19 +93,21 @@ public abstract class Enemy : MonoBehaviour
             poisonTimer -= Time.deltaTime;
             if(poisonTimer <= 0) {
                 poisonTimer += 0.5f; // poison tick rate
-                TakeDamage(1); // damage per tick
+                TakeDamage(1, true); // damage per tick
             }
         }
     }
 
     protected abstract void UpdateAbilities();
 
-    public void TakeDamage(int amount) {
-        if(statuses.HasStatus(Status.Vulnerability)) {
-            amount *= 2;
-        }
-        if(statuses.HasStatus(Status.Resistance)) {
-            amount /= 2;
+    public void TakeDamage(int amount, bool ignoreStatus = false) {
+        if(!ignoreStatus) {
+            if(statuses.HasStatus(Status.Vulnerability)) {
+                amount *= 2;
+            }
+            if(statuses.HasStatus(Status.Resistance)) {
+                amount /= 2;
+            }
         }
 
         health -= amount;
@@ -103,7 +115,14 @@ public abstract class Enemy : MonoBehaviour
 
         // check for death
         if(health <= 0) {
-
+            if(IsPlayer) {
+                // lose possessed body
+            } else {
+                // become a corpse that can be possessed
+                corpseTimer = 5.0f; // corpse duration
+                GetComponent<SpriteRenderer>().color = Color.black;
+                GetComponent<CircleCollider2D>().enabled = false; // disable collider
+            }
         }
     }
 
