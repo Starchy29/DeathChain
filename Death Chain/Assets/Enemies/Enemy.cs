@@ -37,6 +37,9 @@ public abstract class Enemy : MonoBehaviour
     }
     protected abstract void ChildStart();
 
+    // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
+    public virtual void AIUpdate(AIController controller) { }
+
     // Update is called once per frame
     void Update()
     {
