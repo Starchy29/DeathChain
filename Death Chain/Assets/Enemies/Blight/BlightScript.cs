@@ -12,7 +12,6 @@ public class BlightScript : Enemy
         controller = new AIController(gameObject, AIMode.Wander, AIMode.Wander);
         isAlly = false;
         maxSpeed = 7.0f;
-        health = 10;
     }
 
     protected override void UpdateAbilities() {

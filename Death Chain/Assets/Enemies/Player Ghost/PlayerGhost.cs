@@ -12,6 +12,7 @@ public class PlayerGhost : Enemy
 
     private float slashCooldown;
     private float shootCooldown;
+    private float invulnTimer;
 
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
@@ -24,7 +25,6 @@ public class PlayerGhost : Enemy
         controller = new PlayerController(gameObject);
         isAlly = true;
         maxSpeed = BASE_WALK_SPEED;
-        health = 20;
     }
 
     protected override void UpdateAbilities() {
@@ -78,5 +78,18 @@ public class PlayerGhost : Enemy
                 maxSpeed = BASE_WALK_SPEED;
             }
         }
+        if(invulnTimer > 0) {
+            invulnTimer -= Time.deltaTime;
+            if(invulnTimer <= 0) {
+                invincible = false;
+            }
+        }
+    }
+
+    // when unpossessing, allow the player info tracker to pass the right values for the player
+    public void Setup(int health) {
+        this.health = health;
+        invincible = true;
+        invulnTimer = 1.0f;
     }
 }

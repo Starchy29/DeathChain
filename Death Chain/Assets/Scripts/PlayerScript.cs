@@ -9,6 +9,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private GameObject possessIndicator;
     [SerializeField] private GameObject playerCharacter; // the entity the player is currently playing as, manually set to ghost at first
     [SerializeField] private EntityTracker entityTracker;
+    [SerializeField] private GameObject playerPrefab;
     
     private int playerHealth;
 
@@ -25,9 +26,31 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        PlayerGhost ghostScript = playerCharacter.GetComponent<PlayerGhost>();
+        PlayerGhost ghostScript = playerCharacter.GetComponent<PlayerGhost>(); // null if posssessing an enemy
+
+        // -- manage health --
+        if(ghostScript == null) { // if possessing
+            // decay health over time when possessing
+            decayTimer -= Time.deltaTime;
+            if(decayTimer <= 0) {
+                decayTimer += DECAY_FREQ;
+                playerCharacter.GetComponent<Enemy>().TakeDamage(1, true);
+            }
+
+            if(playerCharacter.GetComponent<Enemy>().Health <= 0) {
+                // die when possessing: lose body
+                Unpossess();
+            }
+        }
+        else {
+            playerHealth = ghostScript.Health;
+            if(playerHealth <= 0) {
+                // lose game
+            }
+        }
 
         // -- manage possession --
+        possessIndicator.SetActive(false);
         List<GameObject> enemies = entityTracker.Enemies;
         GameObject closestOption = null;
         float closestDistance = POSSESS_RANGE;
@@ -39,29 +62,24 @@ public class PlayerScript : MonoBehaviour
                     closestDistance = distance;
                     closestOption = enemy;
                     possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 1, 0);
+                    possessIndicator.SetActive(true);
                 }
             }
         }
 
-        if(PossessUsed() && closestOption != null) {
-            // possess
+        if(PossessUsed()) {
+            if(closestOption != null) {
+                // possess
+                playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
+                if(ghostScript == null) {
+                    // leave corpse animation
+                }
 
-        }
-
-        // -- manage health --
-
-        if(ghostScript == null) { // if possessing
-            // decay health over time when possessing
-            decayTimer -= Time.deltaTime;
-            if(decayTimer <= 0) {
-                decayTimer += DECAY_FREQ;
-                playerCharacter.GetComponent<Enemy>().TakeDamage(1, true);
+                playerCharacter = closestOption;
+                playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
             }
-        }
-        else {
-            playerHealth = ghostScript.Health;
-            if(playerHealth <= 0) {
-                // lose game
+            else if(ghostScript == null) {
+                Unpossess();
             }
         }
 
@@ -75,15 +93,25 @@ public class PlayerScript : MonoBehaviour
         return playerCharacter.GetComponent<PlayerGhost>() != null;
     }
 
+    // checks for release of the possess button
     private bool PossessUsed() {
-        if(Gamepad.current != null && (Gamepad.current.yButton.wasPressedThisFrame || Gamepad.current.rightShoulder.wasPressedThisFrame)) {
+        if(Gamepad.current != null && (Gamepad.current.yButton.wasReleasedThisFrame || Gamepad.current.rightShoulder.wasReleasedThisFrame)) {
             return true;
         }
 
-        if(Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) {
+        if(Keyboard.current != null && Keyboard.current.eKey.wasReleasedThisFrame) {
             return true;
         }
 
         return false;
+    }
+
+    private void Unpossess() {
+        GameObject playerGhost = Instantiate(playerPrefab);
+        playerGhost.transform.position = playerCharacter.transform.position;
+        playerCharacter.GetComponent<Enemy>().DeleteThis = true;
+        // leave corpse animation
+        playerCharacter = playerGhost;
+        playerCharacter.GetComponent<PlayerGhost>().Setup(playerHealth);
     }
 }

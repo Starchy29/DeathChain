@@ -4,6 +4,8 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
+    [SerializeField] public int BaseHealth;
+
     private Rigidbody2D body;
     private Statuses statuses = new Statuses(); // conveniently track all status effects
     private float poisonTimer; // tracks when to deal poison damage
@@ -14,6 +16,7 @@ public abstract class Enemy : MonoBehaviour
     protected bool isAlly = false; // whether or not this is fighting for the player
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
+    protected bool invincible; // some abilities need temporary invincibility
     protected Controller controller;
 
     public int Health { get { return health; } }
@@ -22,11 +25,12 @@ public abstract class Enemy : MonoBehaviour
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
     public bool IsCorpse { get { return corpseTimer > 0; } }
-    public bool DeleteThis { get; private set; } // tells the entity tracker to delete this and remove it from the list
+    public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
 
     // Start is called before the first frame update
     void Start()
     {
+        health = BaseHealth;
         body = GetComponent<Rigidbody2D>();
         GameObject.Find("EntityTracker").GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         ChildStart();
@@ -42,6 +46,7 @@ public abstract class Enemy : MonoBehaviour
                 // delete corpse after some time
                 DeleteThis = true;
             }
+            return;
         }
 
         controller.Update();
@@ -101,6 +106,10 @@ public abstract class Enemy : MonoBehaviour
     protected abstract void UpdateAbilities();
 
     public void TakeDamage(int amount, bool ignoreStatus = false) {
+        if(invincible) {
+            return;
+        }
+
         if(!ignoreStatus) {
             if(statuses.HasStatus(Status.Vulnerability)) {
                 amount *= 2;
@@ -115,18 +124,21 @@ public abstract class Enemy : MonoBehaviour
 
         // check for death
         if(health <= 0) {
-            if(IsPlayer) {
-                // lose possessed body
-            } else {
+            if(!IsPlayer) {
                 // become a corpse that can be possessed
                 corpseTimer = 5.0f; // corpse duration
                 GetComponent<SpriteRenderer>().color = Color.black;
                 GetComponent<CircleCollider2D>().enabled = false; // disable collider
             }
+            // player death handled by PlayerScript.cs
         }
     }
 
     public void Push(Vector2 force) {
+        if(sturdy) {
+            return;
+        }
+
         knocked = true;
         body.velocity += force;
     }
@@ -134,5 +146,16 @@ public abstract class Enemy : MonoBehaviour
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration
     public void ApplyStatus(Status effect, float duration = 60 * 60) {
         statuses.Add(effect, duration);
+    }
+
+    public void Possess(PlayerController player) {
+        controller = player;
+        health = BaseHealth; // reset health
+
+        // become non-corpse
+        corpseTimer = 0;
+        GetComponent<SpriteRenderer>().color = Color.white;
+        GetComponent<CircleCollider2D>().enabled = true; // disable collider
+        GetComponent<Rigidbody2D>().mass = 0.000001f; // prevent walking through other enemies
     }
 }
