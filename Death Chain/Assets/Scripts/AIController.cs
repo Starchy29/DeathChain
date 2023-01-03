@@ -17,8 +17,11 @@ public class AIController : Controller
     private AIMode moveMode;
 
     private Vector2 startPosition;
-    private const float WANDER_RANGE = 5.0f; // how far enemies are allowed to wander from their starting point
+    private const float WANDER_RANGE = 4.0f; // how far enemies are allowed to wander from their starting point
     private float vision; // how far away targets can be seen
+    
+    private Vector2 currentDirection;
+    private float travelTime; // amount of time to travel in the current direction
 
     private int queuedAbility = -1; // the attack to use after startup is done
     private float startup; // pause before using a move
@@ -48,11 +51,30 @@ public class AIController : Controller
                 }
             }
         }
-        else if(GetTargetDistance() > GetTrackingVision()) { // determine if target is lost, greater vision when actively tracking
+        else if(GetTargetDistance() > GetTrackingVision()) { // determine if target is lost
             target = null;
         }
 
         controlled.GetComponent<Enemy>().AIUpdate(this);
+
+        // handle set movement paths
+        if(moveMode == AIMode.Wander) {
+            travelTime -= Time.deltaTime;
+
+            if(travelTime <= 0) {
+                travelTime += 0.8f;
+
+                // pick a new direction
+                Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
+                random += -currentDirection * 0.5f; // weight it away from the current direction
+                if(!IgnoreStart) {
+                    // weight random direction towards starting position, not normalized to be weighted more when further away
+                    random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
+                }
+
+                currentDirection = random.normalized;
+            }
+        }
 
         if(startup > 0) {
             startup -= Time.deltaTime;
@@ -82,7 +104,7 @@ public class AIController : Controller
                 return Vector2.zero;
 
             case AIMode.Wander:
-                return Vector2.zero;
+                return currentDirection;
         }
 
         return Vector2.zero;

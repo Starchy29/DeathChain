@@ -108,7 +108,7 @@ public abstract class Enemy : MonoBehaviour
 
     protected abstract void UpdateAbilities();
 
-    public void TakeDamage(int amount, bool ignoreStatus = false) {
+    public virtual void TakeDamage(int amount, bool ignoreStatus = false) {
         if(invincible) {
             return;
         }
@@ -127,6 +127,8 @@ public abstract class Enemy : MonoBehaviour
 
         // check for death
         if(health <= 0) {
+            body.velocity = Vector2.zero;
+
             if(!IsPlayer) {
                 // become a corpse that can be possessed
                 corpseTimer = 5.0f; // corpse duration

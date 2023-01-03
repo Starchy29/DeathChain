@@ -8,6 +8,7 @@ public class PlayerController : Controller
     private int controllerIndex;
     private bool useKeyboard;
     private Vector2 lastAim = Vector2.up; // the last direction the player held. Used when the player is not aiming
+    private const float DEAD_RADIUS = 0.2f;
 
     // multiplayer controls: enter a big controller index to make it the keyboard user
     public PlayerController(GameObject controlTarget, int controllerIndex = 99) : base(controlTarget) {
@@ -34,14 +35,14 @@ public class PlayerController : Controller
     public override Vector2 GetMoveDirection() {
         if(controllerIndex < Gamepad.all.Count) {
             Vector2 joystick = Gamepad.all[controllerIndex].leftStick.ReadValue();
-            if(joystick != Vector2.zero) {
+            if(joystick.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 // joystick gets first priority
                 joystick.Normalize();
                 return joystick;
             }
 
             Vector2 dPad = Gamepad.all[controllerIndex].dpad.ReadValue();
-            if(dPad != Vector2.zero) {
+            if(dPad.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 // controller gets priority over keyboard
                 dPad.Normalize();
                 return dPad;
@@ -106,14 +107,14 @@ public class PlayerController : Controller
         if(controllerIndex < Gamepad.all.Count) {
             // if they want to use the right stick to aim, prioritize that over the normal stick
             Vector2 rightStick = Gamepad.all[controllerIndex].rightStick.ReadValue();
-            if(rightStick != Vector2.zero) {
+            if(rightStick.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 rightStick.Normalize();
                 return rightStick;
             }
 
             // if no right stick, aim in the direction the player is moving
             Vector2 moveDirection = GetMoveDirection();
-            if(moveDirection != Vector2.zero) {
+            if(moveDirection.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 return moveDirection; // already normalized
             }
         }

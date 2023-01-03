@@ -51,24 +51,38 @@ public class PlayerScript : MonoBehaviour
 
         // -- manage possession --
         possessIndicator.SetActive(false);
-        List<GameObject> enemies = entityTracker.Enemies;
-        GameObject closestOption = null;
-        float closestDistance = POSSESS_RANGE;
-        foreach(GameObject enemy in enemies) {
-            Enemy enemyScript = enemy.GetComponent<Enemy>();
-            if(enemyScript.IsCorpse) {
-                float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
-                if(distance < POSSESS_RANGE && distance < closestDistance) {
-                    closestDistance = distance;
-                    closestOption = enemy;
-                    possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 1, 0);
-                    possessIndicator.SetActive(true);
+        if(PossessPressed() || PossessReleased()) {
+            // find closest possess target
+            List<GameObject> enemies = entityTracker.Enemies;
+            GameObject closestOption = null;
+            float closestDistance = POSSESS_RANGE;
+            foreach(GameObject enemy in enemies) {
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                if(enemyScript.IsCorpse) {
+                    float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
+                    if(distance < POSSESS_RANGE && distance < closestDistance) {
+                        closestDistance = distance;
+                        closestOption = enemy;
+
+                        // show indicator
+                        possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 1, 0);
+                        possessIndicator.SetActive(true);
+                    }
                 }
             }
-        }
 
-        if(PossessUsed()) {
-            if(closestOption != null) {
+            if(closestOption == null && ghostScript == null) {
+                // create unpossess indicator over player
+                possessIndicator.transform.position = playerCharacter.transform.position + new Vector3(0, 1, 0);
+                possessIndicator.SetActive(true);
+                
+                // unpossess
+                if(PossessReleased()) {
+                    Unpossess();
+                }
+            }
+            
+            if(closestOption != null && PossessReleased()) {
                 // possess
                 playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
                 if(ghostScript == null) {
@@ -77,9 +91,6 @@ public class PlayerScript : MonoBehaviour
 
                 playerCharacter = closestOption;
                 playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
-            }
-            else if(ghostScript == null) {
-                Unpossess();
             }
         }
 
@@ -94,12 +105,24 @@ public class PlayerScript : MonoBehaviour
     }
 
     // checks for release of the possess button
-    private bool PossessUsed() {
+    private bool PossessReleased() {
         if(Gamepad.current != null && (Gamepad.current.yButton.wasReleasedThisFrame || Gamepad.current.rightShoulder.wasReleasedThisFrame)) {
             return true;
         }
 
         if(Keyboard.current != null && Keyboard.current.eKey.wasReleasedThisFrame) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool PossessPressed() {
+        if(Gamepad.current != null && (Gamepad.current.yButton.isPressed || Gamepad.current.rightShoulder.isPressed)) {
+            return true;
+        }
+
+        if(Keyboard.current != null && Keyboard.current.eKey.isPressed) {
             return true;
         }
 
