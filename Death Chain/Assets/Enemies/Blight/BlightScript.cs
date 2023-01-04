@@ -13,6 +13,8 @@ public class BlightScript : Enemy
         controller = new AIController(gameObject, AIMode.Wander, BLAST_RANGE + 1.0f);
         isAlly = false;
         maxSpeed = 7.0f;
+
+        idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
     }
 
     protected override void UpdateAbilities() {
@@ -29,7 +31,7 @@ public class BlightScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(controller.Target != null && blastCooldown <= 0 &&!controller.AbilityQueued && controller.GetTargetDistance() <= BLAST_RANGE) {
+        if(controller.Target != null && blastCooldown <= 0 && !controller.AbilityQueued && controller.GetMoveDirection() == Vector2.zero) {
             controller.QueueAbility(0, 0.5f);
         }
     }

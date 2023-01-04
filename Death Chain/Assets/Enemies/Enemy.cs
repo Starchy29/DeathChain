@@ -4,7 +4,16 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    [SerializeField] public int BaseHealth;
+    [SerializeField] private int BaseHealth;
+
+    [SerializeField] protected Sprite[] idleSprites;
+    [SerializeField] protected Sprite[] walkSprites;
+    [SerializeField] protected Sprite[] deathSprites;
+    protected Animation currentAnimation;
+    protected Animation idleAnimation;
+    protected Animation walkAnimation;
+    protected Animation deathAnimation;
+    private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation; }
 
     private Rigidbody2D body;
     private Statuses statuses = new Statuses(); // conveniently track all status effects
@@ -33,9 +42,11 @@ public abstract class Enemy : MonoBehaviour
         health = BaseHealth;
         body = GetComponent<Rigidbody2D>();
         GameObject.Find("EntityTracker").GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
+        currentAnimation = idleAnimation;
+
         ChildStart();
     }
-    protected abstract void ChildStart();
+    protected abstract void ChildStart(); // set up animations here
 
     // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
     public virtual void AIUpdate(AIController controller) { }
@@ -43,6 +54,10 @@ public abstract class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(currentAnimation != null) {
+            currentAnimation.Update(GetComponent<SpriteRenderer>());
+        }
+
         if(IsCorpse) {
             corpseTimer -= Time.deltaTime;
             if(corpseTimer <= 0) {
@@ -51,13 +66,26 @@ public abstract class Enemy : MonoBehaviour
             }
             return;
         }
+        else if(corpseTimer < 0) { // if rezzing
+            corpseTimer += Time.deltaTime;
+            if(corpseTimer > 0) {
+                corpseTimer = 0;
+                invincible = false;
+            }
+            return;
+        }
 
         controller.Update();
         statuses.Update();
 
+        // assume idle animation unless mid-ability
+        if(idleAnimation != null && !UsingAbilityAnimation()) {
+            currentAnimation = idleAnimation;
+        }
+
         // apply friction
         const float FRICTION = 20;
-        if (body.velocity != Vector2.zero) {
+        if(body.velocity != Vector2.zero) {
             Vector2 friction = -body.velocity.normalized * Time.deltaTime * FRICTION;
             body.velocity += friction;
             
@@ -66,7 +94,7 @@ public abstract class Enemy : MonoBehaviour
                 body.velocity = Vector2.zero;
             }
         }
-        
+
         if(!knocked) {
             // regular movement
             float currentMaxSpeed = maxSpeed;
@@ -75,6 +103,7 @@ public abstract class Enemy : MonoBehaviour
             } else {
                 currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
             }
+
             if(maxSpeed > 0) {
                 const float ACCEL = 80;
                 Vector2 moveDirection = controller.GetMoveDirection();
@@ -85,6 +114,19 @@ public abstract class Enemy : MonoBehaviour
                     if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
                         body.velocity = body.velocity.normalized;
                         body.velocity *= maxSpeed;
+                    }
+
+                    // flip sprite to face move direction
+                    if(moveDirection.x > 0) {
+                        GetComponent<SpriteRenderer>().flipX = false;
+                    } 
+                    else if(moveDirection.x < 0) {
+                        GetComponent<SpriteRenderer>().flipX = true;
+                    }
+
+                    // use walk animation unless mid-ability
+                    if(walkAnimation != null && !UsingAbilityAnimation()) {
+                        currentAnimation = walkAnimation;
                     }
                 }
             }
@@ -132,15 +174,23 @@ public abstract class Enemy : MonoBehaviour
             if(!IsPlayer) {
                 // become a corpse that can be possessed
                 corpseTimer = 5.0f; // corpse duration
-                GetComponent<SpriteRenderer>().color = Color.black;
                 GetComponent<CircleCollider2D>().enabled = false; // disable collider
+
+                // play death animation
+                if(deathAnimation != null) {
+                    currentAnimation = deathAnimation;
+                    currentAnimation.ChangeType(AnimationType.Forward); // make sure it is forward because rezzing plays it backwards
+                } else {
+                    // temporary
+                    GetComponent<SpriteRenderer>().color = Color.black;
+                }
             }
             // player death handled by PlayerScript.cs
         }
     }
 
     public void Push(Vector2 force) {
-        if(sturdy) {
+        if(sturdy || invincible) {
             return;
         }
 
@@ -158,9 +208,17 @@ public abstract class Enemy : MonoBehaviour
         health = BaseHealth; // reset health
 
         // become non-corpse
-        corpseTimer = 0;
-        GetComponent<SpriteRenderer>().color = Color.white;
-        GetComponent<CircleCollider2D>().enabled = true; // disable collider
+        corpseTimer = -0.5f; // negative indicates resurrection time
+        invincible = true; // don't take damage in the middle of ressurrecting 
+        if(deathAnimation != null) {
+            currentAnimation = deathAnimation;
+            currentAnimation.ChangeType(AnimationType.Reverse);
+        } else {
+            // temporary
+            GetComponent<SpriteRenderer>().color = Color.white;
+        }
+
+        GetComponent<CircleCollider2D>().enabled = true; // enable collider
         GetComponent<Rigidbody2D>().mass = 0.000001f; // prevent walking through other enemies
     }
 }

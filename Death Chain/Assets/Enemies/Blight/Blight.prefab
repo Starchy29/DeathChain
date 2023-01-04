@@ -137,4 +137,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BaseHealth: 10
+  idleSprites:
+  - {fileID: 21300000, guid: 2c14ed1272857ae4ba2f248528ad4d33, type: 3}
+  - {fileID: 21300000, guid: c059e5a5ed5530e4fae57e5f51774b71, type: 3}
+  - {fileID: 21300000, guid: eeabab978c803554ca41abb86caf9a5d, type: 3}
+  - {fileID: 21300000, guid: aecf071e5b6f17149bcf2764a9412b17, type: 3}
+  walkSprites: []
+  deathSprites: []
   BlastPrefab: {fileID: 3387492980565856137, guid: 43ea57e402339bf4ba7986f49c3d5d9a, type: 3}

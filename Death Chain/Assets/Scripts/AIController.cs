@@ -125,6 +125,11 @@ public class AIController : Controller
             return GetDirToTarget();
         }
 
+        Vector2 move = GetMoveDirection();
+        if(move != Vector2.zero) {
+            return move;
+        }
+
         return Vector2.down;
     }
 

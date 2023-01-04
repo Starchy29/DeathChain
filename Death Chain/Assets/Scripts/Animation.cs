@@ -9,24 +9,27 @@ public enum AnimationType {
     Oscillate, // reverse direction when reaching the beginning or end
 }
 
-// must be attached to a game object that has a SpriteRenderer component. Changes the sprite of that component
-public class Animation : MonoBehaviour
+// defines an animation. The object's script must update this every frame by passing in its SpriteRenderer to allow this to change the sprite
+public class Animation
 {
-    [SerializeField] private Texture2D[] sprites; // the sequence of sprites, set in the inspector
-    [SerializeField] private AnimationType type;
-    [SerializeField] private float duration; // time spent going from side of the array to the other
-
-    private SpriteRenderer renderer;
-    private float timer;
-    private float frame;
+    private Sprite[] sprites;
+    private AnimationType type;
     private float frameTime; // time spent on each frame
+
+    private float timer;
+    private int frame; // the current frame of the animation, an index of the sprites array
     private bool reverse; // false: moving forwards
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        renderer = gameObject.GetComponent<SpriteRenderer>();
+    public Animation(Sprite[] sprites, AnimationType type, float duration) {
+        this.sprites = sprites;
+        this.type = type;
         frameTime = duration / sprites.Length;
+
+        Reset();
+    }
+
+    // starts the animation over from the beginning
+    public void Reset() {
         timer = frameTime;
 
         frame = 0;
@@ -38,9 +41,14 @@ public class Animation : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
+    // keeps the stats of the animation, but changes how it animates
+    public void ChangeType(AnimationType newType) {
+        type = newType;
+        Reset();
+    }
+
+    // called by the game object using this animation. It passes in its own sprite renderer
+    public void Update(SpriteRenderer animationTarget) {
         timer -= Time.deltaTime;
         if(timer <= 0) {
             timer += frameTime;
@@ -83,6 +91,9 @@ public class Animation : MonoBehaviour
             }
 
             // set frame
+            animationTarget.sprite = sprites[frame];
         }
     }
+
+
 }
