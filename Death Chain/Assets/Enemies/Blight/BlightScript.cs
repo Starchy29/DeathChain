@@ -15,6 +15,7 @@ public class BlightScript : Enemy
         maxSpeed = 7.0f;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
+        walkAnimation = new Animation(walkSprites, AnimationType.Oscillate, 0.4f);
     }
 
     protected override void UpdateAbilities() {

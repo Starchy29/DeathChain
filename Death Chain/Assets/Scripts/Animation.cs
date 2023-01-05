@@ -20,6 +20,7 @@ public class Animation
     private int frame; // the current frame of the animation, an index of the sprites array
     private bool reverse; // false: moving forwards
 
+    // duration is the time spent from one end of the sprites array to the other
     public Animation(Sprite[] sprites, AnimationType type, float duration) {
         this.sprites = sprites;
         this.type = type;

@@ -142,6 +142,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c059e5a5ed5530e4fae57e5f51774b71, type: 3}
   - {fileID: 21300000, guid: eeabab978c803554ca41abb86caf9a5d, type: 3}
   - {fileID: 21300000, guid: aecf071e5b6f17149bcf2764a9412b17, type: 3}
-  walkSprites: []
+  walkSprites:
+  - {fileID: 21300000, guid: 3bc48b181f1760f418ca471830804244, type: 3}
+  - {fileID: 21300000, guid: 2c14ed1272857ae4ba2f248528ad4d33, type: 3}
+  - {fileID: 21300000, guid: de7bebc7d85b7354c9dc99ea6c2bc262, type: 3}
+  - {fileID: 21300000, guid: e096a97647ea64b4f93ab553b6fe0c80, type: 3}
+  - {fileID: 21300000, guid: 0ec239dc5e341ae44a1edb591a7659d2, type: 3}
   deathSprites: []
   BlastPrefab: {fileID: 3387492980565856137, guid: 43ea57e402339bf4ba7986f49c3d5d9a, type: 3}
