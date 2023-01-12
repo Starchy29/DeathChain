@@ -95,6 +95,4 @@ public class Animation
             animationTarget.sprite = sprites[frame];
         }
     }
-
-
 }

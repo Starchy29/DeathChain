@@ -12,7 +12,7 @@ public abstract class Enemy : MonoBehaviour
     protected Animation currentAnimation;
     protected Animation idleAnimation;
     protected Animation walkAnimation;
-    protected Animation deathAnimation;
+    protected Animation deathAnimation; // duration should match timer in Possess(), 0.6f currently
     private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation; }
 
     private Rigidbody2D body;
@@ -71,6 +71,7 @@ public abstract class Enemy : MonoBehaviour
             if(corpseTimer > 0) {
                 corpseTimer = 0;
                 invincible = false;
+                currentAnimation = idleAnimation; // allow normal animations again
             }
             return;
         }
@@ -208,7 +209,7 @@ public abstract class Enemy : MonoBehaviour
         health = BaseHealth; // reset health
 
         // become non-corpse
-        corpseTimer = -0.5f; // negative indicates resurrection time
+        corpseTimer = -0.6f; // negative indicates resurrection time, death animation durations must match this
         invincible = true; // don't take damage in the middle of ressurrecting 
         if(deathAnimation != null) {
             currentAnimation = deathAnimation;
