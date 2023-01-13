@@ -34,7 +34,7 @@ public class PlayerScript : MonoBehaviour
             decayTimer -= Time.deltaTime;
             if(decayTimer <= 0) {
                 decayTimer += DECAY_FREQ;
-                //playerCharacter.GetComponent<Enemy>().TakeDamage(1, true);
+                playerCharacter.GetComponent<Enemy>().TakeDamage(1, true);
             }
 
             if(playerCharacter.GetComponent<Enemy>().Health <= 0) {

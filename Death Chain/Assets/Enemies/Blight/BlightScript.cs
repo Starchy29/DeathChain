@@ -4,19 +4,22 @@ using UnityEngine;
 
 public class BlightScript : Enemy
 {
+    [SerializeField] private Sprite[] attackSprites;
     [SerializeField] private GameObject BlastPrefab;
     private const float BLAST_CD = 1.0f;
-    private const float BLAST_RANGE = 2.0f; // how far away an AI will choose to explode
     private float blastCooldown;
 
+    private Animation attackAnimation;
+
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, BLAST_RANGE + 1.0f);
+        controller = new AIController(gameObject, AIMode.Wander, 0.0f);
         isAlly = false;
         maxSpeed = 7.0f;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         walkAnimation = new Animation(walkSprites, AnimationType.Oscillate, 0.4f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
+        attackAnimation = new Animation(attackSprites, AnimationType.Rebound, 0.1f);
     }
 
     protected override void UpdateAbilities() {
@@ -26,6 +29,10 @@ public class BlightScript : Enemy
         else if(controller.GetUsedAbility() == 0) {
             // use blast ability
             blastCooldown = BLAST_CD;
+
+            currentAnimation = attackAnimation;
+            attackAnimation.Reset();
+
             GameObject blast = Instantiate(BlastPrefab);
             blast.transform.position = transform.position;
             blast.GetComponent<Attack>().User = gameObject;
@@ -33,8 +40,8 @@ public class BlightScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(controller.Target != null && blastCooldown <= 0 && !controller.AbilityQueued && controller.GetMoveDirection() == Vector2.zero) {
-            controller.QueueAbility(0, 0.5f);
+        if(blastCooldown <= 0 && !controller.AbilityQueued && controller.GetMoveDirection() == Vector2.zero) {
+            controller.QueueAbility(0, 0.8f);
         }
     }
 }

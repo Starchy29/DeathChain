@@ -37,47 +37,60 @@ public class AIController : Controller
     }
 
     public override void Update() {
-        if(target == null) {
-            // check for a target
-            List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
-            Enemy controlledScript = controlled.GetComponent<Enemy>();
-            foreach(GameObject enemy in enemies) {
-                Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if(enemyScript.IsAlly != controlledScript.IsAlly) {
-                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= vision) {
-                        target = enemy;
-                        break;
+        if(vision > 0) {
+            if(target == null) {
+                // check for a target
+                List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
+                Enemy controlledScript = controlled.GetComponent<Enemy>();
+                foreach(GameObject enemy in enemies) {
+                    Enemy enemyScript = enemy.GetComponent<Enemy>();
+                    if(enemyScript.IsAlly != controlledScript.IsAlly) {
+                        if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= vision) {
+                            target = enemy;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        else if(GetTargetDistance() > GetTrackingVision()) { // determine if target is lost
-            target = null;
+            else if(GetTargetDistance() > GetTrackingVision()) { // determine if target is lost
+                target = null;
+            }
         }
 
         controlled.GetComponent<Enemy>().AIUpdate(this);
 
-        // handle set movement paths
-        if(moveMode == AIMode.Wander) {
-            travelTime -= Time.deltaTime;
-
-            if(travelTime <= 0) {
-                travelTime += 0.8f;
-
-                // pick a new direction
-                Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
-                random += -currentDirection * 0.5f; // weight it away from the current direction
-                if(!IgnoreStart) {
-                    // weight random direction towards starting position, not normalized to be weighted more when further away
-                    random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
-                }
-
-                currentDirection = random.normalized;
-            }
-        }
-
         if(startup > 0) {
             startup -= Time.deltaTime;
+
+            travelTime = 0; // tell wander that the enemy has already paused so they start moving right after attacking
+        } else {
+            // handle set movement paths
+            if(moveMode == AIMode.Wander) {
+                travelTime -= Time.deltaTime;
+
+                if(travelTime <= 0) {
+                    // alternate between moving in a direction and pausing
+                    if(currentDirection == Vector2.zero) {
+                        travelTime += 1.0f;
+
+                        // pick a new direction
+                        Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
+                        random += -currentDirection * 0.5f; // weight it away from the current direction
+                        if(!IgnoreStart) {
+                            // weight random direction towards starting position, not normalized to be weighted more when further away
+                            random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
+                        }
+
+                        currentDirection = random.normalized;
+                    } else {
+                        // stay still for a bit
+                        travelTime += 0.7f;
+                        currentDirection = Vector2.zero;
+                    }
+
+                    travelTime *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
+                }
+            }
         }
     }
     

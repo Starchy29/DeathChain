@@ -5,8 +5,9 @@ using UnityEngine;
 public enum AnimationType {
     Forward, // play normally, then hold the last frame
     Reverse, // play back to front then stop
+    Rebound, // out and back
     Loop, // go back to beginning when done
-    Oscillate, // reverse direction when reaching the beginning or end
+    Oscillate, // reverse direction when reaching the beginning or end, keeps going
 }
 
 // defines an animation. The object's script must update this every frame by passing in its SpriteRenderer to allow this to change the sprite
@@ -20,6 +21,8 @@ public class Animation
     private int frame; // the current frame of the animation, an index of the sprites array
     private bool reverse; // false: moving forwards
 
+    public bool Done { get; private set; } // tells other classes when this animation has finished
+
     // duration is the time spent from one end of the sprites array to the other
     public Animation(Sprite[] sprites, AnimationType type, float duration) {
         this.sprites = sprites;
@@ -32,6 +35,7 @@ public class Animation
     // starts the animation over from the beginning
     public void Reset() {
         timer = frameTime;
+        Done = false;
 
         frame = 0;
         reverse = false;
@@ -61,7 +65,9 @@ public class Animation
                 if(frame < 0) {
                     switch(type) {
                         case AnimationType.Reverse:
+                        case AnimationType.Rebound:
                             frame = 0; // stay on first frame
+                            Done = true;
                             break;
 
                         case AnimationType.Oscillate:
@@ -77,12 +83,14 @@ public class Animation
                     switch(type) {
                         case AnimationType.Forward:
                             frame = sprites.Length - 1; // stay on last frame
+                            Done = true;
                             break;
 
                         case AnimationType.Loop:
                             frame = 0;
                             break;
 
+                        case AnimationType.Rebound:
                         case AnimationType.Oscillate:
                             frame = sprites.Length - 2; // start backwards
                             reverse = true;

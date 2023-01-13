@@ -13,7 +13,7 @@ public abstract class Enemy : MonoBehaviour
     protected Animation idleAnimation;
     protected Animation walkAnimation;
     protected Animation deathAnimation; // duration should match timer in Possess(), 0.6f currently
-    private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation; }
+    private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation && currentAnimation != deathAnimation; }
 
     private Rigidbody2D body;
     private Statuses statuses = new Statuses(); // conveniently track all status effects
@@ -29,6 +29,7 @@ public abstract class Enemy : MonoBehaviour
     protected Controller controller;
 
     public int Health { get { return health; } }
+    public float WalkSpeed { get { return maxSpeed; } }
     public float DamageMultiplier { get { 
             return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
@@ -56,6 +57,11 @@ public abstract class Enemy : MonoBehaviour
     {
         if(currentAnimation != null) {
             currentAnimation.Update(GetComponent<SpriteRenderer>());
+
+            // check for an ability animation finishing
+            if(UsingAbilityAnimation() && currentAnimation.Done) {
+                currentAnimation = idleAnimation;
+            }
         }
 
         if(IsCorpse) {
