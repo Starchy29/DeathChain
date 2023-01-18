@@ -6,8 +6,16 @@ using UnityEngine;
 public class BlastZone : Attack
 {
     [SerializeField] private float duration;
+    [SerializeField] private GameObject particlePrefab;
 
-    // Update is called once per frame
+    void Start()
+    {
+        if(particlePrefab != null) {
+            GameObject particle = Instantiate(particlePrefab);
+            particle.transform.position = gameObject.transform.position;
+        }
+    }
+
     void Update()
     {
         duration -= Time.deltaTime;

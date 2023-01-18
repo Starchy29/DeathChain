@@ -62,7 +62,9 @@ public class AIController : Controller
         if(startup > 0) {
             startup -= Time.deltaTime;
 
-            travelTime = 0; // tell wander that the enemy has already paused so they start moving right after attacking
+            if(moveMode == AIMode.Wander) {
+                travelTime = 0.2f; // when attacking, give a small moment after attacking before moving again
+            }
         } else {
             // handle set movement paths
             if(moveMode == AIMode.Wander) {
