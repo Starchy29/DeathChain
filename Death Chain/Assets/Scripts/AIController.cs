@@ -131,7 +131,7 @@ public class AIController : Controller
         }
 
         int usedAbility = queuedAbility;
-        queuedAbility = -1;
+        queuedAbility = -1; // because of this, this function should be called once per update for AI
         return usedAbility;
     }
 

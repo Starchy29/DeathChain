@@ -12,7 +12,7 @@ public class Attack : MonoBehaviour
         switch(collision.gameObject.layer) {
             case 6: // wall
             case 12: // border wall
-                OnWallCollision();
+                OnWallCollision(collision.gameObject);
                 break;
 
             case 9: // ground enemies
@@ -28,5 +28,5 @@ public class Attack : MonoBehaviour
     }
 
     protected virtual void OnEnemyCollision(Enemy hitEnemy) { }
-    protected virtual void OnWallCollision() { }
+    protected virtual void OnWallCollision(GameObject hitWall) { }
 }

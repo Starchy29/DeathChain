@@ -13,7 +13,6 @@ public class BlightScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Wander, 0.0f);
-        isAlly = false;
         maxSpeed = 7.0f;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
@@ -40,7 +39,7 @@ public class BlightScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(blastCooldown <= 0 && !controller.AbilityQueued && controller.GetMoveDirection() == Vector2.zero) {
+        if(blastCooldown <= 0 && controller.GetMoveDirection() == Vector2.zero) {
             controller.QueueAbility(0, 0.8f);
         }
     }

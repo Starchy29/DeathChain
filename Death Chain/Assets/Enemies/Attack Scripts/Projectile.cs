@@ -31,7 +31,7 @@ public class Projectile : Attack
         Destroy(gameObject);
     }
 
-    protected override void OnWallCollision() {
+    protected override void OnWallCollision(GameObject hitWall) {
         Destroy(gameObject);
     }
 }

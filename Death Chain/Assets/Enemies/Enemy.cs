@@ -213,6 +213,7 @@ public abstract class Enemy : MonoBehaviour
     public void Possess(PlayerController player) {
         controller = player;
         health = BaseHealth; // reset health
+        isAlly = true;
 
         // become non-corpse
         corpseTimer = -0.6f; // negative indicates resurrection time, death animation durations must match this
