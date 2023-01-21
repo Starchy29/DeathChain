@@ -84,9 +84,12 @@ public class PlayerScript : MonoBehaviour
             
             if(closestOption != null && PossessReleased()) {
                 // possess
-                playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
                 if(ghostScript == null) {
                     // leave corpse animation
+                    playerCharacter.GetComponent<Enemy>().Unpossess();
+                } else {
+                    // remove player ghost
+                    playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
                 }
 
                 playerCharacter = closestOption;

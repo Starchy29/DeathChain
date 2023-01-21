@@ -39,4 +39,11 @@ public class BlightScript : Enemy
             controller.QueueAbility(0, 0.8f);
         }
     }
+
+    protected override void OnDeath() {
+        // poison blast on death
+        GameObject blast = Instantiate(BlastPrefab);
+        blast.transform.position = transform.position;
+        blast.GetComponent<Attack>().User = gameObject;
+    }
 }

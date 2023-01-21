@@ -69,7 +69,20 @@ public class MushroomScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(cooldowns[0] <= 0 && controller.Target != null) {
+        controller.ReleaseAbility = 1; // always instantly use teleport
+
+        if(cooldowns[1] <= 0 && !controller.AbilityQueued && controller.Target != null && controller.GetTargetDistance() <= 2.0f) {
+            // check for a potential warp target
+            List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
+            foreach(GameObject enemy in enemies) {
+                if(enemy.GetComponent<Enemy>().IsCorpse) {
+                    controller.SetAim(controller.Target.gameObject.transform.position - transform.position); // try to move past attacker
+                    controller.QueueAbility(1, 0);
+                    break;
+                }
+            }
+        }
+        if(cooldowns[0] <= 0 && !controller.AbilityQueued && controller.Target != null) {
             controller.QueueAbility(0, 0.3f);
         }
     }

@@ -66,15 +66,21 @@ public abstract class Enemy : MonoBehaviour
             }
         }
 
-        if(IsCorpse) {
+        if(IsCorpse) { // dead body that the player can possess
+            float previousTime = corpseTimer;
             corpseTimer -= Time.deltaTime;
-            if(corpseTimer <= 0) {
+
+            if(previousTime > 4.4 && corpseTimer <= 4.4) {
+                // use optional death effect after 0.6 seconds of dying
+                OnDeath();
+            }
+            else if(corpseTimer <= 0) {
                 // delete corpse after some time
                 DeleteThis = true;
             }
             return;
         }
-        else if(corpseTimer < 0) { // if rezzing
+        else if(corpseTimer < 0) { // playing resurrection animation when first possessed
             corpseTimer += Time.deltaTime;
             if(corpseTimer > 0) {
                 corpseTimer = 0;
@@ -86,6 +92,7 @@ public abstract class Enemy : MonoBehaviour
         else if(controller == null) { // this is doing its death animation, then despawning
             if(currentAnimation.Done) {
                 DeleteThis = true;
+                OnDeath();
             }
             return;
         }
@@ -172,6 +179,7 @@ public abstract class Enemy : MonoBehaviour
     }
 
     protected abstract void UpdateAbilities();
+    protected virtual void OnDeath() { }
 
     public virtual void TakeDamage(int amount, bool ignoreStatus = false) {
         if(invincible) {

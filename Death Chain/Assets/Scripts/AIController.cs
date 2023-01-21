@@ -24,7 +24,9 @@ public class AIController : Controller
     private Vector2 currentDirection;
     private float travelTime; // amount of time to travel in the current direction
 
+    private Vector2 specialAim; // allows enemies to aim in specific directions
     private int queuedAbility = -1; // the attack to use after startup is done
+    public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics
     private float startup; // pause before using a move
 
     public GameObject Target { get { return target; } }
@@ -110,6 +112,10 @@ public class AIController : Controller
         moveMode = mode;
     }
 
+    public void SetAim(Vector2 direction) {
+        specialAim = direction.normalized;
+    }
+
     public override Vector2 GetMoveDirection() {
         if(startup > 0) {
             return Vector2.zero; // stay still to indicate an oncoming attack
@@ -137,10 +143,16 @@ public class AIController : Controller
     }
 
     public override int GetReleasedAbility() {
-        return -1;
+        return ReleaseAbility;
     }
 
     public override Vector2 GetAimDirection() {
+        if(specialAim != Vector2.zero) {
+            Vector2 result = specialAim;
+            specialAim = Vector2.zero;
+            return result;
+        }
+
         if(target != null) {
             return GetDirToTarget();
         }
