@@ -7,7 +7,8 @@ public enum AIMode { // the way this character moves
     Wander,
     Patrol,
     Chase,
-    Flee
+    Flee,
+    Duel
 }
 
 // Class that allows AI to control the enemies in the game
@@ -133,6 +134,10 @@ public class AIController : Controller
         int usedAbility = queuedAbility;
         queuedAbility = -1; // because of this, this function should be called once per update for AI
         return usedAbility;
+    }
+
+    public override int GetReleasedAbility() {
+        return -1;
     }
 
     public override Vector2 GetAimDirection() {

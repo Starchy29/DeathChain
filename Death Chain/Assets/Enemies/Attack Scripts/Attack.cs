@@ -7,6 +7,7 @@ public class Attack : MonoBehaviour
 {
     public GameObject User { get; set; } // must be set by the attack user on creation
     [SerializeField] protected int damage;
+    [SerializeField] protected float knockback;
 
     public void OnTriggerEnter2D(Collider2D collision) {
         switch(collision.gameObject.layer) {
@@ -20,6 +21,10 @@ public class Attack : MonoBehaviour
                 // check if colliding with an enemy or ally
                 Enemy enemyScript = collision.gameObject.GetComponent<Enemy>();
                 if(enemyScript != null && enemyScript.IsAlly != User.GetComponent<Enemy>().IsAlly) {
+                    if(knockback > 0) {
+                        enemyScript.Push(GetPushDirection(enemyScript.gameObject).normalized * knockback);
+                        // knockback must be before damage becuase death needs to eliminate momentum
+                    }
                     enemyScript.TakeDamage((int)(damage * User.GetComponent<Enemy>().DamageMultiplier));
                     OnEnemyCollision(enemyScript);
                 }
@@ -27,6 +32,7 @@ public class Attack : MonoBehaviour
         }
     }
 
+    protected virtual Vector2 GetPushDirection(GameObject hitEnemy) { return Vector2.zero; } // does not need to be normalized
     protected virtual void OnEnemyCollision(Enemy hitEnemy) { }
     protected virtual void OnWallCollision(GameObject hitWall) { }
 }

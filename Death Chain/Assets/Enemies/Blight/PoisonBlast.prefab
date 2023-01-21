@@ -99,6 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0
+  knockback: 8
   duration: 0.2
   particlePrefab: {fileID: 2286335285166474582, guid: 1a9ed2fb0b4fd5745a86f70b65f8dbe9, type: 3}
 --- !u!58 &-3636298660006080945

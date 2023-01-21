@@ -6,8 +6,7 @@ public class BlightScript : Enemy
 {
     [SerializeField] private Sprite[] attackSprites;
     [SerializeField] private GameObject BlastPrefab;
-    private const float BLAST_CD = 1.2f;
-    private float blastCooldown;
+    [SerializeField] private float blastCooldown;
 
     private Animation attackAnimation;
 
@@ -22,12 +21,9 @@ public class BlightScript : Enemy
     }
 
     protected override void UpdateAbilities() {
-        if(blastCooldown > 0) {
-            blastCooldown -= Time.deltaTime;
-        } 
-        else if(controller.GetUsedAbility() == 0) {
+        if(cooldowns[0] <= 0 && controller.GetUsedAbility() == 0) {
             // use blast ability
-            blastCooldown = BLAST_CD;
+            cooldowns[0] = blastCooldown;
 
             currentAnimation = attackAnimation;
             attackAnimation.Reset();
@@ -39,7 +35,7 @@ public class BlightScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(blastCooldown <= 0 && controller.GetMoveDirection() == Vector2.zero) {
+        if(cooldowns[0] <= 0 && controller.GetMoveDirection() == Vector2.zero) {
             controller.QueueAbility(0, 0.8f);
         }
     }

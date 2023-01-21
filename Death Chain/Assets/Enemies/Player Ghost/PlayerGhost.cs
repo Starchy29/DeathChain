@@ -7,11 +7,8 @@ public class PlayerGhost : Enemy
 {
     private const float BASE_WALK_SPEED = 5.0f;
     private const float ATTACK_WALK_SPEED = 2.0f;
-    private const float SLASH_CD = 0.4f;
-    private const float SHOOT_CD = 0.8f;
-
-    private float slashCooldown;
-    private float shootCooldown;
+    [SerializeField] private float slashCooldown;
+    [SerializeField] private float shootCooldown;
     private float invulnTimer;
 
     public GameObject SlashPrefab;
@@ -41,8 +38,8 @@ public class PlayerGhost : Enemy
 
             switch(ability) {
                 case 0: // slash
-                    if(slashCooldown <= 0) {
-                        slashCooldown = SLASH_CD;
+                    if(cooldowns[0] <= 0) {
+                        cooldowns[0] = slashCooldown;
                         clockwise = !clockwise;
                         maxSpeed = ATTACK_WALK_SPEED; // slow while slashing
 
@@ -54,8 +51,8 @@ public class PlayerGhost : Enemy
                     break;
 
                 case 1: // shoot
-                    if(shootCooldown <= 0) {
-                        shootCooldown = SHOOT_CD;
+                    if(cooldowns[1] <= 0) {
+                        cooldowns[1] = shootCooldown;
                         GameObject shot = Instantiate(ShotPrefab);
                         shot.transform.position = transform.position;
                         Projectile script = shot.GetComponent<Projectile>();
@@ -68,15 +65,8 @@ public class PlayerGhost : Enemy
             }
         }
 
-        // decrease cooldowns
-        if(slashCooldown > 0) {
-            slashCooldown -= Time.deltaTime;
-        }
-        if(shootCooldown > 0) {
-            shootCooldown -= Time.deltaTime;
-            if(maxSpeed == ATTACK_WALK_SPEED && shootCooldown <= SHOOT_CD - 0.2f) {
-                maxSpeed = BASE_WALK_SPEED;
-            }
+        if(maxSpeed == ATTACK_WALK_SPEED && cooldowns[1] <= shootCooldown - 0.2f) {
+            maxSpeed = BASE_WALK_SPEED;
         }
         if(invulnTimer > 0) {
             invulnTimer -= Time.deltaTime;

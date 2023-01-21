@@ -65,7 +65,7 @@ public class PlayerScript : MonoBehaviour
                         closestOption = enemy;
 
                         // show indicator
-                        possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 1, 0);
+                        possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 0.4f, 0);
                         possessIndicator.SetActive(true);
                     }
                 }
@@ -132,8 +132,7 @@ public class PlayerScript : MonoBehaviour
     private void Unpossess() {
         GameObject playerGhost = Instantiate(playerPrefab);
         playerGhost.transform.position = playerCharacter.transform.position;
-        playerCharacter.GetComponent<Enemy>().DeleteThis = true;
-        // leave corpse animation
+        playerCharacter.GetComponent<Enemy>().Unpossess();
         playerCharacter = playerGhost;
         playerCharacter.GetComponent<PlayerGhost>().Setup(playerHealth);
     }

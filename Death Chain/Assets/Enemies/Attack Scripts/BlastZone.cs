@@ -23,4 +23,8 @@ public class BlastZone : Attack
             Destroy(gameObject);
         }
     }
+
+    protected override Vector2 GetPushDirection(GameObject hitEnemy) {
+        return hitEnemy.transform.position - gameObject.transform.position;
+    }
 }

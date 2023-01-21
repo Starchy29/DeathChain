@@ -26,7 +26,9 @@ public abstract class Enemy : MonoBehaviour
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
     protected bool invincible; // some abilities need temporary invincibility
+    public bool Invincible { get { return invincible; } }
     protected Controller controller;
+    protected float[] cooldowns = new float[3];
 
     public int Health { get { return health; } }
     public float WalkSpeed { get { return maxSpeed; } }
@@ -78,6 +80,12 @@ public abstract class Enemy : MonoBehaviour
                 corpseTimer = 0;
                 invincible = false;
                 currentAnimation = idleAnimation; // allow normal animations again
+            }
+            return;
+        }
+        else if(controller == null) { // this is doing its death animation, then despawning
+            if(currentAnimation.Done) {
+                DeleteThis = true;
             }
             return;
         }
@@ -138,7 +146,7 @@ public abstract class Enemy : MonoBehaviour
                 }
             }
         }
-        else if(body.velocity == Vector2.zero) { // check for end of knockback
+        else if(body.velocity.sqrMagnitude <= maxSpeed * maxSpeed) { // check for end of knockback
             knocked = false;
         }
 
@@ -151,6 +159,14 @@ public abstract class Enemy : MonoBehaviour
             if(poisonTimer <= 0) {
                 poisonTimer += 0.5f; // poison tick rate
                 TakeDamage(1, true); // damage per tick
+            }
+        }
+        for(int i = 0; i < 3; i++) {
+            if(cooldowns[i] > 0) {
+                cooldowns[i] -= Time.deltaTime;
+                if(cooldowns[i] < 0) {
+                    cooldowns[i] = 0;
+                }
             }
         }
     }
@@ -177,6 +193,9 @@ public abstract class Enemy : MonoBehaviour
         // check for death
         if(health <= 0) {
             body.velocity = Vector2.zero;
+            for(int i = 0; i < 3; i++) {
+                cooldowns[i] = 0;
+            }
 
             if(!IsPlayer) {
                 // become a corpse that can be possessed
@@ -207,6 +226,10 @@ public abstract class Enemy : MonoBehaviour
 
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration
     public void ApplyStatus(Status effect, float duration = 60 * 60) {
+        if(invincible && effect == Status.Poison) {
+            return;
+        }
+
         statuses.Add(effect, duration);
     }
 
@@ -228,5 +251,19 @@ public abstract class Enemy : MonoBehaviour
 
         GetComponent<CircleCollider2D>().enabled = true; // enable collider
         GetComponent<Rigidbody2D>().mass = 0.000001f; // prevent walking through other enemies
+    }
+
+    public void Unpossess() {
+        // temporary
+        if(deathAnimation == null) {
+            DeleteThis = true;
+            return;
+        }
+
+        controller = null;
+        GetComponent<CircleCollider2D>().enabled = false;
+        currentAnimation = deathAnimation;
+        currentAnimation.ChangeType(AnimationType.Forward);
+        body.velocity = Vector2.zero;
     }
 }

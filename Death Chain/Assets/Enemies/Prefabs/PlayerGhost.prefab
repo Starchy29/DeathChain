@@ -99,7 +99,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03fe5e09ff3a88240878058ba5aa8a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseHealth: 20
+  BaseHealth: 50
+  idleSprites: []
+  walkSprites: []
+  deathSprites: []
+  slashCooldown: 0.4
+  shootCooldown: 0.8
   SlashPrefab: {fileID: 3459951391140047293, guid: 90920f0cc60cd4c4e94eeb909f60be09, type: 3}
   ShotPrefab: {fileID: 3471360665674548918, guid: fe846a3056176ae4fbde8df260c2cd2f, type: 3}
 --- !u!50 &5353949509718061720

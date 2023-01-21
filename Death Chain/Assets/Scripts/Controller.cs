@@ -23,4 +23,7 @@ public abstract class Controller
     // returns an int that represents which ability this is trying to use.
     // 0,1,2 are ability slots (ability 3 is reserved for possession). -1 (or any negative) is no ability
     public abstract int GetUsedAbility();
+
+    // some abilities use hold and release, 
+    public abstract int GetReleasedAbility();
 }

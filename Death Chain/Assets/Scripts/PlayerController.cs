@@ -103,6 +103,37 @@ public class PlayerController : Controller
         return -1; // no ability used
     }
 
+    public override int GetReleasedAbility() {
+        if(controllerIndex < Gamepad.all.Count) {
+            // check gamepad
+            Gamepad controller = Gamepad.all[controllerIndex];
+            if(controller.xButton.wasReleasedThisFrame || controller.rightTrigger.wasReleasedThisFrame) {
+                return 0;
+            }
+            if(controller.aButton.wasReleasedThisFrame || controller.leftTrigger.wasReleasedThisFrame) {
+                return 1;
+            }
+            if(controller.bButton.wasReleasedThisFrame || controller.leftShoulder.wasReleasedThisFrame) {
+                return 2;
+            }
+        }
+
+        if(useKeyboard) {
+            // check keyboard
+            if(Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame) {
+                return 0;
+            }
+            if(Mouse.current != null && Mouse.current.rightButton.wasReleasedThisFrame) {
+                return 1;
+            }
+            if(Keyboard.current != null && Keyboard.current.spaceKey.wasReleasedThisFrame) {
+                return 2;
+            }
+        }
+
+        return -1; // no ability used
+    }
+
     public override Vector2 GetAimDirection() {
         if(controllerIndex < Gamepad.all.Count) {
             // if they want to use the right stick to aim, prioritize that over the normal stick

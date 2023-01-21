@@ -27,6 +27,10 @@ public class Projectile : Attack
         velocity = direction * speed; // auto cast to vec3
     }
 
+    protected override Vector2 GetPushDirection(GameObject hitEnemy) {
+        return velocity;
+    }
+
     protected override void OnEnemyCollision(Enemy hitEnemy) {
         Destroy(gameObject);
     }

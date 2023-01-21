@@ -40,4 +40,8 @@ public class MeleeSwipe : Attack
         targetAngle = currentAngle + radianWidth * (clockwise ? -1 : 1);
         transform.position = User.transform.position + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
     }
+
+    protected override Vector2 GetPushDirection(GameObject hitEnemy) {
+        return hitEnemy.transform.position - User.transform.position;
+    }
 }
