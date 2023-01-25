@@ -22,6 +22,9 @@ public class PlayerGhost : Enemy
         controller = new PlayerController(gameObject);
         isAlly = true;
         maxSpeed = BASE_WALK_SPEED;
+
+        idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
+        walkAnimation = idleAnimation;
     }
 
     protected override void UpdateAbilities() {

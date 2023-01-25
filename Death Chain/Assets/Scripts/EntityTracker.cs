@@ -5,7 +5,7 @@ using UnityEngine;
 // provides a list of all enemies so certain mechanics can check for all enemies in the area
 public class EntityTracker : MonoBehaviour
 {
-    private List<GameObject> removed; // ok, so we can't actually delete them because the projectiles still refer to them, so just diable
+    private List<GameObject> removed; // disable enemies instead of deleting because attacks can still refer to them
     private List<GameObject> enemies;
     public List<GameObject> Enemies { get { return enemies; } } // other classes should not modify this list
 
@@ -22,6 +22,7 @@ public class EntityTracker : MonoBehaviour
 
     void Update()
     {
+        // check for deleted enemies
         for(int i = 0; i < enemies.Count; i++) {
             if(enemies[i].GetComponent<Enemy>().DeleteThis) {
                 enemies[i].SetActive(false);
