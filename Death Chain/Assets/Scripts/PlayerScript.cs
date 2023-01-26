@@ -50,7 +50,6 @@ public class PlayerScript : MonoBehaviour
         }
 
         // -- manage possession --
-        possessIndicator.SetActive(false);
         if(PossessPressed() || PossessReleased()) {
             // find closest possess target
             List<GameObject> enemies = entityTracker.Enemies;
@@ -58,7 +57,7 @@ public class PlayerScript : MonoBehaviour
             float closestDistance = POSSESS_RANGE;
             foreach(GameObject enemy in enemies) {
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if(enemyScript.IsCorpse) {
+                if(enemyScript.Possessable) {
                     float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
                     if(distance < POSSESS_RANGE && distance < closestDistance) {
                         closestDistance = distance;
@@ -67,6 +66,7 @@ public class PlayerScript : MonoBehaviour
                         // show indicator
                         possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 0.4f, 0);
                         possessIndicator.SetActive(true);
+                        possessIndicator.transform.GetChild(0).gameObject.SetActive(false);
                     }
                 }
             }
@@ -75,6 +75,7 @@ public class PlayerScript : MonoBehaviour
                 // create unpossess indicator over player
                 possessIndicator.transform.position = playerCharacter.transform.position + new Vector3(0, 1, 0);
                 possessIndicator.SetActive(true);
+                possessIndicator.transform.GetChild(0).gameObject.SetActive(true);
                 
                 // unpossess
                 if(PossessReleased()) {
@@ -95,6 +96,9 @@ public class PlayerScript : MonoBehaviour
                 playerCharacter = closestOption;
                 playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
             }
+        }
+        else { // not possess pressed
+            possessIndicator.SetActive(false);
         }
 
         // -- update UI --
