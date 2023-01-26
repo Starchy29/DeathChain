@@ -10,7 +10,7 @@ public class BounceProjectile : Projectile
     {
         bounces--;
         if(bounces <= 0) {
-            Destroy(gameObject);
+            Delete();
         } else {
             Vector3 toTarget = hitEnemy.gameObject.transform.position - transform.position;
             Vector3 component = Vector3.Project(velocity, toTarget);
@@ -22,7 +22,7 @@ public class BounceProjectile : Projectile
     {
         bounces--;
         if(bounces <= 0) {
-            Destroy(gameObject);
+            Delete();
         } else {
             // assume center of circle is outside of the wall
             Vector3 center = transform.position;
@@ -49,7 +49,7 @@ public class BounceProjectile : Projectile
 
             if(!vertical && !horizontal) {
                 // if this is lodged inside a wall, just delete it
-                Destroy(gameObject);
+                Delete();
             }
         }
     }

@@ -12,6 +12,7 @@ public class MeleeSwipe : Attack
     [SerializeField] private float range; // distance from center of user
     [SerializeField] private float width; // angle in degrees
     [SerializeField] private float speed; // angle in degrees rotated per second
+    [SerializeField] private float offset; // downward shift from game object center
 
     private bool finished; // inform the user when this is complete. They must check this variable every frame
     public bool Finished { get { return finished; } }
@@ -27,7 +28,7 @@ public class MeleeSwipe : Attack
             finished = true;
         }
         else {
-            transform.position = User.transform.position + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
+            transform.position = User.transform.position + new Vector3(0, -offset, 0) + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
         }
     }
 
@@ -38,7 +39,7 @@ public class MeleeSwipe : Attack
         float radianWidth = width / 180 * Mathf.PI;
         currentAngle = Mathf.Atan2(aim.y, aim.x) + radianWidth / 2 * (clockwise ? 1 : -1);
         targetAngle = currentAngle + radianWidth * (clockwise ? -1 : 1);
-        transform.position = User.transform.position + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
+        transform.position = User.transform.position + new Vector3(0, -offset, 0) + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
     }
 
     protected override Vector2 GetPushDirection(GameObject hitEnemy) {

@@ -6,12 +6,13 @@ using UnityEngine;
 public class Particle : MonoBehaviour
 {
     [SerializeField] private Sprite[] sprites;
+    [SerializeField] private AnimationType type;
     [SerializeField] private float duration;
     private Animation effect;
 
     void Start()
     {
-        effect = new Animation(sprites, AnimationType.Forward, duration);
+        effect = new Animation(sprites, type, duration);
     }
 
     void Update()

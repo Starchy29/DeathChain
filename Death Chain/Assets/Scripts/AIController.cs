@@ -55,7 +55,7 @@ public class AIController : Controller
                     }
                 }
             }
-            else if(GetTargetDistance() > GetTrackingVision()) { // determine if target is lost
+            else if(!target.activeInHierarchy || GetTargetDistance() > GetTrackingVision()) { // determine if target is lost
                 target = null;
             }
         }

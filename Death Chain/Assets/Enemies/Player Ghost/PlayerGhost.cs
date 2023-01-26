@@ -7,8 +7,12 @@ public class PlayerGhost : Enemy
 {
     private const float BASE_WALK_SPEED = 5.0f;
     private const float ATTACK_WALK_SPEED = 2.0f;
+    [SerializeField] private Sprite[] shootSprites;
+    [SerializeField] private Sprite[] slashSprites;
     [SerializeField] private float slashCooldown;
     [SerializeField] private float shootCooldown;
+    private Animation slashAnimation;
+    private Animation shootAnimation;
     private float invulnTimer;
 
     public GameObject SlashPrefab;
@@ -25,6 +29,7 @@ public class PlayerGhost : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
         walkAnimation = idleAnimation;
+        shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.15f);
     }
 
     protected override void UpdateAbilities() {
@@ -60,9 +65,14 @@ public class PlayerGhost : Enemy
                         shot.transform.position = transform.position;
                         Projectile script = shot.GetComponent<Projectile>();
                         script.User = this.gameObject;
-                        script.SetDirection(controller.GetAimDirection());
+                        Vector2 aimDirection = controller.GetAimDirection();
+                        script.SetDirection(aimDirection);
 
                         maxSpeed = ATTACK_WALK_SPEED;
+
+                        currentAnimation = shootAnimation;
+                        currentAnimation.Reset();
+                        GetComponent<SpriteRenderer>().flipX = aimDirection.x < 0; // face shoot direction (when unmoving)
                     }
                     break;
             }
