@@ -12,7 +12,7 @@ public abstract class Enemy : MonoBehaviour
     protected Animation currentAnimation;
     protected Animation idleAnimation;
     protected Animation walkAnimation;
-    protected Animation deathAnimation; // duration should match timer in Possess(), 0.6f currently
+    protected Animation deathAnimation;
     private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation && currentAnimation != deathAnimation; }
 
     private Rigidbody2D body;
@@ -81,19 +81,17 @@ public abstract class Enemy : MonoBehaviour
             }
             return;
         }
-        else if(corpseTimer < 0) { // playing resurrection animation when first possessed
-            corpseTimer += Time.deltaTime;
-            if(corpseTimer > 0) {
-                corpseTimer = 0;
-                invincible = false;
-                currentAnimation = idleAnimation; // allow normal animations again
-            }
-            return;
-        }
         else if(controller == null) { // this is doing its death animation, then despawning
             if(currentAnimation.Done) {
                 DeleteThis = true;
                 OnDeath();
+            }
+            return;
+        }
+        else if(deathAnimation != null && currentAnimation == deathAnimation) { // playing resurrection animation when first possessed
+            if(currentAnimation.Done) {
+                invincible = false;
+                currentAnimation = idleAnimation; // allow normal animations again
             }
             return;
         }
@@ -220,7 +218,7 @@ public abstract class Enemy : MonoBehaviour
                     GetComponent<SpriteRenderer>().color = Color.black;
                 }
             }
-            // player death handled by PlayerScript.cs
+            // else: player death handled by PlayerScript.cs
         }
     }
 
@@ -248,11 +246,12 @@ public abstract class Enemy : MonoBehaviour
         isAlly = true;
 
         // become non-corpse
-        corpseTimer = -0.6f; // negative indicates resurrection time, death animation durations must match this
+        corpseTimer = 0;
         invincible = true; // don't take damage in the middle of ressurrecting 
         if(deathAnimation != null) {
             currentAnimation = deathAnimation;
             currentAnimation.ChangeType(AnimationType.Reverse);
+            currentAnimation.AddPause(0.4f);
         } else {
             // temporary
             GetComponent<SpriteRenderer>().color = Color.white;

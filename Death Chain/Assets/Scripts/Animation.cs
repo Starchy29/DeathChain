@@ -20,6 +20,7 @@ public class Animation
     private float timer;
     private int frame; // the current frame of the animation, an index of the sprites array
     private bool reverse; // false: moving forwards
+    private float pauseTime;
 
     public bool Done { get; private set; } // tells other classes when this animation has finished
 
@@ -54,6 +55,11 @@ public class Animation
 
     // called by the game object using this animation. It passes in its own sprite renderer
     public void Update(SpriteRenderer animationTarget) {
+        if(pauseTime > 0) {
+            pauseTime -= Time.deltaTime;
+            return;
+        }
+
         timer -= Time.deltaTime;
         if(timer <= 0) {
             timer += frameTime;
@@ -102,5 +108,9 @@ public class Animation
             // set frame
             animationTarget.sprite = sprites[frame];
         }
+    }
+
+    public void AddPause(float duration) {
+        pauseTime = duration;
     }
 }

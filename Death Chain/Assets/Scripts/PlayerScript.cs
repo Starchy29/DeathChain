@@ -10,18 +10,13 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private GameObject playerCharacter; // the entity the player is currently playing as, manually set to ghost at first
     [SerializeField] private EntityTracker entityTracker;
     [SerializeField] private GameObject playerPrefab;
-    
+    [SerializeField] private GameObject possessParticlePrefab;
+
     private int playerHealth;
 
     private float decayTimer;
     private const float DECAY_FREQ = 3.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -71,20 +66,27 @@ public class PlayerScript : MonoBehaviour
                 }
             }
 
-            if(closestOption == null && ghostScript == null) {
-                // create unpossess indicator over player
-                possessIndicator.transform.position = playerCharacter.transform.position + new Vector3(0, 1, 0);
-                possessIndicator.SetActive(true);
-                possessIndicator.transform.GetChild(0).gameObject.SetActive(true);
+            if(closestOption == null) {
+                if(ghostScript == null) { // if possessing
+                    // create unpossess indicator over player
+                    possessIndicator.transform.position = playerCharacter.transform.position + new Vector3(0, 1, 0);
+                    possessIndicator.SetActive(true);
+                    possessIndicator.transform.GetChild(0).gameObject.SetActive(true);
                 
-                // unpossess
-                if(PossessReleased()) {
-                    Unpossess();
+                    // unpossess
+                    if(PossessReleased()) {
+                        Unpossess();
+                    }
+                } else {
+                    possessIndicator.SetActive(false);
                 }
             }
-            
-            if(closestOption != null && PossessReleased()) {
+            else if(PossessReleased()) { 
                 // possess
+                GameObject animation = Instantiate(possessParticlePrefab);
+                animation.transform.position = playerCharacter.transform.position;
+                animation.GetComponent<PossessMovement>().Target = closestOption;
+
                 if(ghostScript == null) {
                     // leave corpse animation
                     playerCharacter.GetComponent<Enemy>().Unpossess();
@@ -97,12 +99,16 @@ public class PlayerScript : MonoBehaviour
                 playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
             }
         }
-        else { // not possess pressed
+        else { // possess not pressed
             possessIndicator.SetActive(false);
         }
 
         // -- update UI --
             // health bar(s)
+
+        if(ghostScript == null) {
+            // update corpse health
+        }
             // abilities
             // souls
     }
