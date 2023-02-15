@@ -27,7 +27,7 @@ public class PlayerScript : MonoBehaviour
         if(ghostScript == null) { // if possessing
             // decay health over time when possessing
             decayTimer -= Time.deltaTime;
-            if(decayTimer <= 0) {
+            if (decayTimer <= 0) {
                 decayTimer += DECAY_FREQ;
                 playerCharacter.GetComponent<Enemy>().TakeDamage(1, true);
             }
@@ -81,8 +81,9 @@ public class PlayerScript : MonoBehaviour
                     possessIndicator.SetActive(false);
                 }
             }
-            else if(PossessReleased()) { 
+            else if(PossessReleased()) {
                 // possess
+                decayTimer = DECAY_FREQ;
                 GameObject animation = Instantiate(possessParticlePrefab);
                 animation.transform.position = playerCharacter.transform.position;
                 animation.GetComponent<PossessMovement>().Target = closestOption;
@@ -111,10 +112,6 @@ public class PlayerScript : MonoBehaviour
         }
             // abilities
             // souls
-    }
-
-    private bool IsPossessing() {
-        return playerCharacter.GetComponent<PlayerGhost>() != null;
     }
 
     // checks for release of the possess button

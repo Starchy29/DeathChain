@@ -114,6 +114,14 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d36f27ecfbabe6e46b908f8fed87e6b0, type: 3}
   - {fileID: 21300000, guid: afe4a420c2fa7494bbb7a8f8ec1f8840, type: 3}
   slashSprites: []
+  unpossessSprites:
+  - {fileID: 21300000, guid: 349c1daf535976a4baeba8fd58948896, type: 3}
+  - {fileID: 21300000, guid: 0b8a150239194134183c2df11fda72a9, type: 3}
+  - {fileID: 21300000, guid: 24cf5966f9ade7c489a69fc8e5d6c71a, type: 3}
+  - {fileID: 21300000, guid: 7ffe56bab5538e643a251d872011d54f, type: 3}
+  - {fileID: 21300000, guid: 0174342ac0db8cb458c90d5861e0fec3, type: 3}
+  - {fileID: 21300000, guid: c21d7248ed0132941a3502025408ea7d, type: 3}
+  - {fileID: 21300000, guid: 84610939f04c58b4ab5a73e358cc28c6, type: 3}
   slashCooldown: 0.4
   shootCooldown: 0.8
   SlashPrefab: {fileID: 3459951391140047293, guid: 90920f0cc60cd4c4e94eeb909f60be09, type: 3}

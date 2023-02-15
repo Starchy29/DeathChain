@@ -228,7 +228,7 @@ public abstract class Enemy : MonoBehaviour
         }
 
         knocked = true;
-        body.velocity += force;
+        body.velocity = force;
     }
 
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration
@@ -255,6 +255,7 @@ public abstract class Enemy : MonoBehaviour
         } else {
             // temporary
             GetComponent<SpriteRenderer>().color = Color.white;
+            invincible = false;
         }
 
         GetComponent<CircleCollider2D>().enabled = true; // enable collider

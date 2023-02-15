@@ -40,6 +40,7 @@ public class MeleeSwipe : Attack
         currentAngle = Mathf.Atan2(aim.y, aim.x) + radianWidth / 2 * (clockwise ? 1 : -1);
         targetAngle = currentAngle + radianWidth * (clockwise ? -1 : 1);
         transform.position = User.transform.position + new Vector3(0, -offset, 0) + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
+        transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(aim.y, aim.x) / Mathf.PI * 180);
     }
 
     protected override Vector2 GetPushDirection(GameObject hitEnemy) {

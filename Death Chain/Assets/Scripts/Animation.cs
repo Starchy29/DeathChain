@@ -35,14 +35,15 @@ public class Animation
 
     // starts the animation over from the beginning
     public void Reset() {
-        timer = frameTime;
+        timer = 0; // set to first frame immediately
+        frame = -1;
         Done = false;
+        pauseTime = 0;
 
-        frame = 0;
         reverse = false;
 
         if(type == AnimationType.Reverse) {
-            frame = sprites.Length - 1;
+            frame = sprites.Length - 2;
             reverse = true;
         }
     }

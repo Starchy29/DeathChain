@@ -9,11 +9,13 @@ public class PlayerGhost : Enemy
     private const float ATTACK_WALK_SPEED = 2.0f;
     [SerializeField] private Sprite[] shootSprites;
     [SerializeField] private Sprite[] slashSprites;
+    [SerializeField] private Sprite[] unpossessSprites;
     [SerializeField] private float slashCooldown;
     [SerializeField] private float shootCooldown;
     private Animation slashAnimation;
     private Animation shootAnimation;
     private float invulnTimer;
+    private bool useUnpossessAnim; // marks when this should use the special animation
 
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
@@ -30,6 +32,11 @@ public class PlayerGhost : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
         walkAnimation = idleAnimation;
         shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.15f);
+
+        if(useUnpossessAnim) {
+            GetComponent<SpriteRenderer>().sprite = unpossessSprites[0];
+            currentAnimation = new Animation(unpossessSprites, AnimationType.Forward, 0.4f);
+        }
     }
 
     protected override void UpdateAbilities() {
@@ -49,6 +56,7 @@ public class PlayerGhost : Enemy
                     if(cooldowns[0] <= 0) {
                         cooldowns[0] = slashCooldown;
                         clockwise = !clockwise;
+                        clockwise = true;
                         maxSpeed = ATTACK_WALK_SPEED; // slow while slashing
 
                         currentSlash = Instantiate(SlashPrefab);
@@ -94,5 +102,6 @@ public class PlayerGhost : Enemy
         this.health = health;
         invincible = true;
         invulnTimer = 1.0f;
+        useUnpossessAnim = true;
     }
 }
