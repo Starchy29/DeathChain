@@ -37,7 +37,7 @@ public abstract class Enemy : MonoBehaviour
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
     public bool IsCorpse { get { return corpseTimer > 0; } }
-    public bool Possessable { get { return IsCorpse && (currentAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
+    public bool Possessable { get { return IsCorpse && (deathAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
     public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
 
     // Start is called before the first frame update

@@ -15,6 +15,8 @@ public class MushroomScript : Enemy
         controller = new AIController(gameObject, AIMode.Still, 6.0f);
         maxSpeed = 0.0f;
         sturdy = true;
+
+        idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
     }
 
     protected override void UpdateAbilities() {
