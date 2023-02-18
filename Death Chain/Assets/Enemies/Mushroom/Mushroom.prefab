@@ -144,6 +144,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 85cecd9cd56683c4f8ba1d8a1178db92, type: 3}
   walkSprites: []
   deathSprites: []
+  shootSprites:
+  - {fileID: 21300000, guid: c0d67fe0eaec592418503c3fbb5ceb8d, type: 3}
+  - {fileID: 21300000, guid: 2328cbce9494b654ba273a254051f0fb, type: 3}
+  - {fileID: 21300000, guid: e44782b92259b374284ac0f19775051b, type: 3}
+  teleportSprites: []
   sporePrefab: {fileID: 5737476528895241311, guid: 8a26eb01dd910614792b6cf710f7c2f8, type: 3}
   selectorPrefab: {fileID: 8634669072577496992, guid: 762f220272a1f4340a6bb39e09efabb1, type: 3}
   shootCooldown: 1.2

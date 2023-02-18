@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class MushroomScript : Enemy
 {
+    [SerializeField] private Sprite[] shootSprites;
+    [SerializeField] private Sprite[] teleportSprites;
     [SerializeField] private GameObject sporePrefab;
     [SerializeField] private GameObject selectorPrefab;
     [SerializeField] private float shootCooldown;
     [SerializeField] private float warpCooldown;
     
+    private Animation shootAnimation;
+    private Animation teleportAnimation;
     private GameObject selector;
 
     protected override void ChildStart() {
@@ -17,6 +21,7 @@ public class MushroomScript : Enemy
         sturdy = true;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
+        shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
     }
 
     protected override void UpdateAbilities() {
@@ -63,6 +68,9 @@ public class MushroomScript : Enemy
             Projectile script = shot.GetComponent<Projectile>();
             script.User = this.gameObject;
             script.SetDirection(controller.GetAimDirection());
+
+            currentAnimation = shootAnimation;
+            shootAnimation.Reset();
         }
         else if(cooldowns[1] <= 0 && ability == 1) {
             selector = Instantiate(selectorPrefab);
