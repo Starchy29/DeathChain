@@ -277,6 +277,58 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.size
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[0]
+      value: 
+      objectReference: {fileID: 21300000, guid: 0f0bd9a3fcaffbc48962236f34ca800c, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[1]
+      value: 
+      objectReference: {fileID: 21300000, guid: a2fbc89b0a2eaf541a7e64dcf0ded5d4, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[2]
+      value: 
+      objectReference: {fileID: 21300000, guid: 974df61ccb0392f44a88b4f5240b8b5c, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[3]
+      value: 
+      objectReference: {fileID: 21300000, guid: a2fbc89b0a2eaf541a7e64dcf0ded5d4, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[4]
+      value: 
+      objectReference: {fileID: 21300000, guid: 0f0bd9a3fcaffbc48962236f34ca800c, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[5]
+      value: 
+      objectReference: {fileID: 21300000, guid: f9b4f4070399577409f7644c8a44223a, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[6]
+      value: 
+      objectReference: {fileID: 21300000, guid: 211a46d58d6bb11439c561d461720c93, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[7]
+      value: 
+      objectReference: {fileID: 21300000, guid: e6947b8bf898dff4585eff9f0457a7b5, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[8]
+      value: 
+      objectReference: {fileID: 21300000, guid: b0c041a0fb240f342a6ab38c87e2ce98, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[9]
+      value: 
+      objectReference: {fileID: 21300000, guid: ab9339c80285d9c46bc788698475bee7, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[10]
+      value: 
+      objectReference: {fileID: 21300000, guid: e94d516406af98d4380b3db609515735, type: 3}
+    - target: {fileID: 1475084168746595074, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
+      propertyPath: deathSprites.Array.data[11]
+      value: 
+      objectReference: {fileID: 21300000, guid: d81500b3f25ebc64f99f2216133bad4b, type: 3}
     - target: {fileID: 5845115521941679702, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_Name
       value: Mushroom
