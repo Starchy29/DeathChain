@@ -18,6 +18,8 @@ public class PlayerScript : MonoBehaviour
     private const float DECAY_FREQ = 3.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
 
+    public GameObject PlayerEntity { get { return playerCharacter; } }
+
     // Update is called once per frame
     void Update()
     {

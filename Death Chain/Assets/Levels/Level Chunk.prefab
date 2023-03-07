@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3724033314099618714}
   - component: {fileID: 3724033314099618715}
+  - component: {fileID: 8304230132079207286}
   m_Layer: 0
   m_Name: Level Exit
   m_TagString: Untagged
@@ -84,6 +85,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8304230132079207286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3724033314099618717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca4388764f2e61f41ad414f4544a68a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3724033314698570511
 GameObject:
   m_ObjectHideFlags: 0
@@ -172,6 +185,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3724033315119890859}
   - component: {fileID: 3724033315119890858}
+  - component: {fileID: 5773031066559556374}
   m_Layer: 0
   m_Name: Level Entrance
   m_TagString: Untagged
@@ -246,3 +260,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5773031066559556374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3724033315119890861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca4388764f2e61f41ad414f4544a68a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
