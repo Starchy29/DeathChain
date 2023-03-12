@@ -7,6 +7,6 @@ public class Disappear : MonoBehaviour
 {
     void Start()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 }

@@ -135,12 +135,11 @@ public class PlayerController : Controller
     }
 
     public override Vector2 GetAimDirection() {
-        if(controllerIndex < Gamepad.all.Count) {
+        if(controllerIndex < Gamepad.all.Count) { // prioritize using controller
             // if they want to use the right stick to aim, prioritize that over the normal stick
             Vector2 rightStick = Gamepad.all[controllerIndex].rightStick.ReadValue();
             if(rightStick.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
-                rightStick.Normalize();
-                return rightStick;
+                return rightStick.normalized;
             }
 
             // if no right stick, aim in the direction the player is moving
@@ -148,6 +147,8 @@ public class PlayerController : Controller
             if(moveDirection.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 return moveDirection; // already normalized
             }
+
+            return lastAim;
         }
 
         if(useKeyboard && Mouse.current != null) {
