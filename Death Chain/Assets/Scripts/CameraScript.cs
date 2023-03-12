@@ -7,19 +7,13 @@ public class CameraScript : MonoBehaviour
     [SerializeField] private PlayerScript playerScript;
     [SerializeField] private LevelGeneration levelGenerator;
     private readonly Vector2 SIZE = new Vector2(21.33f, 12); // values found through observation
-
-    void Awake()
-    {
-        Vector3 playerPos = playerScript.PlayerEntity.transform.position;
-        playerPos.z = transform.position.z;
-        transform.position = playerPos;
-    }
+    private const float SPEED = 4f;
 
     void Update()
     {
         Vector3 playerPos = playerScript.PlayerEntity.transform.position;
 
-        if(levelGenerator.ChunkRects.Count <= 0) {
+        if (levelGenerator.ChunkRects.Count <= 0) {
             transform.position = new Vector3(playerPos.x, playerPos.y, transform.position.z);
             return;
         }
@@ -105,6 +99,7 @@ public class CameraScript : MonoBehaviour
 
         // clamp edges of the camera to the current zone
         Vector3 targetPos = playerPos;
+        targetPos.z = transform.position.z;
         if(topLeftOutside && bottomLeftOutside) {
             //fix left
             targetPos.x = chunkRects[currentChunk].xMin + SIZE.x / 2;
@@ -122,22 +117,15 @@ public class CameraScript : MonoBehaviour
             targetPos.y = chunkRects[currentChunk].yMin + SIZE.y / 2;
         }
 
-
-        // accelerate toward target position
-        Vector3 difference = targetPos - transform.position;
-        difference.z = 0;
-        float distance = difference.magnitude;
-        if(distance < 0.2f) {
-            targetPos.z = transform.position.z;
-            transform.position = targetPos;
-        }
-        else {
-            float speed = 2 * distance;
-            if(speed < 6f) {
-                transform.position += 6 * difference.normalized * Time.deltaTime;
-            } else {
-                transform.position +=  2 * difference * Time.deltaTime;
-            }
-        }
+        transform.position = targetPos;
+        // move toward target position
+        //Vector3 difference = targetPos - transform.position;
+        //difference.z = 0;
+        //float distance = SPEED * Time.deltaTime;
+        //if(difference.magnitude < 0.2f) {
+        //    transform.position = targetPos;
+        //} else {
+        //    transform.position += distance * difference.normalized;
+        //}
     }
 }

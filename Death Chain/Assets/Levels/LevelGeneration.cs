@@ -5,7 +5,6 @@ using UnityEngine;
 public class LevelGeneration : MonoBehaviour
 {
     [SerializeField] private List<GameObject> levelChuckPrefabs;
-    //[SerializeField] private GameObject debugZone;
 
     private List<Rect> chunkRects;
     public List<Rect> ChunkRects { get { return chunkRects; } }
@@ -28,19 +27,21 @@ public class LevelGeneration : MonoBehaviour
             GameObject newChunk = MakeRandomChunk();
             chunks.Add(newChunk);
 
+            Vector3 doorwayHeight = new Vector3(0, currentChunk.transform.GetChild(1).localScale.y, 0);
             Vector3 startPoint = currentChunk.transform.GetChild(1).position; // exit of last chunk
             Vector3 startToMid = newChunk.transform.position - newChunk.transform.GetChild(0).position; // middle of this chunk minus start of this chunk
-            newChunk.transform.position = startPoint + startToMid;
+            newChunk.transform.position = startPoint + startToMid + doorwayHeight;
 
             // 50% chance to invert horizontally
             if(Random.Range(0f, 1f) < 0.5f) {
                 newChunk.transform.localScale = new Vector3(-1, 1, 1);
                 startToMid.x *= -1;
-                newChunk.transform.position = startPoint + startToMid;
+                newChunk.transform.position = startPoint + startToMid + doorwayHeight;
             }
 
             currentChunk = newChunk;
         }
+
 
         // calculate rectangle areas of all chunks
         chunkRects = new List<Rect>();
@@ -81,13 +82,6 @@ public class LevelGeneration : MonoBehaviour
             // form rectangle
             chunkRects.Add(new Rect(left, bottom, right - left, top - bottom));
         }
-
-        // DEBUG show rects
-        //foreach(Rect rect in chunkRects) {
-        //    GameObject zone = Instantiate(debugZone);
-        //    zone.transform.position = rect.center;
-        //    zone.transform.localScale = new Vector3(rect.width, rect.height, 1);
-        //}
     }
 
     private GameObject MakeRandomChunk() {

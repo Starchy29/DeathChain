@@ -5,7 +5,7 @@ using UnityEngine;
 // make the possess particle move into the enemy being possessed
 public class PossessMovement : MonoBehaviour
 {
-    private Vector3 offset = new Vector3(0, 0.5f, 0);
+    private Vector3 offset = new Vector3(0, 0.25f, 0);
     public GameObject Target { get; set; }
 
     // Update is called once per frame
