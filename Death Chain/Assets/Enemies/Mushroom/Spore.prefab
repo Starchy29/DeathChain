@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2357675741883753988}
   - component: {fileID: 830317313837729633}
   - component: {fileID: 7386862567509513609}
+  - component: {fileID: -1608385281448739836}
   m_Layer: 8
   m_Name: Spore
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 5737476528895241311}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.1184685, y: -1.794109, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -75,8 +76,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.735849, g: 0.58566314, b: 0.33599144, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 04828c6fb0a17b4448228c96a54f7ecb, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,9 +100,9 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.15547067, y: 0}
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.26049107
 --- !u!114 &7386862567509513609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,5 +119,24 @@ MonoBehaviour:
   knockback: 6
   speed: 12
   range: 20
-  destroyParticle: {fileID: 0}
+  destroyParticle: {fileID: 1109597486317767876, guid: c3e105112996bfd4abb0c26b6e6cf2d0, type: 3}
   bounces: 3
+--- !u!114 &-1608385281448739836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5737476528895241311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 894c6e4f4f8e98d4797b1df96bf1dee0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 21300000, guid: 04828c6fb0a17b4448228c96a54f7ecb, type: 3}
+  - {fileID: 21300000, guid: d1d72b1f34d1ecc419b037d6478b2ff2, type: 3}
+  - {fileID: 21300000, guid: 392e16ca680b22044a89acd8caddd299, type: 3}
+  - {fileID: 21300000, guid: 2d6c875a4308d424dbade583322fb2d2, type: 3}
+  type: 3
+  duration: 0.2
