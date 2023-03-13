@@ -92,7 +92,7 @@ public class MushroomScript : Enemy
             // check for a potential warp target
             List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
             foreach(GameObject enemy in enemies) {
-                if(enemy.GetComponent<Enemy>().IsCorpse) {
+                if(enemy.GetComponent<Enemy>().IsCorpse && enemy.transform.position != transform.position) {
                     controller.SetAim(controller.Target.gameObject.transform.position - transform.position); // try to move past attacker
                     controller.QueueAbility(1, 0);
                     break;

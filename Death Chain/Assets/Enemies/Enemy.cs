@@ -4,8 +4,11 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    [SerializeField] private int BaseHealth;
 
+    [SerializeField] private GameObject corpseParticle;
+    [SerializeField] private GameObject hitParticle;
+
+    [SerializeField] private int BaseHealth;
     [SerializeField] protected Sprite[] idleSprites;
     [SerializeField] protected Sprite[] walkSprites;
     [SerializeField] protected Sprite[] deathSprites;
@@ -78,6 +81,8 @@ public abstract class Enemy : MonoBehaviour
             else if(corpseTimer <= 0) {
                 // delete corpse after some time
                 DeleteThis = true;
+                GameObject corpse = Instantiate(corpseParticle);
+                corpse.transform.position = transform.position;
             }
             return;
         }
@@ -85,6 +90,9 @@ public abstract class Enemy : MonoBehaviour
             if(currentAnimation.Done) {
                 DeleteThis = true;
                 OnDeath();
+
+                GameObject corpse = Instantiate(corpseParticle);
+                corpse.transform.position = transform.position;
             }
             return;
         }
@@ -196,6 +204,11 @@ public abstract class Enemy : MonoBehaviour
 
         health -= amount;
         Debug.Log(health);
+        if(amount > 0 && !ignoreStatus) {
+            GameObject hitEffect = Instantiate(hitParticle, transform);
+            hitEffect.transform.localScale = new Vector3(1.25f / transform.localScale.x, 1.25f / transform.localScale.y, 1);
+            hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 2 * Mathf.PI));
+        }
 
         // check for death
         if(health <= 0) {
