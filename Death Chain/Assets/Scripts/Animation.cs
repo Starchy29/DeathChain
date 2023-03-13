@@ -10,6 +10,8 @@ public enum AnimationType {
     Oscillate, // reverse direction when reaching the beginning or end, keeps going
 }
 
+public delegate void Event();
+
 // defines an animation. The object's script must update this every frame by passing in its SpriteRenderer to allow this to change the sprite
 public class Animation
 {
@@ -23,6 +25,7 @@ public class Animation
     private float pauseTime;
 
     public bool Done { get; private set; } // tells other classes when this animation has finished
+    public Event OnComplete { get; set; }
 
     // duration is the time spent from one end of the sprites array to the other
     public Animation(Sprite[] sprites, AnimationType type, float duration) {
@@ -75,6 +78,9 @@ public class Animation
                         case AnimationType.Rebound:
                             frame = 0; // stay on first frame
                             Done = true;
+                            if(OnComplete != null) {
+                                OnComplete();
+                            }
                             break;
 
                         case AnimationType.Oscillate:
@@ -91,6 +97,9 @@ public class Animation
                         case AnimationType.Forward:
                             frame = sprites.Length - 1; // stay on last frame
                             Done = true;
+                            if(OnComplete != null) {
+                                OnComplete();
+                            }
                             break;
 
                         case AnimationType.Loop:
@@ -101,6 +110,9 @@ public class Animation
                         case AnimationType.Oscillate:
                             frame = sprites.Length - 2; // start backwards
                             reverse = true;
+                            if(OnComplete != null) {
+                                OnComplete();
+                            }
                             break;
                     }
                 }

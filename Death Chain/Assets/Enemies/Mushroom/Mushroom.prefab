@@ -160,7 +160,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c0d67fe0eaec592418503c3fbb5ceb8d, type: 3}
   - {fileID: 21300000, guid: 2328cbce9494b654ba273a254051f0fb, type: 3}
   - {fileID: 21300000, guid: e44782b92259b374284ac0f19775051b, type: 3}
-  teleportSprites: []
+  teleportSprites:
+  - {fileID: 21300000, guid: 1baf902c99f52f64280f3ab5cdcd8012, type: 3}
+  - {fileID: 21300000, guid: fb7029e9ca9998b4ebc01e2d63ecac2d, type: 3}
+  - {fileID: 21300000, guid: 6f689f744b8c6564cac8352a29595c4d, type: 3}
+  - {fileID: 21300000, guid: 3d6b098cd4038fe47b4b9d3b3dcb4b4e, type: 3}
+  - {fileID: 21300000, guid: eb3f27c5b24cc374f896e9b9e0b4b953, type: 3}
   sporePrefab: {fileID: 5737476528895241311, guid: 8a26eb01dd910614792b6cf710f7c2f8, type: 3}
   selectorPrefab: {fileID: 8634669072577496992, guid: 762f220272a1f4340a6bb39e09efabb1, type: 3}
   shootCooldown: 1.2

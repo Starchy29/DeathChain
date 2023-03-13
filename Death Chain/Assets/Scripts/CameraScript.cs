@@ -7,7 +7,6 @@ public class CameraScript : MonoBehaviour
     [SerializeField] private PlayerScript playerScript;
     [SerializeField] private LevelGeneration levelGenerator;
     private readonly Vector2 SIZE = new Vector2(21.33f, 12); // values found through observation
-    private const float SPEED = 4f;
 
     void Update()
     {
@@ -61,41 +60,41 @@ public class CameraScript : MonoBehaviour
         }
 
         // check next and previous zone if the doorway is on screen
-        if(currentChunk < levelGenerator.Chunks.Count - 1) {
-            Transform exitMarker = levelGenerator.Chunks[currentChunk].transform.GetChild(1);
-            Vector3 exitPos = exitMarker.position;
-            Vector3 exitScale = exitMarker.localScale;
-            if(exitPos.x + exitScale.x / 2 < topRight.x
-                && exitPos.x - exitScale.x / 2 > topLeft.x
-                && exitPos.y + exitScale.y / 2 < topRight.y
-                && exitPos.y - exitScale.y / 2 > bottomRight.y
-            ) { // if the exit zone is on screen, check if the camera's corners are in the next zone
-                if(chunkRects[currentChunk + 1].Contains(topLeft)) {
-                    topLeftOutside = false;
-                }
-                if(chunkRects[currentChunk + 1].Contains(topRight)) {
-                    topRightOutside = false;
-                }
-            }
-        }
+        //if(currentChunk < levelGenerator.Chunks.Count - 1) {
+        //    Transform exitMarker = levelGenerator.Chunks[currentChunk].transform.GetChild(1);
+        //    Vector3 exitPos = exitMarker.position;
+        //    Vector3 exitScale = exitMarker.localScale;
+        //    if(exitPos.x + exitScale.x / 2 < topRight.x
+        //        && exitPos.x - exitScale.x / 2 > topLeft.x
+        //        && exitPos.y + exitScale.y / 2 < topRight.y
+        //        && exitPos.y - exitScale.y / 2 > bottomRight.y
+        //    ) { // if the exit zone is on screen, check if the camera's corners are in the next zone
+        //        if(chunkRects[currentChunk + 1].Contains(topLeft)) {
+        //            topLeftOutside = false;
+        //        }
+        //        if(chunkRects[currentChunk + 1].Contains(topRight)) {
+        //            topRightOutside = false;
+        //        }
+        //    }
+        //}
 
-        if(currentChunk > 0) {
-            Transform enterMarker = levelGenerator.Chunks[currentChunk].transform.GetChild(0);
-            Vector3 enterPos = enterMarker.position;
-            Vector3 enterScale = enterMarker.localScale;
-            if(enterPos.x + enterScale.x / 2 < topRight.x
-                && enterPos.x - enterScale.x / 2 > topLeft.x
-                && enterPos.y + enterScale.y / 2 < topRight.y
-                && enterPos.y - enterScale.y / 2 > bottomRight.y
-            ) { // if the entrance is on screen, check if the camera's corners are in the previous zone
-                if(chunkRects[currentChunk - 1].Contains(bottomLeft)) {
-                    bottomLeftOutside = false;
-                }
-                if(chunkRects[currentChunk - 1].Contains(bottomRight)) {
-                    bottomRightOutside = false;
-                }
-            }
-        }
+        //if(currentChunk > 0) {
+        //    Transform enterMarker = levelGenerator.Chunks[currentChunk].transform.GetChild(0);
+        //    Vector3 enterPos = enterMarker.position;
+        //    Vector3 enterScale = enterMarker.localScale;
+        //    if(enterPos.x + enterScale.x / 2 < topRight.x
+        //        && enterPos.x - enterScale.x / 2 > topLeft.x
+        //        && enterPos.y + enterScale.y / 2 < topRight.y
+        //        && enterPos.y - enterScale.y / 2 > bottomRight.y
+        //    ) { // if the entrance is on screen, check if the camera's corners are in the previous zone
+        //        if(chunkRects[currentChunk - 1].Contains(bottomLeft)) {
+        //            bottomLeftOutside = false;
+        //        }
+        //        if(chunkRects[currentChunk - 1].Contains(bottomRight)) {
+        //            bottomRightOutside = false;
+        //        }
+        //    }
+        //}
 
         // clamp edges of the camera to the current zone
         Vector3 targetPos = playerPos;
@@ -117,15 +116,18 @@ public class CameraScript : MonoBehaviour
             targetPos.y = chunkRects[currentChunk].yMin + SIZE.y / 2;
         }
 
-        transform.position = targetPos;
         // move toward target position
-        //Vector3 difference = targetPos - transform.position;
-        //difference.z = 0;
-        //float distance = SPEED * Time.deltaTime;
-        //if(difference.magnitude < 0.2f) {
-        //    transform.position = targetPos;
-        //} else {
-        //    transform.position += distance * difference.normalized;
-        //}
+        Vector3 difference = targetPos - transform.position;
+        difference.z = 0;
+        float distance = difference.magnitude;
+        float shift = 2 * distance;
+        if(shift < 6) {
+            shift = 6;
+        }
+        if(distance < 0.2f) {
+            transform.position = targetPos;
+        } else {
+            transform.position += shift * Time.deltaTime / distance * difference;
+        }
     }
 }

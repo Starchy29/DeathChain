@@ -23,10 +23,15 @@ public class MushroomScript : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
+        teleportAnimation = new Animation(teleportSprites, AnimationType.Forward, 0.2f);
     }
 
     protected override void UpdateAbilities() {
         if(selector != null) {
+            if(currentAnimation == teleportAnimation) {
+                return; // no actions while teleporting
+            }
+
             Vector3 selectPos = transform.position;
             Vector2 aim = controller.GetAimDirection();
             if(aim != Vector2.zero) {
@@ -53,9 +58,10 @@ public class MushroomScript : Enemy
                     cooldowns[1] = 0.5f; // shorter cooldown if no actual teleport
                 }
 
-                transform.position = selectPos;
-                Destroy(selector);
-                selector = null;
+                teleportAnimation.ChangeType(AnimationType.Forward);
+                teleportAnimation.OnComplete = Teleport;
+                currentAnimation = teleportAnimation;
+                currentAnimation.Reset();
             }
             return;
         }
@@ -96,5 +102,15 @@ public class MushroomScript : Enemy
         if(cooldowns[0] <= 0 && !controller.AbilityQueued && controller.Target != null) {
             controller.QueueAbility(0, 0.3f);
         }
+    }
+
+    private void Teleport() {
+        transform.position = selector.transform.position;
+        Destroy(selector);
+        selector = null;
+
+        currentAnimation.ChangeType(AnimationType.Reverse);
+        currentAnimation.OnComplete = null;
+        currentAnimation.Reset();
     }
 }
