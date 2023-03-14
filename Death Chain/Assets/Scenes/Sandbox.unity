@@ -1183,7 +1183,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   possessIndicator: {fileID: 1090816551}
   playerCharacter: {fileID: 764459616}
-  entityTracker: {fileID: 342757623}
   playerPrefab: {fileID: 5353949509718061724, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
   possessParticlePrefab: {fileID: 5672638404814821097, guid: edc7fb2c8b4b40a40a474448bc6be001, type: 3}
 --- !u!4 &1831789909

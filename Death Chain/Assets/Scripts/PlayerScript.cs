@@ -11,15 +11,26 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject possessParticlePrefab;
 
-    private int playerHealth;
+    [SerializeField] private GameObject soulHealthBar;
+    [SerializeField] private GameObject corpseHealthBar;
 
+    private int playerHealth;
     private float decayTimer;
+
     private const float DECAY_FREQ = 3.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
+    private float healthBarHeight; // used to represent the width of each health point
+    private Vector3 healthBarStart;
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
 
-    // Update is called once per frame
+    void Start()
+    {
+        healthBarHeight = soulHealthBar.transform.localScale.y;
+        healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
+        corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
+    }
+
     void Update()
     {
         PlayerGhost ghostScript = playerCharacter.GetComponent<PlayerGhost>(); // null if posssessing an enemy
@@ -42,6 +53,8 @@ public class PlayerScript : MonoBehaviour
             playerHealth = ghostScript.Health;
             if(playerHealth <= 0) {
                 // lose game
+                Debug.Log("hello?");
+                return;
             }
         }
 
@@ -106,10 +119,20 @@ public class PlayerScript : MonoBehaviour
         }
 
         // -- update UI --
-            // health bar(s)
-
         if(ghostScript == null) {
             // update corpse health
+            corpseHealthBar.SetActive(true);
+
+            float startX = healthBarStart.x + playerHealth * healthBarHeight;
+            float barWidth = playerCharacter.GetComponent<Enemy>().Health * healthBarHeight;
+            corpseHealthBar.transform.localScale = new Vector3(barWidth, healthBarHeight, 1);
+            corpseHealthBar.transform.localPosition = new Vector3(startX + barWidth / 2, healthBarStart.y, 1);
+        } else {
+            // update soul health
+            corpseHealthBar.SetActive(false);
+
+            soulHealthBar.transform.localScale = new Vector3(playerHealth * healthBarHeight, healthBarHeight, 1);
+            soulHealthBar.transform.localPosition = healthBarStart + new Vector3(playerHealth * healthBarHeight / 2, 0, 0);
         }
             // abilities
             // souls

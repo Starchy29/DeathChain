@@ -530,9 +530,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   possessIndicator: {fileID: 1103058237}
   playerCharacter: {fileID: 1388066335}
-  entityTracker: {fileID: 1213496031}
   playerPrefab: {fileID: 5353949509718061724, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
   possessParticlePrefab: {fileID: 5672638404814821097, guid: edc7fb2c8b4b40a40a474448bc6be001, type: 3}
+  soulHealthBar: {fileID: 2121024218}
+  corpseHealthBar: {fileID: 1978197872}
 --- !u!4 &904056241
 Transform:
   m_ObjectHideFlags: 0
@@ -955,7 +956,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1978197873
 Transform:
   m_ObjectHideFlags: 0
@@ -964,7 +965,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1978197872}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.1, y: 3.77, z: 10}
+  m_LocalPosition: {x: -2.07, y: 4.79, z: 1}
   m_LocalScale: {x: 5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1123,7 +1124,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2121024219
 Transform:
   m_ObjectHideFlags: 0
@@ -1132,7 +1133,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2121024218}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.17, y: 4.81, z: 10}
+  m_LocalPosition: {x: -7.17, y: 4.81, z: 1}
   m_LocalScale: {x: 5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -20,11 +20,14 @@ public class PlayerGhost : Enemy
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
     private bool clockwise; // which way the slash should go, alternates every time
+    private int trueHealth;
 
     public GameObject ShotPrefab;
 
     protected override void ChildStart()
     {
+        if(trueHealth > 0)
+            health = trueHealth;
         controller = new PlayerController(gameObject);
         isAlly = true;
         maxSpeed = BASE_WALK_SPEED;
@@ -90,7 +93,7 @@ public class PlayerGhost : Enemy
 
     // when unpossessing, allow the player info tracker to pass the right values for the player
     public void Setup(int health) {
-        this.health = health;
+        trueHealth = health; // used to override when health is set in Enemy.Start()
         invincible = true;
         invulnTimer = 1.0f;
         useUnpossessAnim = true;
