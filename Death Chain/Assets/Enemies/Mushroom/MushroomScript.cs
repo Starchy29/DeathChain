@@ -37,7 +37,7 @@ public class MushroomScript : Enemy
             if(aim != Vector2.zero) {
                 // find corpse closest to aim direction
                 float bestDot = -1;
-                List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
+                List<GameObject> enemies = EntityTracker.Instance.Enemies;
                 foreach(GameObject enemy in enemies) {
                     if(enemy.GetComponent<Enemy>().IsCorpse) {
                         float dot = Vector2.Dot(aim, (enemy.transform.position - transform.position).normalized);
@@ -66,9 +66,7 @@ public class MushroomScript : Enemy
             return;
         }
 
-        int ability = controller.GetUsedAbility();
-
-        if(cooldowns[0] <= 0 && ability == 0) {
+        if(UseAbility(0)) {
             cooldowns[0] = shootCooldown;
             GameObject shot = Instantiate(sporePrefab);
             shot.transform.position = transform.position;
@@ -79,9 +77,10 @@ public class MushroomScript : Enemy
             currentAnimation = shootAnimation;
             shootAnimation.Reset();
         }
-        else if(cooldowns[1] <= 0 && ability == 1) {
+        else if(UseAbility(1)) {
             selector = Instantiate(selectorPrefab);
             selector.transform.position = transform.position;
+            cooldowns[1] = 0.5f; // mushroom ai queues teleport twice if there is no cooldown yet
         }
     }
 
@@ -90,9 +89,9 @@ public class MushroomScript : Enemy
 
         if(cooldowns[1] <= 0 && !controller.AbilityQueued && controller.Target != null && controller.GetTargetDistance() <= 2.0f) {
             // check for a potential warp target
-            List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
+            List<GameObject> enemies = EntityTracker.Instance.Enemies;
             foreach(GameObject enemy in enemies) {
-                if(enemy.GetComponent<Enemy>().IsCorpse && enemy.transform.position != transform.position) {
+                if(enemy.GetComponent<Enemy>().IsCorpse && Vector2.Distance(transform.position, enemy.transform.position) > 2.0f) {
                     controller.SetAim(controller.Target.gameObject.transform.position - transform.position); // try to move past attacker
                     controller.QueueAbility(1, 0);
                     break;

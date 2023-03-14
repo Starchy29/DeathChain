@@ -5,10 +5,14 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : Controller
 {
+    private const float DEAD_RADIUS = 0.2f;
+    private const float BUFFER_DURATION = 0.5f;
     private int controllerIndex;
     private bool useKeyboard;
-    private Vector2 lastAim = Vector2.up; // the last direction the player held. Used when the player is not aiming
-    private const float DEAD_RADIUS = 0.2f;
+
+    private Vector2 aim = Vector2.up; // the last direction the player held. Used when the player is not aiming
+    private float bufferSeconds;
+    private int bufferAbility = -1;
 
     // multiplayer controls: enter a big controller index to make it the keyboard user
     public PlayerController(GameObject controlTarget, int controllerIndex = 99) : base(controlTarget) {
@@ -29,8 +33,40 @@ public class PlayerController : Controller
     }
 
     public override void Update() {
-        lastAim = GetAimDirection();
+        aim = DetermineAim();
+
+        int abilityUsed = DetermineUsedAbility();
+        if(abilityUsed >= 0) {
+            bufferAbility = abilityUsed;
+            bufferSeconds = BUFFER_DURATION;
+        }
+
+        if(bufferSeconds > 0) {
+            bufferSeconds -= Time.deltaTime;
+            if(bufferSeconds <= 0) {
+                bufferAbility = -1;
+            }
+        }
     }
+
+    public override Vector2 GetAimDirection() {
+        return aim;
+    }
+
+    public override bool AbilityUsed(int ability) {
+        if(ability == bufferAbility) {
+            bufferAbility = -1; // this funtion must be not be called when the ability is on cooldown, because then the buffer will not work
+            return true;
+        }
+
+        return false;
+    }
+
+    //public override int GetUsedAbility() {
+    //    int abilityNum = bufferAbility;
+    //    bufferAbility = -1;
+    //    return abilityNum;
+    //}
 
     public override Vector2 GetMoveDirection() {
         if(controllerIndex < Gamepad.all.Count) {
@@ -72,7 +108,7 @@ public class PlayerController : Controller
         return Vector2.zero;
     }
 
-    public override int GetUsedAbility() {
+    private int DetermineUsedAbility() {
         if(controllerIndex < Gamepad.all.Count) {
             // check gamepad
             Gamepad controller = Gamepad.all[controllerIndex];
@@ -134,7 +170,7 @@ public class PlayerController : Controller
         return -1; // no ability used
     }
 
-    public override Vector2 GetAimDirection() {
+    private Vector2 DetermineAim() {
         if(controllerIndex < Gamepad.all.Count) { // prioritize using controller
             // if they want to use the right stick to aim, prioritize that over the normal stick
             Vector2 rightStick = Gamepad.all[controllerIndex].rightStick.ReadValue();
@@ -148,7 +184,7 @@ public class PlayerController : Controller
                 return moveDirection; // already normalized
             }
 
-            return lastAim;
+            return aim;
         }
 
         if(useKeyboard && Mouse.current != null) {
@@ -161,6 +197,6 @@ public class PlayerController : Controller
             }
         }
 
-        return lastAim; // use last aim if not currently aiming
+        return aim; // use last aim if not currently aiming
     }
 }

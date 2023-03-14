@@ -20,9 +20,9 @@ public abstract class Controller
     // returns a unit vector that represents the direction this character is aiming. Cannot return the zero vector
     public abstract Vector2 GetAimDirection();
 
-    // returns an int that represents which ability this is trying to use.
+    // returns an bool that says if this ability is used this frame
     // 0,1,2 are ability slots (ability 3 is reserved for possession). -1 (or any negative) is no ability
-    public abstract int GetUsedAbility();
+    public abstract bool AbilityUsed(int ability);
 
     // some abilities use hold and release, 
     public abstract int GetReleasedAbility();

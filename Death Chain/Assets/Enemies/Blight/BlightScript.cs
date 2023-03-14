@@ -21,7 +21,7 @@ public class BlightScript : Enemy
     }
 
     protected override void UpdateAbilities() {
-        if(cooldowns[0] <= 0 && controller.GetUsedAbility() == 0) {
+        if(UseAbility(0)) {
             // use blast ability
             cooldowns[0] = blastCooldown;
 

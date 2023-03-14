@@ -15,7 +15,7 @@ public class SlimeScript : Enemy
     }
 
     protected override void UpdateAbilities() {
-        if(cooldowns[0] <= 0 && controller.GetUsedAbility() == 0) {
+        if(UseAbility(0)) {
             // use blast ability
             cooldowns[0] = DropCooldown;
 
@@ -45,8 +45,8 @@ public class SlimeScript : Enemy
                 script.SetDirection(direction);
             }
         }
-        if(cooldowns[1] <= 0 && controller.GetUsedAbility() == 1) {
-            // use blast ability
+        else if(UseAbility(1)) {
+            // use lob puddle ability
             cooldowns[1] = PuddleCooldown;
 
             //currentAnimation = attackAnimation;

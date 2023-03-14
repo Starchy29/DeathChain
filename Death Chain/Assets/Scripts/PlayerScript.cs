@@ -8,7 +8,6 @@ public class PlayerScript : MonoBehaviour
 {
     [SerializeField] private GameObject possessIndicator;
     [SerializeField] private GameObject playerCharacter; // the entity the player is currently playing as, manually set to ghost at first
-    [SerializeField] private EntityTracker entityTracker;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject possessParticlePrefab;
 
@@ -49,7 +48,7 @@ public class PlayerScript : MonoBehaviour
         // -- manage possession --
         if(PossessPressed() || PossessReleased()) {
             // find closest possess target
-            List<GameObject> enemies = entityTracker.Enemies;
+            List<GameObject> enemies = EntityTracker.Instance.Enemies;
             GameObject closestOption = null;
             float closestDistance = POSSESS_RANGE;
             foreach(GameObject enemy in enemies) {

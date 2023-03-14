@@ -49,41 +49,32 @@ public class PlayerGhost : Enemy
                 maxSpeed = BASE_WALK_SPEED;
             }
         } else {
-            int ability = controller.GetUsedAbility();
+                if(UseAbility(0)) { // slash
+                    cooldowns[0] = slashCooldown;
+                    clockwise = !clockwise;
+                    clockwise = true;
+                    maxSpeed = ATTACK_WALK_SPEED; // slow while slashing
 
-            switch(ability) {
-                case 0: // slash
-                    if(cooldowns[0] <= 0) {
-                        cooldowns[0] = slashCooldown;
-                        clockwise = !clockwise;
-                        clockwise = true;
-                        maxSpeed = ATTACK_WALK_SPEED; // slow while slashing
+                    currentSlash = Instantiate(SlashPrefab);
+                    MeleeSwipe slashScript = currentSlash.GetComponent<MeleeSwipe>();
+                    slashScript.User = this.gameObject;
+                    slashScript.SetAim(controller.GetAimDirection(), clockwise);
+                }
+                else if(UseAbility(1)) { // shoot
+                    cooldowns[1] = shootCooldown;
+                    GameObject shot = Instantiate(ShotPrefab);
+                    shot.transform.position = transform.position;
+                    Projectile script = shot.GetComponent<Projectile>();
+                    script.User = this.gameObject;
+                    Vector2 aimDirection = controller.GetAimDirection();
+                    script.SetDirection(aimDirection);
 
-                        currentSlash = Instantiate(SlashPrefab);
-                        MeleeSwipe slashScript = currentSlash.GetComponent<MeleeSwipe>();
-                        slashScript.User = this.gameObject;
-                        slashScript.SetAim(controller.GetAimDirection(), clockwise);
-                    }
-                    break;
+                    maxSpeed = ATTACK_WALK_SPEED;
 
-                case 1: // shoot
-                    if(cooldowns[1] <= 0) {
-                        cooldowns[1] = shootCooldown;
-                        GameObject shot = Instantiate(ShotPrefab);
-                        shot.transform.position = transform.position;
-                        Projectile script = shot.GetComponent<Projectile>();
-                        script.User = this.gameObject;
-                        Vector2 aimDirection = controller.GetAimDirection();
-                        script.SetDirection(aimDirection);
-
-                        maxSpeed = ATTACK_WALK_SPEED;
-
-                        currentAnimation = shootAnimation;
-                        currentAnimation.Reset();
-                        GetComponent<SpriteRenderer>().flipX = aimDirection.x < 0; // face shoot direction (when unmoving)
-                    }
-                    break;
-            }
+                    currentAnimation = shootAnimation;
+                    currentAnimation.Reset();
+                    GetComponent<SpriteRenderer>().flipX = aimDirection.x < 0; // face shoot direction (when unmoving)
+                }
         }
 
         if(maxSpeed == ATTACK_WALK_SPEED && cooldowns[1] <= shootCooldown - 0.2f) {

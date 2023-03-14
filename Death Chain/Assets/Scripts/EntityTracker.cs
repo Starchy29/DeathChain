@@ -5,6 +5,9 @@ using UnityEngine;
 // provides a list of all enemies so certain mechanics can check for all enemies in the area
 public class EntityTracker : MonoBehaviour
 {
+    private static EntityTracker instance;
+    public static EntityTracker Instance { get { return instance; } }
+
     private List<GameObject> enemies;
     public List<GameObject> Enemies { get { return enemies; } } // other classes should not modify this list
 
@@ -12,6 +15,7 @@ public class EntityTracker : MonoBehaviour
     void Awake()
     {
         enemies = new List<GameObject>();
+        instance = this;
     }
 
     public void AddEnemy(GameObject enemy) {

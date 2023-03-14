@@ -288,4 +288,10 @@ public abstract class Enemy : MonoBehaviour
         currentAnimation.ChangeType(AnimationType.Forward);
         body.velocity = Vector2.zero;
     }
+
+    // helper function for sub classes
+    protected bool UseAbility(int ability) {
+        return cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
+        // ability must be off cooldown and used by the controller
+    }
 }

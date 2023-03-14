@@ -124,7 +124,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0174342ac0db8cb458c90d5861e0fec3, type: 3}
   - {fileID: 21300000, guid: c21d7248ed0132941a3502025408ea7d, type: 3}
   - {fileID: 21300000, guid: 84610939f04c58b4ab5a73e358cc28c6, type: 3}
-  slashCooldown: 0.4
+  slashCooldown: 0.6
   shootCooldown: 0.8
   SlashPrefab: {fileID: 3459951391140047293, guid: 90920f0cc60cd4c4e94eeb909f60be09, type: 3}
   ShotPrefab: {fileID: 3471360665674548918, guid: fe846a3056176ae4fbde8df260c2cd2f, type: 3}

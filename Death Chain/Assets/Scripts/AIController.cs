@@ -132,15 +132,28 @@ public class AIController : Controller
         return Vector2.zero;
     }
 
-    public override int GetUsedAbility() {
+    public override bool AbilityUsed(int ability) {
         if(startup > 0) {
-            return -1;
+            return false;
         }
 
-        int usedAbility = queuedAbility;
-        queuedAbility = -1; // because of this, this function should be called once per update for AI
-        return usedAbility;
+        if(ability == queuedAbility) {
+            queuedAbility = -1;
+            return true;
+        }
+
+        return false;
     }
+
+    //public override int GetUsedAbility() {
+    //    if(startup > 0) {
+    //        return -1;
+    //    }
+
+    //    int usedAbility = queuedAbility;
+    //    queuedAbility = -1; // because of this, this function should be called once per update for AI
+    //    return usedAbility;
+    //}
 
     public override int GetReleasedAbility() {
         return ReleaseAbility;
