@@ -12,7 +12,7 @@ public class CameraScript : MonoBehaviour
     {
         Vector3 playerPos = playerScript.PlayerEntity.transform.position;
 
-        if (levelGenerator.ChunkRects.Count <= 0) {
+        if (levelGenerator == null || levelGenerator.ChunkRects.Count <= 0) {
             transform.position = new Vector3(playerPos.x, playerPos.y, transform.position.z);
             return;
         }

@@ -53,8 +53,7 @@ public class PlayerScript : MonoBehaviour
             playerHealth = ghostScript.Health;
             if(playerHealth <= 0) {
                 // lose game
-                Debug.Log("hello?");
-                return;
+                //return;
             }
         }
 

@@ -44,7 +44,10 @@ public class Lobber : MonoBehaviour
             
             // place shadow where it will land
             if(transform.childCount > 0) {
-                transform.GetChild(0).gameObject.transform.position = new Vector3(pos.x, pos.y, 0);
+                Transform shadow = transform.GetChild(0);
+                shadow.gameObject.transform.position = new Vector3(pos.x, pos.y, 0);
+                shadow.localScale = new Vector3(transform.localScale.x / 2 + pos.z, transform.localScale.y / 2 + pos.z, 1);
+                //shadow.gameObject.GetComponent<SpriteRenderer>().
             }
         }
     }

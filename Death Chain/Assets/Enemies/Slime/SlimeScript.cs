@@ -10,7 +10,7 @@ public class SlimeScript : Enemy
     [SerializeField] private float PuddleCooldown;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, 0.0f);
+        controller = new AIController(gameObject, AIMode.Wander, 7.0f);
         maxSpeed = 4.0f;
     }
 
@@ -59,6 +59,21 @@ public class SlimeScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        
+        if(cooldowns[1] <= 0 && !controller.AbilityQueued) {
+            if(controller.Target == null) {
+                controller.SetAim(new Vector2(Random.value - 0.5f, Random.value - 0.5f));
+            }
+            controller.QueueAbility(1, 1);
+        }
+        else if(cooldowns[0] <= 0 && !controller.AbilityQueued && controller.GetMoveDirection() == Vector2.zero) {
+            aiToggle = !aiToggle;
+            if(aiToggle) {
+                controller.SetAim(new Vector2(1, 0));
+            } else {
+                controller.SetAim(new Vector2(1, 1));
+            }
+            controller.QueueAbility(0, 0.5f);
+        }
     }
+    private bool aiToggle;
 }

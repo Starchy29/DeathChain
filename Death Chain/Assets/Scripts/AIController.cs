@@ -43,7 +43,7 @@ public class AIController : Controller
         if(vision > 0) {
             if(target == null) {
                 // check for a target
-                List<GameObject> enemies = GameObject.Find("EntityTracker").GetComponent<EntityTracker>().Enemies;
+                List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
                 Enemy controlledScript = controlled.GetComponent<Enemy>();
                 foreach(GameObject enemy in enemies) {
                     Enemy enemyScript = enemy.GetComponent<Enemy>();

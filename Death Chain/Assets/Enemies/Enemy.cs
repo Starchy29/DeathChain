@@ -12,6 +12,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected Sprite[] idleSprites;
     [SerializeField] protected Sprite[] walkSprites;
     [SerializeField] protected Sprite[] deathSprites;
+
     protected Animation currentAnimation;
     protected Animation idleAnimation;
     protected Animation walkAnimation;
@@ -48,7 +49,7 @@ public abstract class Enemy : MonoBehaviour
     {
         health = BaseHealth;
         body = GetComponent<Rigidbody2D>();
-        GameObject.Find("EntityTracker").GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
+        EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         currentAnimation = idleAnimation;
 
         ChildStart();
@@ -189,7 +190,7 @@ public abstract class Enemy : MonoBehaviour
     protected virtual void OnDeath() { }
 
     public virtual void TakeDamage(int amount, bool ignoreStatus = false) {
-        if(invincible) {
+        if(invincible || amount <= 0) {
             return;
         }
 
@@ -204,15 +205,16 @@ public abstract class Enemy : MonoBehaviour
 
         health -= amount;
         Debug.Log(health);
-        if(amount > 0 && !ignoreStatus) {
+        if(!ignoreStatus) {
             GameObject hitEffect = Instantiate(hitParticle, transform);
             hitEffect.transform.localScale = new Vector3(1.25f / transform.localScale.x, 1.25f / transform.localScale.y, 1);
-            hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 2 * Mathf.PI));
+            hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
         }
 
         // check for death
         if(health <= 0) {
             body.velocity = Vector2.zero;
+            statuses.ClearPoison();
             for(int i = 0; i < 3; i++) {
                 cooldowns[i] = 0;
             }

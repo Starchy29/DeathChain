@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3387492980565856143}
   - component: {fileID: 3387492980565856142}
-  - component: {fileID: 678348725814582821}
   - component: {fileID: -3636298660006080945}
+  - component: {fileID: 5909602622787493959}
   m_Layer: 0
   m_Name: PoisonBlast
   m_TagString: Untagged
@@ -86,22 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &678348725814582821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3387492980565856137}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38bcef5f7c715ee4ca82b6dac36acd0c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 0
-  knockback: 8
-  duration: 0.2
-  particlePrefab: {fileID: 2286335285166474582, guid: 1a9ed2fb0b4fd5745a86f70b65f8dbe9, type: 3}
 --- !u!58 &-3636298660006080945
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -118,3 +102,21 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &5909602622787493959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3387492980565856137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36673fd5ab50b17489f18df129c8e231, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 0
+  knockback: 8
+  effect: 0
+  effectDuration: 3
+  colliderDuration: 0.2
+  particlePrefab: {fileID: 2286335285166474582, guid: 1a9ed2fb0b4fd5745a86f70b65f8dbe9, type: 3}

@@ -136,11 +136,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2abb75af46a48a4eb008612b8b993e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  corpseParticle: {fileID: 5766683498610922712, guid: a4427d231e7813b4daafd440d3402c2b, type: 3}
+  hitParticle: {fileID: 4517559496455415143, guid: c8f3a9e01361a0b40af6f1cca549061b, type: 3}
   BaseHealth: 12
   idleSprites: []
   walkSprites: []
   deathSprites: []
   DropPrefab: {fileID: 3854271680072526497, guid: e91ed8bb3fc5cca4d95b5bbe50286442, type: 3}
   PuddlePrefab: {fileID: 7019099923563765831, guid: 2898af95d99162449bfd715f70abded5, type: 3}
-  DropCooldown: 0
-  PuddleCooldown: 0
+  DropCooldown: 1
+  PuddleCooldown: 5

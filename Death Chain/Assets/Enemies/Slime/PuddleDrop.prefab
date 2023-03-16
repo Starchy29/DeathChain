@@ -101,7 +101,7 @@ MonoBehaviour:
   speed: 5
   gravity: 15
   upVelocity: 5
-  LandEffect: {fileID: 3854271680072526497, guid: e91ed8bb3fc5cca4d95b5bbe50286442, type: 3}
+  LandEffect: {fileID: 3335339259711019590, guid: 3878780e3f6dae24c9d6f8dca4c6b55b, type: 3}
 --- !u!1 &8786850014027182979
 GameObject:
   m_ObjectHideFlags: 0

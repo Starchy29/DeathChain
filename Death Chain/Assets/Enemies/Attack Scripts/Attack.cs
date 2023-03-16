@@ -5,6 +5,11 @@ using UnityEngine;
 // base class for all attacks. Must have an attached trigger collider on the attack layer
 public class Attack : MonoBehaviour
 {
+    [SerializeField] protected int damage;
+    [SerializeField] protected float knockback;
+    [SerializeField] protected Status effect;
+    [SerializeField] protected float effectDuration; // a duration of zero means no status is applied
+
     private GameObject user;
     public GameObject User { get { return user; }
         set { // must be set by the attack user on creation, remember that the user might die when the attack is still going
@@ -13,10 +18,8 @@ public class Attack : MonoBehaviour
             isAlly = value.GetComponent<Enemy>().IsAlly;
         }
     } 
-    [SerializeField] protected int damage;
-    [SerializeField] protected float knockback;
 
-    private bool isAlly;
+    protected bool isAlly;
 
     public void OnTriggerEnter2D(Collider2D collision) {
         switch(collision.gameObject.layer) {
@@ -35,6 +38,9 @@ public class Attack : MonoBehaviour
                         // knockback must be before damage becuase death needs to eliminate momentum
                     }
                     enemyScript.TakeDamage(damage);
+                    if(effectDuration > 0) {
+                        enemyScript.ApplyStatus(effect, effectDuration);
+                    }
                     OnEnemyCollision(enemyScript);
                 }
                 break;

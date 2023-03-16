@@ -42,4 +42,8 @@ public class Statuses
     public bool HasStatus(Status effect) {
         return durations[(int)effect] > 0;
     }
+
+    public void ClearPoison() {
+        durations[(int)Status.Poison] = 0;
+    }
 }

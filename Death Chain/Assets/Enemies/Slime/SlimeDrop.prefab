@@ -116,6 +116,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 3
   knockback: 2
-  speed: 6
+  speed: 7
   range: 8
   destroyParticle: {fileID: 0}
