@@ -11,12 +11,11 @@ public class SlimeScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Wander, 7.0f);
-        maxSpeed = 4.0f;
     }
 
     protected override void UpdateAbilities() {
         if(UseAbility(0)) {
-            // use blast ability
+            // use quad shot ability
             cooldowns[0] = DropCooldown;
 
             //currentAnimation = attackAnimation;
@@ -33,16 +32,13 @@ public class SlimeScript : Enemy
                 fireDirections = new List<Vector2>(){ Vector2.up, Vector2.down, Vector2.left, Vector2.right };
             } else {
                 // shoot in diagonals
-                float length = Mathf.Sqrt(2) / 2;
+                float length = Mathf.Sqrt(2) / 2.0f;
                 fireDirections = new List<Vector2>() { new Vector2(length, length), new Vector2(-length, length), new Vector2(length, -length), new Vector2(-length, -length) };
             }
 
             foreach(Vector2 direction in fireDirections) {
-                GameObject shot = Instantiate(DropPrefab);
-                shot.transform.position = transform.position;
-                Projectile script = shot.GetComponent<Projectile>();
-                script.User = this.gameObject;
-                script.SetDirection(direction);
+                GameObject shot = CreateAttack(DropPrefab);
+                shot.GetComponent<Projectile>().SetDirection(direction);
             }
         }
         else if(UseAbility(1)) {
@@ -59,13 +55,13 @@ public class SlimeScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(cooldowns[1] <= 0 && !controller.AbilityQueued) {
+        if(cooldowns[1] <= 0) {
             if(controller.Target == null) {
                 controller.SetAim(new Vector2(Random.value - 0.5f, Random.value - 0.5f));
             }
             controller.QueueAbility(1, 1);
         }
-        else if(cooldowns[0] <= 0 && !controller.AbilityQueued && controller.GetMoveDirection() == Vector2.zero) {
+        else if(cooldowns[0] <= 0 && controller.GetMoveDirection() == Vector2.zero) {
             aiToggle = !aiToggle;
             if(aiToggle) {
                 controller.SetAim(new Vector2(1, 0));

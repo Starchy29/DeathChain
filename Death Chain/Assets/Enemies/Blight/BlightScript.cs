@@ -12,7 +12,6 @@ public class BlightScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Wander, 0.0f);
-        maxSpeed = 7.0f;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         walkAnimation = new Animation(walkSprites, AnimationType.Oscillate, 0.4f);
@@ -28,9 +27,7 @@ public class BlightScript : Enemy
             currentAnimation = attackAnimation;
             attackAnimation.Reset();
 
-            GameObject blast = Instantiate(BlastPrefab);
-            blast.transform.position = transform.position;
-            blast.GetComponent<Attack>().User = gameObject;
+            CreateAttack(BlastPrefab);
         }
     }
 
@@ -42,8 +39,6 @@ public class BlightScript : Enemy
 
     protected override void OnDeath() {
         // poison blast on death
-        GameObject blast = Instantiate(BlastPrefab);
-        blast.transform.position = transform.position;
-        blast.GetComponent<Attack>().User = gameObject;
+        CreateAttack(BlastPrefab);
     }
 }

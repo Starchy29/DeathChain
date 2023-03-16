@@ -17,7 +17,7 @@ public class PlayerScript : MonoBehaviour
     private int playerHealth;
     private float decayTimer;
 
-    private const float DECAY_FREQ = 3.0f; // number of seconds for each damage dealt
+    private const float DECAY_FREQ = 2.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
     private float healthBarHeight; // used to represent the width of each health point
     private Vector3 healthBarStart;

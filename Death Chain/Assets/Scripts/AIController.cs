@@ -30,7 +30,6 @@ public class AIController : Controller
     private float startup; // pause before using a move
 
     public GameObject Target { get { return target; } }
-    public bool AbilityQueued { get { return queuedAbility >= 0; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
 
     public AIController(GameObject controlTarget, AIMode startMode, float vision) : base(controlTarget) {
@@ -60,7 +59,10 @@ public class AIController : Controller
             }
         }
 
-        controlled.GetComponent<Enemy>().AIUpdate(this);
+        if(queuedAbility < 0) {
+            // only check ask the enemy which ability to use when there is no ability in use
+            controlled.GetComponent<Enemy>().AIUpdate(this);
+        }
 
         if(startup > 0) {
             startup -= Time.deltaTime;

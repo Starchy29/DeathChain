@@ -5,8 +5,6 @@ using UnityEngine;
 // The base form of the player
 public class PlayerGhost : Enemy
 {
-    private const float BASE_WALK_SPEED = 5.0f;
-    private const float ATTACK_WALK_SPEED = 2.0f;
     [SerializeField] private Sprite[] shootSprites;
     [SerializeField] private Sprite[] slashSprites;
     [SerializeField] private Sprite[] unpossessSprites;
@@ -27,10 +25,9 @@ public class PlayerGhost : Enemy
     protected override void ChildStart()
     {
         if(trueHealth > 0)
-            health = trueHealth;
+            health = trueHealth; // allow spawning with less health
         controller = new PlayerController(gameObject);
         isAlly = true;
-        maxSpeed = BASE_WALK_SPEED;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
         walkAnimation = idleAnimation;
@@ -43,51 +40,39 @@ public class PlayerGhost : Enemy
     }
 
     protected override void UpdateAbilities() {
-        if(currentSlash != null) {
-            // slash updates on its own
-
-            if(currentSlash.GetComponent<MeleeSwipe>().Finished) {
-                Destroy(currentSlash);
-                currentSlash = null;
-                maxSpeed = BASE_WALK_SPEED;
-            }
-        } else {
-                if(UseAbility(0)) { // slash
-                    cooldowns[0] = slashCooldown;
-                    clockwise = !clockwise;
-                    clockwise = true;
-                    maxSpeed = ATTACK_WALK_SPEED; // slow while slashing
-
-                    currentSlash = Instantiate(SlashPrefab);
-                    MeleeSwipe slashScript = currentSlash.GetComponent<MeleeSwipe>();
-                    slashScript.User = this.gameObject;
-                    slashScript.SetAim(controller.GetAimDirection(), clockwise);
-                }
-                else if(UseAbility(1)) { // shoot
-                    cooldowns[1] = shootCooldown;
-                    GameObject shot = Instantiate(ShotPrefab);
-                    shot.transform.position = transform.position;
-                    Projectile script = shot.GetComponent<Projectile>();
-                    script.User = this.gameObject;
-                    Vector2 aimDirection = controller.GetAimDirection();
-                    script.SetDirection(aimDirection);
-
-                    maxSpeed = ATTACK_WALK_SPEED;
-
-                    currentAnimation = shootAnimation;
-                    currentAnimation.Reset();
-                    GetComponent<SpriteRenderer>().flipX = aimDirection.x < 0; // face shoot direction (when unmoving)
-                }
-        }
-
-        if(maxSpeed == ATTACK_WALK_SPEED && cooldowns[1] <= shootCooldown - 0.2f) {
-            maxSpeed = BASE_WALK_SPEED;
-        }
         if(invulnTimer > 0) {
             invulnTimer -= Time.deltaTime;
             if(invulnTimer <= 0) {
                 invincible = false;
             }
+        }
+
+        if(currentSlash != null) {
+            // slash updates on its own
+            if(currentSlash.GetComponent<MeleeSwipe>().Finished) {
+                Destroy(currentSlash);
+                currentSlash = null;
+            }
+            return;
+        } 
+
+        if(UseAbility(0)) { // slash
+            cooldowns[0] = slashCooldown;
+            ApplyEndlag(0.3f, 2.0f);
+            clockwise = !clockwise;
+            clockwise = true;
+
+            currentSlash = CreateAttack(SlashPrefab);
+            currentSlash.GetComponent<MeleeSwipe>().SetAim(controller.GetAimDirection(), clockwise);
+        }
+        else if(UseAbility(1)) { // shoot
+            cooldowns[1] = shootCooldown;
+            ApplyEndlag(0.3f, 2.0f);
+            CreateAttack(ShotPrefab);
+
+            currentAnimation = shootAnimation;
+            currentAnimation.Reset();
+            GetComponent<SpriteRenderer>().flipX = controller.GetAimDirection().x < 0; // face shoot direction (when unmoving)
         }
     }
 

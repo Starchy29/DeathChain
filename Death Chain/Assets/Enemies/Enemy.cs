@@ -9,6 +9,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] private GameObject hitParticle;
 
     [SerializeField] private int BaseHealth;
+    [SerializeField] private int BaseSpeed;
     [SerializeField] protected Sprite[] idleSprites;
     [SerializeField] protected Sprite[] walkSprites;
     [SerializeField] protected Sprite[] deathSprites;
@@ -24,37 +25,38 @@ public abstract class Enemy : MonoBehaviour
     private float poisonTimer; // tracks when to deal poison damage
     private bool knocked = false; // true means movement is locked as this is being pushed
     private float corpseTimer; // for ai enemies that die
-    
+    private float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
+    private float endlag;
+
     protected int health;
     protected bool isAlly = false; // whether or not this is fighting for the player
     protected bool sturdy = false; // true means this enemy cannot receive knockback
-    protected float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
     protected bool invincible; // some abilities need temporary invincibility
-    public bool Invincible { get { return invincible; } }
     protected Controller controller;
     protected float[] cooldowns = new float[3];
 
     public int Health { get { return health; } }
-    public float WalkSpeed { get { return maxSpeed; } }
-    public float DamageMultiplier { get { 
-            return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
+    public float WalkSpeed { get { return BaseSpeed; } } // used for AI controller
+    public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
     public bool IsCorpse { get { return corpseTimer > 0; } }
     public bool Possessable { get { return IsCorpse && (deathAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
     public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
+    public bool Invincible { get { return invincible; } }
 
     // Start is called before the first frame update
     void Start()
     {
         health = BaseHealth;
+        maxSpeed = BaseSpeed;
         body = GetComponent<Rigidbody2D>();
         EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         currentAnimation = idleAnimation;
 
         ChildStart();
     }
-    protected abstract void ChildStart(); // set up animations here
+    protected abstract void ChildStart();
 
     // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
     public virtual void AIUpdate(AIController controller) { }
@@ -164,9 +166,17 @@ public abstract class Enemy : MonoBehaviour
         else if(body.velocity.sqrMagnitude <= maxSpeed * maxSpeed) { // check for end of knockback
             knocked = false;
         }
+        GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // draw lower characters in front
 
         // abilities handled in each sub class
         UpdateAbilities();
+
+        if(endlag > 0) {
+            endlag -= Time.deltaTime;
+            if(endlag <= 0) {
+                maxSpeed = BaseSpeed;
+            }
+        }
 
         // manage poison damage
         if(statuses.HasStatus(Status.Poison)) {
@@ -291,9 +301,31 @@ public abstract class Enemy : MonoBehaviour
         body.velocity = Vector2.zero;
     }
 
-    // helper function for sub classes
+    // helper functions for sub classes
     protected bool UseAbility(int ability) {
-        return cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
-        // ability must be off cooldown and used by the controller
+        return endlag <= 0 && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
+    }
+
+    protected GameObject CreateAttack(GameObject prefab) {
+        GameObject attack = Instantiate(prefab);
+        attack.transform.position = transform.position; // defualt placement is directly on top
+        Attack script = attack.GetComponent<Attack>();
+        script.User = gameObject;
+
+        if(script is Projectile) {
+            // for projectiles, default aim to the controller's aim
+            ((Projectile)script).SetDirection(controller.GetAimDirection());
+        }
+
+        return attack;
+    }
+
+    // create a time period after using an attack there the character 
+    protected void ApplyEndlag(float duration, float tempSpeed) {
+        if(duration < 0 || tempSpeed < 0) {
+            return;
+        }
+        endlag = duration;
+        maxSpeed = tempSpeed;
     }
 }

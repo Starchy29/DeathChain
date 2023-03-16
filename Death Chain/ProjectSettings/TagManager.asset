@@ -41,6 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Enemy
+    uniqueID: 2063907323
+    locked: 0
   - name: Special Effects
     uniqueID: 707410651
     locked: 0
