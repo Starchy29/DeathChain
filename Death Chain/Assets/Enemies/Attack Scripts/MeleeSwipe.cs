@@ -10,7 +10,7 @@ public class MeleeSwipe : Attack
     private float targetAngle; // in radians
 
     [SerializeField] private float range; // distance from center of user
-    [SerializeField] private float width; // angle in degrees
+    [SerializeField] private float angleWidth; // angle in degrees
     [SerializeField] private float speed; // angle in degrees rotated per second
 
     private bool finished; // inform the user when this is complete. They must check this variable every frame
@@ -35,7 +35,7 @@ public class MeleeSwipe : Attack
     public void SetAim(Vector2 aim, bool clockwise) {
         this.clockwise = clockwise;
 
-        float radianWidth = width / 180 * Mathf.PI;
+        float radianWidth = angleWidth / 180 * Mathf.PI;
         currentAngle = Mathf.Atan2(aim.y, aim.x) + radianWidth / 2 * (clockwise ? 1 : -1);
         targetAngle = currentAngle + radianWidth * (clockwise ? -1 : 1);
         transform.position = User.transform.position + range * new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);

@@ -115,58 +115,9 @@ public abstract class Enemy : MonoBehaviour
             currentAnimation = idleAnimation;
         }
 
-        // apply friction
-        const float FRICTION = 20;
-        if(body.velocity != Vector2.zero) {
-            Vector2 friction = -body.velocity.normalized * Time.deltaTime * FRICTION;
-            body.velocity += friction;
-            
-            // check if friction made this start moving backwards
-            if(Vector2.Dot(body.velocity, friction) > 0) {
-                body.velocity = Vector2.zero;
-            }
+        if(!sturdy) {
+            DoMovement();
         }
-
-        if(!knocked) {
-            // regular movement
-            float currentMaxSpeed = maxSpeed;
-            if(statuses.HasStatus(Status.Freeze)) {
-                currentMaxSpeed = 0;
-            } else {
-                currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
-            }
-
-            if(maxSpeed > 0) {
-                const float ACCEL = 80;
-                Vector2 moveDirection = controller.GetMoveDirection();
-                if(moveDirection != Vector2.zero) {
-                    body.velocity += moveDirection * Time.deltaTime * ACCEL;
-            
-                    // cap speed
-                    if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
-                        body.velocity = body.velocity.normalized;
-                        body.velocity *= maxSpeed;
-                    }
-
-                    // flip sprite to face move direction
-                    if(moveDirection.x > 0) {
-                        GetComponent<SpriteRenderer>().flipX = false;
-                    } 
-                    else if(moveDirection.x < 0) {
-                        GetComponent<SpriteRenderer>().flipX = true;
-                    }
-
-                    // use walk animation unless mid-ability
-                    if(walkAnimation != null && !UsingAbilityAnimation()) {
-                        currentAnimation = walkAnimation;
-                    }
-                }
-            }
-        }
-        else if(body.velocity.sqrMagnitude <= maxSpeed * maxSpeed) { // check for end of knockback
-            knocked = false;
-        }
-        GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // draw lower characters in front
 
         // abilities handled in each sub class
         UpdateAbilities();
@@ -186,6 +137,8 @@ public abstract class Enemy : MonoBehaviour
                 TakeDamage(1, true); // damage per tick
             }
         }
+
+        // decrease cooldowns
         for(int i = 0; i < 3; i++) {
             if(cooldowns[i] > 0) {
                 cooldowns[i] -= Time.deltaTime;
@@ -194,6 +147,65 @@ public abstract class Enemy : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void DoMovement() {
+        // apply friction
+        const float FRICTION = 20;
+        if(body.velocity != Vector2.zero) {
+            Vector2 friction = -body.velocity.normalized * Time.deltaTime * FRICTION;
+            body.velocity += friction;
+            
+            // check if friction made this start moving backwards
+            if(Vector2.Dot(body.velocity, friction) > 0) {
+                body.velocity = Vector2.zero;
+            }
+        }
+
+        if(knocked) {
+            // check for end of knockback
+            if(body.velocity.sqrMagnitude <= maxSpeed * maxSpeed) {
+                knocked = false;
+            }
+            return;
+        }
+
+        // regular movement
+        float currentMaxSpeed = maxSpeed;
+        if(statuses.HasStatus(Status.Freeze)) {
+            currentMaxSpeed = 0;
+        } else {
+            currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
+        }
+
+        Vector2 moveDirection = controller.GetMoveDirection();
+        if(maxSpeed <= 0 || moveDirection == Vector2.zero) {
+            return;
+        }
+
+        const float ACCEL = 80;
+        body.velocity += moveDirection * Time.deltaTime * ACCEL;
+            
+        // cap speed
+        if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
+            body.velocity = body.velocity.normalized;
+            body.velocity *= maxSpeed;
+        }
+
+        // flip sprite to face move direction
+        if(moveDirection.x > 0) {
+            GetComponent<SpriteRenderer>().flipX = false;
+        } 
+        else if(moveDirection.x < 0) {
+            GetComponent<SpriteRenderer>().flipX = true;
+        }
+
+        // use walk animation unless mid-ability
+        if(walkAnimation != null && !UsingAbilityAnimation()) {
+            currentAnimation = walkAnimation;
+        }
+        
+        GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // draw lower characters in front
     }
 
     protected abstract void UpdateAbilities();
@@ -320,12 +332,22 @@ public abstract class Enemy : MonoBehaviour
         return attack;
     }
 
-    // create a time period after using an attack there the character 
+    // create a time period after using an attack where the character moves slower
     protected void ApplyEndlag(float duration, float tempSpeed) {
         if(duration < 0 || tempSpeed < 0) {
             return;
         }
         endlag = duration;
         maxSpeed = tempSpeed;
+    }
+
+    protected void Dash(Vector2 velocity) {
+        body.velocity = velocity;
+        sturdy = true;
+    }
+
+    protected void EndDash() {
+        sturdy = false;
+        body.velocity = Vector2.zero;
     }
 }

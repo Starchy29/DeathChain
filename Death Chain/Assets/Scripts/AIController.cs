@@ -32,6 +32,8 @@ public class AIController : Controller
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
 
+    public AIMode MoveMode { set { moveMode = value; } }
+
     public AIController(GameObject controlTarget, AIMode startMode, float vision) : base(controlTarget) {
         moveMode = startMode;
         this.vision = vision;
@@ -54,13 +56,13 @@ public class AIController : Controller
                     }
                 }
             }
-            else if(!target.activeInHierarchy || GetTargetDistance() > GetTrackingVision()) { // determine if target is lost
+            else if(!target.activeInHierarchy || GetTargetDistance() > CalcTrackingVision()) { // determine if target is lost
                 target = null;
             }
         }
 
         if(queuedAbility < 0) {
-            // only check ask the enemy which ability to use when there is no ability in use
+            // only ask the enemy which ability to use when there is no ability in use
             controlled.GetComponent<Enemy>().AIUpdate(this);
         }
 
@@ -70,33 +72,34 @@ public class AIController : Controller
             if(moveMode == AIMode.Wander) {
                 travelTime = 0.2f; // when attacking, give a small moment after attacking before moving again
             }
-        } else {
-            // handle set movement paths
-            if(moveMode == AIMode.Wander) {
-                travelTime -= Time.deltaTime;
+            return; // skip movement
+        }
 
-                if(travelTime <= 0) {
-                    // alternate between moving in a direction and pausing
-                    if(currentDirection == Vector2.zero) {
-                        travelTime += 1.0f;
+        // handle set movement paths
+        if(moveMode == AIMode.Wander) {
+            travelTime -= Time.deltaTime;
 
-                        // pick a new direction
-                        Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
-                        random += -currentDirection * 0.5f; // weight it away from the current direction
-                        if(!IgnoreStart) {
-                            // weight random direction towards starting position, not normalized to be weighted more when further away
-                            random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
-                        }
+            if(travelTime <= 0) {
+                // alternate between moving in a direction and pausing
+                if(currentDirection == Vector2.zero) {
+                    travelTime += 1.0f;
 
-                        currentDirection = random.normalized;
-                    } else {
-                        // stay still for a bit
-                        travelTime += 0.7f;
-                        currentDirection = Vector2.zero;
+                    // pick a new direction
+                    Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
+                    random += -currentDirection * 0.5f; // weight it away from the current direction
+                    if(!IgnoreStart) {
+                        // weight random direction towards starting position, not normalized to be weighted more when further away
+                        random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
                     }
 
-                    travelTime *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
+                    currentDirection = random.normalized;
+                } else {
+                    // stay still for a bit
+                    travelTime += 0.7f;
+                    currentDirection = Vector2.zero;
                 }
+
+                travelTime *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
             }
         }
     }
@@ -108,10 +111,6 @@ public class AIController : Controller
 
         queuedAbility = ability;
         startup = startupDuration;
-    }
-
-    public void SetMovement(AIMode mode) {
-        moveMode = mode;
     }
 
     public void SetAim(Vector2 direction) {
@@ -129,6 +128,12 @@ public class AIController : Controller
 
             case AIMode.Wander:
                 return currentDirection;
+
+            case AIMode.Chase:
+                if(target == null) {
+                    return Vector2.zero;
+                }
+                return CalcDirToTarget();
         }
 
         return Vector2.zero;
@@ -147,16 +152,6 @@ public class AIController : Controller
         return false;
     }
 
-    //public override int GetUsedAbility() {
-    //    if(startup > 0) {
-    //        return -1;
-    //    }
-
-    //    int usedAbility = queuedAbility;
-    //    queuedAbility = -1; // because of this, this function should be called once per update for AI
-    //    return usedAbility;
-    //}
-
     public override int GetReleasedAbility() {
         return ReleaseAbility;
     }
@@ -169,7 +164,7 @@ public class AIController : Controller
         }
 
         if(target != null) {
-            return GetDirToTarget();
+            return CalcDirToTarget();
         }
 
         Vector2 move = GetMoveDirection();
@@ -189,7 +184,7 @@ public class AIController : Controller
     }
 
     // returns the unit vector towards the target, zero vector if no target
-    private Vector2 GetDirToTarget() {
+    private Vector2 CalcDirToTarget() {
         if(target == null) {
             return Vector2.zero;
         }
@@ -198,7 +193,7 @@ public class AIController : Controller
     }
 
     // determines the vision range when currently targetting
-    private float GetTrackingVision() {
+    private float CalcTrackingVision() {
         if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
             return vision / 2.0f;
         }
