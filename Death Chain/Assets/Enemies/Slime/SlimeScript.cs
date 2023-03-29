@@ -11,6 +11,8 @@ public class SlimeScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Wander, 7.0f);
+
+        idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
     }
 
     protected override void UpdateAbilities() {

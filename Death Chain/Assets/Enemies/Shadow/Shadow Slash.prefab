@@ -119,9 +119,9 @@ MonoBehaviour:
   knockback: 6
   effect: 0
   effectDuration: 0
-  range: 0.7
+  range: 1
   angleWidth: 120
-  speed: 400
+  speed: 500
 --- !u!114 &8269024974959549454
 MonoBehaviour:
   m_ObjectHideFlags: 0

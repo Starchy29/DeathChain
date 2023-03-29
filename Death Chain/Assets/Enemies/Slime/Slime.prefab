@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 110443106730395125}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.4, y: 1.4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -76,8 +76,8 @@ SpriteRenderer:
   m_SortingLayerID: 2063907323
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.74463624, g: 0.4684051, b: 0.8962264, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 5ed9d22d5029fd44fa1d75a7b8955270, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -123,7 +123,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.25
 --- !u!114 &2489226489137414864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,7 +140,11 @@ MonoBehaviour:
   hitParticle: {fileID: 4517559496455415143, guid: c8f3a9e01361a0b40af6f1cca549061b, type: 3}
   BaseHealth: 12
   BaseSpeed: 4
-  idleSprites: []
+  idleSprites:
+  - {fileID: 21300000, guid: 5ed9d22d5029fd44fa1d75a7b8955270, type: 3}
+  - {fileID: 21300000, guid: 5bcd630ecdf26c74a8d162093bb5ba89, type: 3}
+  - {fileID: 21300000, guid: f5c72f335ba3bae40a3c6479f239502e, type: 3}
+  - {fileID: 21300000, guid: a820f1c92ca30d04cbe16a9a11502453, type: 3}
   walkSprites: []
   deathSprites: []
   DropPrefab: {fileID: 3854271680072526497, guid: e91ed8bb3fc5cca4d95b5bbe50286442, type: 3}
