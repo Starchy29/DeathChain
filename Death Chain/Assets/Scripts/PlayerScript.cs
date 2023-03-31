@@ -65,7 +65,7 @@ public class PlayerScript : MonoBehaviour
             float closestDistance = POSSESS_RANGE;
             foreach(GameObject enemy in enemies) {
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if(enemyScript.Possessable) {
+                if(enemyScript.IsCorpse) {
                     float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
                     if(distance < POSSESS_RANGE && distance < closestDistance) {
                         closestDistance = distance;

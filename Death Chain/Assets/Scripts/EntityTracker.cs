@@ -24,6 +24,8 @@ public class EntityTracker : MonoBehaviour
 
     void Update()
     {
+        Timer.UpdateAll(Time.deltaTime);
+
         // check for deleted enemies
         for(int i = 0; i < enemies.Count; i++) {
             if(enemies[i].GetComponent<Enemy>().DeleteThis) {

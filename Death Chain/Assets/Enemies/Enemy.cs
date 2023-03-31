@@ -4,6 +4,13 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
+    private enum State {
+        Normal,
+        Corpse,
+        Despawing, // play death animation, then despawn
+        Resurrect, // animation that plays when first possessing
+        Falling, // falling in a pit
+    }
 
     [SerializeField] private GameObject corpseParticle;
     [SerializeField] private GameObject hitParticle;
@@ -20,13 +27,13 @@ public abstract class Enemy : MonoBehaviour
     protected Animation deathAnimation;
     private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation && currentAnimation != deathAnimation; }
 
+    private State state = State.Normal;
     private Rigidbody2D body;
     private Statuses statuses = new Statuses(); // conveniently track all status effects
     private float poisonTimer; // tracks when to deal poison damage
     private bool knocked = false; // true means movement is locked as this is being pushed
-    private float corpseTimer; // for ai enemies that die
     private float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
-    private float endlag;
+    private Timer endlag;
 
     protected int health;
     protected bool isAlly = false; // whether or not this is fighting for the player
@@ -40,12 +47,9 @@ public abstract class Enemy : MonoBehaviour
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
-    public bool IsCorpse { get { return corpseTimer > 0; } }
-    public bool Possessable { get { return IsCorpse && (deathAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
+    public bool IsCorpse { get { return state == State.Corpse && (deathAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
     public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
-    public bool Invincible { get { return invincible; } }
 
-    // Start is called before the first frame update
     void Start()
     {
         health = BaseHealth;
@@ -56,12 +60,7 @@ public abstract class Enemy : MonoBehaviour
 
         ChildStart();
     }
-    protected abstract void ChildStart();
 
-    // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
-    public virtual void AIUpdate(AIController controller) { }
-
-    // Update is called once per frame
     void Update()
     {
         if(currentAnimation != null) {
@@ -73,83 +72,67 @@ public abstract class Enemy : MonoBehaviour
             }
         }
 
-        if(IsCorpse) { // dead body that the player can possess
-            float previousTime = corpseTimer;
-            corpseTimer -= Time.deltaTime;
+        switch(state) {
+            case State.Normal:
+                controller.Update();
+                statuses.Update();
 
-            if(previousTime > 4.4 && corpseTimer <= 4.4) {
-                // use optional death effect after 0.6 seconds of dying
-                OnDeath();
-            }
-            else if(corpseTimer <= 0) {
-                // delete corpse after some time
-                DeleteThis = true;
-                GameObject corpse = Instantiate(corpseParticle);
-                corpse.transform.position = transform.position;
-            }
-            return;
+                if(!sturdy) {
+                    DoMovement();
+                }
+
+                // abilities handled in each sub class
+                UpdateAbilities();
+
+                // manage poison damage
+                if(statuses.HasStatus(Status.Poison)) {
+                    poisonTimer -= Time.deltaTime;
+                    if(poisonTimer <= 0) {
+                        poisonTimer += 0.5f; // poison tick rate
+                        TakeDamage(1, true); // damage per tick
+                    }
+                }
+
+                // decrease cooldowns
+                for(int i = 0; i < 3; i++) {
+                    if(cooldowns[i] > 0) {
+                        cooldowns[i] -= Time.deltaTime;
+                        if(cooldowns[i] < 0) {
+                            cooldowns[i] = 0;
+                        }
+                    }
+                }
+                break;
+
+            case State.Falling:
+                break;
+
+            case State.Resurrect:
+                if(currentAnimation.Done) {
+                    invincible = false;
+                    currentAnimation = idleAnimation; // allow normal animations again
+                    state = State.Normal;
+                }
+                break;
+
+            case State.Despawing:
+                if(currentAnimation.Done) {
+                    DeleteThis = true;
+                    OnDeath();
+
+                    GameObject corpse = Instantiate(corpseParticle);
+                    corpse.transform.position = transform.position;
+                }
+                break;
         }
-        else if(controller == null) { // this is doing its death animation, then despawning
-            if(currentAnimation.Done) {
-                DeleteThis = true;
-                OnDeath();
+    }
 
-                GameObject corpse = Instantiate(corpseParticle);
-                corpse.transform.position = transform.position;
-            }
-            return;
-        }
-        else if(deathAnimation != null && currentAnimation == deathAnimation) { // playing resurrection animation when first possessed
-            if(currentAnimation.Done) {
-                invincible = false;
-                currentAnimation = idleAnimation; // allow normal animations again
-            }
-            return;
-        }
-
-        controller.Update();
-        statuses.Update();
-
+    private void DoMovement() {
         // assume idle animation unless mid-ability
         if(idleAnimation != null && !UsingAbilityAnimation()) {
             currentAnimation = idleAnimation;
         }
 
-        if(!sturdy) {
-            DoMovement();
-        }
-
-        // abilities handled in each sub class
-        UpdateAbilities();
-
-        if(endlag > 0) {
-            endlag -= Time.deltaTime;
-            if(endlag <= 0) {
-                maxSpeed = BaseSpeed;
-            }
-        }
-
-        // manage poison damage
-        if(statuses.HasStatus(Status.Poison)) {
-            poisonTimer -= Time.deltaTime;
-            if(poisonTimer <= 0) {
-                poisonTimer += 0.5f; // poison tick rate
-                TakeDamage(1, true); // damage per tick
-            }
-        }
-
-        // decrease cooldowns
-        for(int i = 0; i < 3; i++) {
-            if(cooldowns[i] > 0) {
-                cooldowns[i] -= Time.deltaTime;
-                if(cooldowns[i] < 0) {
-                    cooldowns[i] = 0;
-                }
-            }
-        }
-    }
-
-    private void DoMovement() {
         // apply friction
         const float FRICTION = 20;
         if(body.velocity != Vector2.zero) {
@@ -208,9 +191,6 @@ public abstract class Enemy : MonoBehaviour
         GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // draw lower characters in front
     }
 
-    protected abstract void UpdateAbilities();
-    protected virtual void OnDeath() { }
-
     public virtual void TakeDamage(int amount, bool ignoreStatus = false) {
         if(invincible || amount <= 0) {
             return;
@@ -226,7 +206,7 @@ public abstract class Enemy : MonoBehaviour
         }
 
         health -= amount;
-        Debug.Log(health);
+        Debug.Log(health); // please remember to delete this
         if(!ignoreStatus) {
             GameObject hitEffect = Instantiate(hitParticle, transform);
             hitEffect.transform.localScale = new Vector3(1.25f / transform.localScale.x, 1.25f / transform.localScale.y, 1);
@@ -243,7 +223,15 @@ public abstract class Enemy : MonoBehaviour
 
             if(!IsPlayer) {
                 // become a corpse that can be possessed
-                corpseTimer = 5.0f; // corpse duration
+                state = State.Corpse;
+                new Timer(5.0f, false, () => { // despawn corpse after some time
+                    if(state == State.Corpse) { // don't delete if resurrected
+                        DeleteThis = true;
+                        GameObject corpse = Instantiate(corpseParticle);
+                        corpse.transform.position = transform.position;
+                    }
+                });
+                new Timer(0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
                 GetComponent<CircleCollider2D>().enabled = false; // disable collider
 
                 // play death animation
@@ -283,7 +271,7 @@ public abstract class Enemy : MonoBehaviour
         isAlly = true;
 
         // become non-corpse
-        corpseTimer = 0;
+        state = State.Resurrect;
         invincible = true; // don't take damage in the middle of ressurrecting 
         if(deathAnimation != null) {
             currentAnimation = deathAnimation;
@@ -293,6 +281,7 @@ public abstract class Enemy : MonoBehaviour
             // temporary
             GetComponent<SpriteRenderer>().color = Color.white;
             invincible = false;
+            state = State.Normal;
         }
 
         GetComponent<CircleCollider2D>().enabled = true; // enable collider
@@ -306,16 +295,24 @@ public abstract class Enemy : MonoBehaviour
             return;
         }
 
-        controller = null;
+        state = State.Despawing;
+        controller = null; // just to be safe
         GetComponent<CircleCollider2D>().enabled = false;
         currentAnimation = deathAnimation;
         currentAnimation.ChangeType(AnimationType.Forward);
         body.velocity = Vector2.zero;
     }
 
-    // helper functions for sub classes
+// Functions for sub classes
+    protected abstract void ChildStart();
+    protected abstract void UpdateAbilities();
+
+    // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
+    public virtual void AIUpdate(AIController controller) { }
+    protected virtual void OnDeath() { }
+
     protected bool UseAbility(int ability) {
-        return endlag <= 0 && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
+        return (endlag == null || !endlag.Active) && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
     }
 
     protected GameObject CreateAttack(GameObject prefab) {
@@ -337,7 +334,7 @@ public abstract class Enemy : MonoBehaviour
         if(duration < 0 || tempSpeed < 0) {
             return;
         }
-        endlag = duration;
+        endlag = new Timer(duration, false, () => { maxSpeed = BaseSpeed; });
         maxSpeed = tempSpeed;
     }
 
