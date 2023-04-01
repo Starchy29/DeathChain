@@ -11,7 +11,6 @@ public class PlayerController : Controller
     private bool useKeyboard;
 
     private Vector2 aim = Vector2.up; // the last direction the player held. Used when the player is not aiming
-    private float bufferSeconds;
     private int bufferAbility = -1;
 
     // multiplayer controls: enter a big controller index to make it the keyboard user
@@ -38,14 +37,7 @@ public class PlayerController : Controller
         int abilityUsed = DetermineUsedAbility();
         if(abilityUsed >= 0) {
             bufferAbility = abilityUsed;
-            bufferSeconds = BUFFER_DURATION;
-        }
-
-        if(bufferSeconds > 0) {
-            bufferSeconds -= Time.deltaTime;
-            if(bufferSeconds <= 0) {
-                bufferAbility = -1;
-            }
+            new Timer(BUFFER_DURATION, false, () => { bufferAbility = -1; });
         }
     }
 
@@ -61,12 +53,6 @@ public class PlayerController : Controller
 
         return false;
     }
-
-    //public override int GetUsedAbility() {
-    //    int abilityNum = bufferAbility;
-    //    bufferAbility = -1;
-    //    return abilityNum;
-    //}
 
     public override Vector2 GetMoveDirection() {
         if(controllerIndex < Gamepad.all.Count) {

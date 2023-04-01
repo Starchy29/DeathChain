@@ -15,7 +15,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private GameObject corpseHealthBar;
 
     private int playerHealth;
-    private float decayTimer;
+    private Timer decayTimer;
 
     private const float DECAY_FREQ = 2.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
@@ -37,12 +37,7 @@ public class PlayerScript : MonoBehaviour
 
         // -- manage health --
         if(ghostScript == null) { // if possessing
-            // decay health over time when possessing
-            decayTimer -= Time.deltaTime;
-            if (decayTimer <= 0) {
-                decayTimer += DECAY_FREQ;
-                playerCharacter.GetComponent<Enemy>().TakeDamage(1, true);
-            }
+            // timer handles decay damage automatically
 
             if(playerCharacter.GetComponent<Enemy>().Health <= 0) {
                 // die when possessing: lose body
@@ -96,7 +91,7 @@ public class PlayerScript : MonoBehaviour
             }
             else if(PossessReleased()) {
                 // possess
-                decayTimer = DECAY_FREQ;
+                decayTimer = new Timer(DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); });
                 GameObject animation = Instantiate(possessParticlePrefab);
                 animation.transform.position = playerCharacter.transform.position;
                 animation.GetComponent<PossessMovement>().Target = closestOption;
@@ -163,6 +158,9 @@ public class PlayerScript : MonoBehaviour
     }
 
     private void Unpossess() {
+        decayTimer.End();
+        decayTimer = null;
+
         GameObject playerGhost = Instantiate(playerPrefab);
         playerGhost.transform.position = playerCharacter.transform.position;
         playerCharacter.GetComponent<Enemy>().Unpossess();

@@ -12,7 +12,6 @@ public class PlayerGhost : Enemy
     [SerializeField] private float shootCooldown;
     private Animation slashAnimation;
     private Animation shootAnimation;
-    private float invulnTimer;
     private bool useUnpossessAnim; // marks when this should use the special animation
 
     public GameObject SlashPrefab;
@@ -40,13 +39,6 @@ public class PlayerGhost : Enemy
     }
 
     protected override void UpdateAbilities() {
-        if(invulnTimer > 0) {
-            invulnTimer -= Time.deltaTime;
-            if(invulnTimer <= 0) {
-                invincible = false;
-            }
-        }
-
         if(currentSlash != null) {
             // slash updates on its own
             if(currentSlash.GetComponent<MeleeSwipe>().Finished) {
@@ -80,7 +72,7 @@ public class PlayerGhost : Enemy
     public void Setup(int health) {
         trueHealth = health; // used to override when health is set in Enemy.Start()
         invincible = true;
-        invulnTimer = 1.0f;
+        new Timer(1.0f, false, () => { invincible = false; });
         useUnpossessAnim = true;
     }
 }

@@ -7,29 +7,26 @@ public class StatusZone : Attack
 {
     [SerializeField] private float duration;
     private const float TICK_RATE = 0.2f; // seconds
-    private float timer;
+    private Timer timer;
     private List<Enemy> enemiesWithin;
 
     void Start()
     {
         enemiesWithin = new List<Enemy>();
         damage = 0;
-    }
 
-    void Update()
-    {
-        timer -= Time.deltaTime;
-        if(timer <= 0) {
-            timer += TICK_RATE;
+        // apply the status effect to all enemies within every interval
+        timer = new Timer(0.2f, true, () => { 
             foreach(Enemy enemy in enemiesWithin) {
                 enemy.ApplyStatus(effect, TICK_RATE);
             }
-        }
+        });
 
-        duration -= Time.deltaTime;
-        if(duration <= 0) {
+        // end effect after the duration
+        new Timer(duration, false, () => {
+            timer.End();
             Destroy(gameObject);
-        }
+        });
     }
 
     private new void OnTriggerEnter2D(Collider2D collision) {

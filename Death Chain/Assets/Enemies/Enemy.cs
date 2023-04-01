@@ -170,7 +170,7 @@ public abstract class Enemy : MonoBehaviour
         body.velocity += moveDirection * Time.deltaTime * ACCEL;
             
         // cap speed
-        if(body.velocity.sqrMagnitude > maxSpeed * maxSpeed) {
+        if(body.velocity.sqrMagnitude > currentMaxSpeed * currentMaxSpeed) {
             body.velocity = body.velocity.normalized;
             body.velocity *= maxSpeed;
         }
