@@ -13,6 +13,7 @@ public class SlimeScript : Enemy
         controller = new AIController(gameObject, AIMode.Wander, 7.0f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
+        walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
     }
 
     protected override void UpdateAbilities() {

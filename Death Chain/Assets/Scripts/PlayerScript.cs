@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 // tracks the status of the player, no matter which object they are possessing at the moment
 public class PlayerScript : MonoBehaviour
@@ -48,7 +49,7 @@ public class PlayerScript : MonoBehaviour
             playerHealth = ghostScript.Health;
             if(playerHealth <= 0) {
                 // lose game
-                //return;
+                SceneManager.LoadScene("Main Menu");
             }
         }
 
