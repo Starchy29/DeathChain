@@ -6,6 +6,13 @@ using UnityEngine;
 public class Timer
 {
     private static List<Timer> timers = new List<Timer>();
+
+    public static Timer CreateTimer(float durationSecs, bool repeated, Effect tickEffect) {
+        Timer newTimer = new Timer(durationSecs, repeated, tickEffect);
+        timers.Add(newTimer);
+        return newTimer;
+    }
+
     public static void UpdateAll(float deltaTime) { // must be called once per frame and given the delta time, done in EntityTracker.cs
         for(int i = timers.Count - 1; i >= 0; i--) {
             if(timers[i].ended) {
@@ -14,11 +21,14 @@ public class Timer
             }
             
             timers[i].Update(deltaTime);
-            if(timers[i].secondsLeft <= 0) {
-                timers.RemoveAt(i);
-            }
         }
     }
+
+    // needs to be called when resetting scenes so there are not timers left over from a previous game
+    public static void ClearTimers() {
+        timers.Clear();
+    }
+
 
     private readonly bool repeated; // false: one time use
     private readonly float durationSecs;
@@ -30,11 +40,11 @@ public class Timer
 
     public bool Active { get { return secondsLeft > 0; } }
 
-    public Timer(float durationSecs, bool repeated, Effect tickEffect) {
+    private Timer(float durationSecs, bool repeated, Effect tickEffect) {
         this.durationSecs = durationSecs;
         this.repeated = repeated;
         this.TickEffect = tickEffect;
-        Restart();
+        secondsLeft = durationSecs;
     }
 
     private void Update(float deltaTime) {
@@ -44,6 +54,8 @@ public class Timer
 
             if(repeated) {
                 secondsLeft += durationSecs;
+            } else {
+                ended = true;
             }
         }
     }

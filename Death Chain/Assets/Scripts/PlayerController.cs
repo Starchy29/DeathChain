@@ -37,7 +37,7 @@ public class PlayerController : Controller
         int abilityUsed = DetermineUsedAbility();
         if(abilityUsed >= 0) {
             bufferAbility = abilityUsed;
-            new Timer(BUFFER_DURATION, false, () => { bufferAbility = -1; });
+            Timer.CreateTimer(BUFFER_DURATION, false, () => { bufferAbility = -1; });
         }
     }
 

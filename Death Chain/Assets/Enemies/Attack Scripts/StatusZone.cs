@@ -16,14 +16,14 @@ public class StatusZone : Attack
         damage = 0;
 
         // apply the status effect to all enemies within every interval
-        timer = new Timer(0.2f, true, () => { 
+        timer = Timer.CreateTimer(0.2f, true, () => { 
             foreach(Enemy enemy in enemiesWithin) {
                 enemy.ApplyStatus(effect, TICK_RATE);
             }
         });
 
         // end effect after the duration
-        new Timer(duration, false, () => {
+        Timer.CreateTimer(duration, false, () => {
             timer.End();
             Destroy(gameObject);
         });

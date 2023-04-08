@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 // tracks the status of the player, no matter which object they are possessing at the moment
 public class PlayerScript : MonoBehaviour
 {
+    private static PlayerScript instance;
+    public static PlayerScript Instance { get { return instance; } }
+
     [SerializeField] private GameObject possessIndicator;
     [SerializeField] private GameObject playerCharacter; // the entity the player is currently playing as, manually set to ghost at first
     [SerializeField] private GameObject playerPrefab;
@@ -27,6 +30,8 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        instance = this;
+
         healthBarHeight = soulHealthBar.transform.localScale.y;
         healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
         corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
@@ -92,7 +97,7 @@ public class PlayerScript : MonoBehaviour
             }
             else if(PossessReleased()) {
                 // possess
-                decayTimer = new Timer(DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); });
+                decayTimer = Timer.CreateTimer(DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); });
                 GameObject animation = Instantiate(possessParticlePrefab);
                 animation.transform.position = playerCharacter.transform.position;
                 animation.GetComponent<PossessMovement>().Target = closestOption;

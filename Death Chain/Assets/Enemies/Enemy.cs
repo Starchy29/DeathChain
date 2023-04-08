@@ -224,14 +224,14 @@ public abstract class Enemy : MonoBehaviour
             if(!IsPlayer) {
                 // become a corpse that can be possessed
                 state = State.Corpse;
-                new Timer(5.0f, false, () => { // despawn corpse after some time
+                Timer.CreateTimer(5.0f, false, () => { // despawn corpse after some time
                     if(state == State.Corpse) { // don't delete if resurrected
                         DeleteThis = true;
                         GameObject corpse = Instantiate(corpseParticle);
                         corpse.transform.position = transform.position;
                     }
                 });
-                new Timer(0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
+                Timer.CreateTimer(0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
                 GetComponent<CircleCollider2D>().enabled = false; // disable collider
 
                 // play death animation
@@ -334,7 +334,7 @@ public abstract class Enemy : MonoBehaviour
         if(duration < 0 || tempSpeed < 0) {
             return;
         }
-        endlag = new Timer(duration, false, () => { maxSpeed = BaseSpeed; });
+        endlag = Timer.CreateTimer(duration, false, () => { maxSpeed = BaseSpeed; });
         maxSpeed = tempSpeed;
     }
 

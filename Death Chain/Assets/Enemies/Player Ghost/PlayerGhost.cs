@@ -72,7 +72,7 @@ public class PlayerGhost : Enemy
     public void Setup(int health) {
         trueHealth = health; // used to override when health is set in Enemy.Start()
         invincible = true;
-        new Timer(1.0f, false, () => { invincible = false; });
+        Timer.CreateTimer(1.0f, false, () => { invincible = false; });
         useUnpossessAnim = true;
     }
 }
