@@ -150,7 +150,19 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6d3c4b54209cd1c4fae1abb483590d43, type: 3}
   - {fileID: 21300000, guid: 7687d776e7708894c942941b0b990d2b, type: 3}
   - {fileID: 21300000, guid: 0b41ac26866ee71449e095009ca04a34, type: 3}
-  deathSprites: []
+  deathSprites:
+  - {fileID: 21300000, guid: 5ed9d22d5029fd44fa1d75a7b8955270, type: 3}
+  - {fileID: 21300000, guid: f7d5fad05e070c844bbdc9e528bc4efa, type: 3}
+  - {fileID: 21300000, guid: 33f251221af016d44bf1c06afde5ae80, type: 3}
+  - {fileID: 21300000, guid: 76ed26cbc40806f4a9a5cf2e1e9c9e69, type: 3}
+  - {fileID: 21300000, guid: 33f251221af016d44bf1c06afde5ae80, type: 3}
+  - {fileID: 21300000, guid: f7d5fad05e070c844bbdc9e528bc4efa, type: 3}
+  - {fileID: 21300000, guid: 5ed9d22d5029fd44fa1d75a7b8955270, type: 3}
+  - {fileID: 21300000, guid: 1a778482976a2ac4b9b01332d0e76a57, type: 3}
+  - {fileID: 21300000, guid: f358ecbb430d9dc4480305590c4d04c1, type: 3}
+  - {fileID: 21300000, guid: d01a42ad00ca4cb498cd4ad01a808092, type: 3}
+  - {fileID: 21300000, guid: 83aacf726ebb07343bed068e245323b1, type: 3}
+  - {fileID: 21300000, guid: ee0842a8bb9ebc54ea0e55dfb6eee35f, type: 3}
   DropPrefab: {fileID: 3854271680072526497, guid: e91ed8bb3fc5cca4d95b5bbe50286442, type: 3}
   PuddlePrefab: {fileID: 7019099923563765831, guid: 2898af95d99162449bfd715f70abded5, type: 3}
   DropCooldown: 1

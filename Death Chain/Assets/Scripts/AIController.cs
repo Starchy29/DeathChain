@@ -113,6 +113,7 @@ public class AIController : Controller
         startup = startupDuration;
     }
 
+    // override the automatic aim towards the target for something else
     public void SetAim(Vector2 direction) {
         specialAim = direction.normalized;
     }

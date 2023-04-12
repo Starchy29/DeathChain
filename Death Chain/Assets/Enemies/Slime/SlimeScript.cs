@@ -14,6 +14,7 @@ public class SlimeScript : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
+        deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
     }
 
     protected override void UpdateAbilities() {

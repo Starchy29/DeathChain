@@ -97,7 +97,6 @@ public class PlayerScript : MonoBehaviour
             }
             else if(PossessReleased()) {
                 // possess
-                decayTimer = Timer.CreateTimer(DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); });
                 GameObject animation = Instantiate(possessParticlePrefab);
                 animation.transform.position = playerCharacter.transform.position;
                 animation.GetComponent<PossessMovement>().Target = closestOption;
@@ -105,9 +104,10 @@ public class PlayerScript : MonoBehaviour
                 if(ghostScript == null) {
                     // leave corpse animation
                     playerCharacter.GetComponent<Enemy>().Unpossess();
+                    decayTimer.Restart(); // already possessing, so there is already a decay timer
                 } else {
-                    // remove player ghost
                     playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
+                    decayTimer = Timer.CreateTimer(DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); }); // start decaying
                 }
 
                 playerCharacter = closestOption;

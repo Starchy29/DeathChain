@@ -29,7 +29,7 @@ public abstract class Enemy : MonoBehaviour
 
     private State state = State.Normal;
     private Rigidbody2D body;
-    private Statuses statuses = new Statuses(); // conveniently track all status effects
+    private Statuses statuses; // conveniently track all status effects
     private float poisonTimer; // tracks when to deal poison damage
     private bool knocked = false; // true means movement is locked as this is being pushed
     private float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
@@ -52,6 +52,7 @@ public abstract class Enemy : MonoBehaviour
 
     void Start()
     {
+        statuses = new Statuses(gameObject);
         health = BaseHealth;
         maxSpeed = BaseSpeed;
         body = GetComponent<Rigidbody2D>();
