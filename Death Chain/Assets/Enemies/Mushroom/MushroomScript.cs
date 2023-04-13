@@ -22,7 +22,7 @@ public class MushroomScript : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
-        teleportAnimation = new Animation(teleportSprites, AnimationType.Forward, 0.2f);
+        teleportAnimation = new Animation(teleportSprites, AnimationType.Forward, 0.3f);
     }
 
     protected override void UpdateAbilities() {

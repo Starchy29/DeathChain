@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class SlimeScript : Enemy
 {
+    [SerializeField] private Sprite[] shootSprites;
     [SerializeField] private GameObject DropPrefab;
     [SerializeField] private GameObject PuddlePrefab;
     [SerializeField] private float DropCooldown;
     [SerializeField] private float PuddleCooldown;
+
+    private Animation shootAnimation;
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Wander, 7.0f);
@@ -15,6 +18,7 @@ public class SlimeScript : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
+        shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
     }
 
     protected override void UpdateAbilities() {
@@ -22,8 +26,8 @@ public class SlimeScript : Enemy
             // use quad shot ability
             cooldowns[0] = DropCooldown;
 
-            //currentAnimation = attackAnimation;
-            //attackAnimation.Reset();
+            currentAnimation = shootAnimation;
+            shootAnimation.Reset();
 
             List<Vector2> fireDirections;
 
@@ -49,8 +53,8 @@ public class SlimeScript : Enemy
             // use lob puddle ability
             cooldowns[1] = PuddleCooldown;
 
-            //currentAnimation = attackAnimation;
-            //attackAnimation.Reset();
+            currentAnimation = shootAnimation;
+            shootAnimation.Reset();
 
             GameObject puddleDrop = Instantiate(PuddlePrefab);
             puddleDrop.transform.position = transform.position;
