@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1521314589877053816}
   - component: {fileID: 1054765064913281527}
   - component: {fileID: -1963226640671201922}
+  - component: {fileID: 8384536613592954998}
   m_Layer: 0
   m_Name: PuddleDrop
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 7019099923563765831}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8554893255213025176}
@@ -75,8 +76,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.38266626, g: 0.14177641, b: 0.4245283, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 28f24288f2753184d9a8e992ae068a24, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -102,6 +103,25 @@ MonoBehaviour:
   gravity: 15
   upVelocity: 5
   LandEffect: {fileID: 3335339259711019590, guid: 3878780e3f6dae24c9d6f8dca4c6b55b, type: 3}
+--- !u!114 &8384536613592954998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7019099923563765831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 894c6e4f4f8e98d4797b1df96bf1dee0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 21300000, guid: 28f24288f2753184d9a8e992ae068a24, type: 3}
+  - {fileID: 21300000, guid: 70f8794a2ea3d5e40b24668a778e272c, type: 3}
+  - {fileID: 21300000, guid: 3f571a4c59454414daa04e287d236ed4, type: 3}
+  - {fileID: 21300000, guid: ff59ef63e20fa6b419bd0b62a4c618c9, type: 3}
+  type: 3
+  duration: 0.4
 --- !u!1 &8786850014027182979
 GameObject:
   m_ObjectHideFlags: 0
