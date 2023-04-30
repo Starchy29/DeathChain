@@ -134,17 +134,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pit
       objectReference: {fileID: 0}
+    - target: {fileID: 2121524132294631827, guid: a4a9dd536acf09b4195971e3d9e11039, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7781473905821425179, guid: a4a9dd536acf09b4195971e3d9e11039, type: 3}
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7781473905821425179, guid: a4a9dd536acf09b4195971e3d9e11039, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.7468
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7781473905821425179, guid: a4a9dd536acf09b4195971e3d9e11039, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.3561
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7781473905821425179, guid: a4a9dd536acf09b4195971e3d9e11039, type: 3}
       propertyPath: m_LocalPosition.x
@@ -376,7 +380,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5845115521941679702, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5845115521941679704, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_RootOrder
@@ -654,11 +658,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061726, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.04
+      value: -6.81
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061726, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.02
+      value: -0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061726, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -712,7 +716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9137999914028891571, guid: 342c6fc474ad36846bc21e4aa18feb87, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9137999914028891581, guid: 342c6fc474ad36846bc21e4aa18feb87, type: 3}
       propertyPath: m_RootOrder

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    private enum State {
+    public enum State {
         Normal,
         Corpse,
         Despawing, // play death animation, then despawn
@@ -34,6 +34,9 @@ public abstract class Enemy : MonoBehaviour
     private bool knocked = false; // true means movement is locked as this is being pushed
     private float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
     private Timer endlag;
+    private float startSize; // assumes width and height are equal
+    private Vector3 positionAfterFall; // for fall in pit mechanic
+
 
     protected int health;
     protected bool isAlly = false; // whether or not this is fighting for the player
@@ -47,6 +50,8 @@ public abstract class Enemy : MonoBehaviour
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
+    public State CurrentState { get { return state; } }
+    public float CollisionRadius { get { return startSize * GetComponent<CircleCollider2D>().radius; } }
     public bool IsCorpse { get { return state == State.Corpse && (deathAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
     public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
 
@@ -55,6 +60,7 @@ public abstract class Enemy : MonoBehaviour
         statuses = new Statuses(gameObject);
         health = BaseHealth;
         maxSpeed = BaseSpeed;
+        startSize = transform.localScale.x;
         body = GetComponent<Rigidbody2D>();
         EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         currentAnimation = idleAnimation;
@@ -106,6 +112,21 @@ public abstract class Enemy : MonoBehaviour
                 break;
 
             case State.Falling:
+                const float DURATION_SECONDS = 1.0f;
+                SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+                float newAlpha = sprite.color.a - DURATION_SECONDS * Time.deltaTime;
+                if(newAlpha <= 0) {
+                    state = State.Normal;
+                    sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1);
+                    transform.localScale = new Vector3(startSize, startSize, 1);
+                    GetComponent<CircleCollider2D>().enabled = true;
+                    transform.position = positionAfterFall;
+                    TakeDamage(1, true);
+                } else {
+                    sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, newAlpha);
+                    float newScale = transform.localScale.x - startSize * (DURATION_SECONDS * 0.7f) * Time.deltaTime;
+                    transform.localScale = new Vector3(newScale, newScale, 1);
+                }
                 break;
 
             case State.Resurrect:
@@ -302,6 +323,27 @@ public abstract class Enemy : MonoBehaviour
         currentAnimation = deathAnimation;
         currentAnimation.ChangeType(AnimationType.Forward);
         body.velocity = Vector2.zero;
+    }
+
+    public void FallInPit(Rect pitArea) {
+        state = State.Falling;
+        GetComponent<CircleCollider2D>().enabled = false;
+
+        // place this back on the ground
+        Vector2 shiftDir = -body.velocity.normalized;
+        float horizontalDistance = (shiftDir.x > 0 ? pitArea.xMax : pitArea.xMin) - transform.position.x;
+        float verticalDistance = (shiftDir.y > 0 ? pitArea.yMax : pitArea.yMin) - transform.position.y;
+        
+        float horiScale = (shiftDir.x != 0 ? horizontalDistance / shiftDir.x : float.MaxValue);
+        float vertScale = (shiftDir.y != 0 ? verticalDistance / shiftDir.y : float.MaxValue);
+
+        float scale = (horiScale < vertScale ? horiScale : vertScale);
+        scale += GetComponent<CircleCollider2D>().radius;
+        positionAfterFall = transform.position + (Vector3)(shiftDir * scale);
+
+        // TODO: account for falling after flying
+
+        body.velocity = Vector3.zero;
     }
 
 // Functions for sub classes

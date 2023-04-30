@@ -17,15 +17,15 @@ public class PitScript : MonoBehaviour
         List<GameObject> enemies = EntityTracker.Instance.Enemies;
         foreach(GameObject enemy in enemies) {
             Vector3 pos = enemy.transform.position;
-            if(!area.Contains(pos)) {
+            if(!area.Contains(pos) || enemy.GetComponent<Enemy>().CurrentState != Enemy.State.Normal) {
                 continue;
             }
 
-            float radius = enemy.GetComponent<CircleCollider2D>().radius;
-            if(pos.x + radius >= area.xMin && pos.x - radius <= area.xMax
-                && pos.y + radius >= area.yMin && pos.y - radius <= area.yMax
+            float radius = enemy.GetComponent<Enemy>().CollisionRadius;
+            if(pos.x - radius >= area.xMin && pos.x + radius <= area.xMax
+                && pos.y - radius >= area.yMin && pos.y + radius <= area.yMax
             ) {
-                Debug.Log(enemy.name + " entered pit");
+                enemy.GetComponent<Enemy>().FallInPit(area);
             }
         }
     }
