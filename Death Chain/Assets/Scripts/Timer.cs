@@ -15,7 +15,7 @@ public class Timer
 
     public static void UpdateAll(float deltaTime) { // must be called once per frame and given the delta time, done in EntityTracker.cs
         for(int i = timers.Count - 1; i >= 0; i--) {
-            if(timers[i].ended) {
+            if(timers[i].done) {
                 timers.RemoveAt(i);
                 continue;
             }
@@ -32,7 +32,7 @@ public class Timer
     private readonly bool repeated; // false: one time use
     private readonly float durationSecs;
     private float secondsLeft;
-    private bool ended; // tells the list to remove this
+    private bool done; // tells the list to remove this
 
     public delegate void Effect();
     private readonly Effect TickEffect;
@@ -54,7 +54,7 @@ public class Timer
             if(repeated) {
                 secondsLeft += durationSecs;
             } else {
-                ended = true;
+                done = true;
             }
         }
     }
@@ -66,7 +66,8 @@ public class Timer
         }
     }
 
+    // used to cancel a one-time timer or stop a repeated timer
     public void End() {
-        ended = true;
+        done = true;
     }
 }

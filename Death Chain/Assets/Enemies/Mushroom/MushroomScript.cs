@@ -17,6 +17,7 @@ public class MushroomScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Still, 6.0f);
+        ((AIController)controller).ReleaseAbility = 1; // ai always instantly use teleport
         sturdy = true;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
@@ -79,13 +80,10 @@ public class MushroomScript : Enemy
             // teleport
             selector = Instantiate(selectorPrefab);
             selector.transform.position = transform.position;
-            cooldowns[1] = 0.5f; // mushroom ai queues teleport twice if there is no cooldown yet
         }
     }
 
     public override void AIUpdate(AIController controller) {
-        controller.ReleaseAbility = 1; // always instantly use teleport
-
         if(cooldowns[1] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 2.0f) {
             // check for a potential warp target
             List<GameObject> enemies = EntityTracker.Instance.Enemies;

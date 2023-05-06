@@ -25,7 +25,6 @@ public abstract class Enemy : MonoBehaviour
     protected Animation idleAnimation;
     protected Animation walkAnimation;
     protected Animation deathAnimation;
-    private bool UsingAbilityAnimation() { return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation && currentAnimation != deathAnimation; }
 
     private State state = State.Normal;
     private Rigidbody2D body;
@@ -36,7 +35,6 @@ public abstract class Enemy : MonoBehaviour
     private Timer endlag;
     private float startSize; // assumes width and height are equal
     private Vector3 positionAfterFall; // for fall in pit mechanic
-
 
     protected int health;
     protected bool isAlly = false; // whether or not this is fighting for the player
@@ -52,7 +50,7 @@ public abstract class Enemy : MonoBehaviour
     public bool IsPlayer { get { return controller is PlayerController; } }
     public State CurrentState { get { return state; } }
     public float CollisionRadius { get { return startSize * GetComponent<CircleCollider2D>().radius; } }
-    public bool IsCorpse { get { return state == State.Corpse && (deathAnimation == null || currentAnimation.Done); } } // prevent possessing during death animation
+    public bool IsCorpse { get { return state == State.Corpse && (deathAnimation == null || currentAnimation.Done); } }
     public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
 
     void Start()
@@ -98,8 +96,10 @@ public abstract class Enemy : MonoBehaviour
                         poisonTimer += 0.5f; // poison tick rate
                         TakeDamage(1, true); // damage per tick
                     }
+                } else {
+                    poisonTimer = 0;
                 }
-
+                
                 // decrease cooldowns
                 for(int i = 0; i < 3; i++) {
                     if(cooldowns[i] > 0) {
@@ -389,5 +389,9 @@ public abstract class Enemy : MonoBehaviour
     protected void EndDash() {
         sturdy = false;
         body.velocity = Vector2.zero;
+    }
+
+    private bool UsingAbilityAnimation() { 
+        return currentAnimation != null && currentAnimation != idleAnimation && currentAnimation != walkAnimation && currentAnimation != deathAnimation;
     }
 }

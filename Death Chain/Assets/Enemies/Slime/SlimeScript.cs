@@ -62,6 +62,7 @@ public class SlimeScript : Enemy
         }
     }
 
+    private bool aiToggle;
     public override void AIUpdate(AIController controller) {
         if(cooldowns[1] <= 0) {
             if(controller.Target == null) {
@@ -79,5 +80,4 @@ public class SlimeScript : Enemy
             controller.QueueAbility(0, 0.5f, 0.4f);
         }
     }
-    private bool aiToggle;
 }
