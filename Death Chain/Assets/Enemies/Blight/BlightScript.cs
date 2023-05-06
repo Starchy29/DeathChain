@@ -33,7 +33,7 @@ public class BlightScript : Enemy
 
     public override void AIUpdate(AIController controller) {
         if(cooldowns[0] <= 0 && controller.GetMoveDirection() == Vector2.zero) {
-            controller.QueueAbility(0, 0.8f);
+            controller.QueueAbility(0, 0.8f, 0.2f);
         }
     }
 

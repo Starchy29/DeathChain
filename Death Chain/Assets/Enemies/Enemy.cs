@@ -338,7 +338,7 @@ public abstract class Enemy : MonoBehaviour
         float vertScale = (shiftDir.y != 0 ? verticalDistance / shiftDir.y : float.MaxValue);
 
         float scale = (horiScale < vertScale ? horiScale : vertScale);
-        scale += GetComponent<CircleCollider2D>().radius;
+        scale += CollisionRadius;
         positionAfterFall = transform.position + (Vector3)(shiftDir * scale);
 
         // TODO: account for falling after flying

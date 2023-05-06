@@ -29,7 +29,6 @@ public class Timer
         timers.Clear();
     }
 
-
     private readonly bool repeated; // false: one time use
     private readonly float durationSecs;
     private float secondsLeft;

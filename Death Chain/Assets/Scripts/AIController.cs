@@ -17,100 +17,65 @@ public class AIController : Controller
     private GameObject target; // the entity this is trying to attack
     private AIMode moveMode;
 
-    private Vector2 startPosition;
     private const float WANDER_RANGE = 4.0f; // how far enemies are allowed to wander from their starting point
-    private float vision; // how far away targets can be seen
-    
-    private Vector2 currentDirection;
-    private float travelTime; // amount of time to travel in the current direction
+    private readonly float vision; // how far away targets can be seen
+    private readonly Vector2 startPosition;
+
+    private Vector2 currentDirection; // optional variable for movement modes that have certain paths
+    private float travelTimer; // amount of time to travel in the current direction
 
     private Vector2 specialAim; // allows enemies to aim in specific directions
     private int queuedAbility = -1; // the attack to use after startup is done
-    public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics
-    private float startup; // pause before using a move
-
+    private bool paused; // temporarily stops this character's movements, i.e. startup or endlag from an attack
+   
+    public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics 
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
-
     public AIMode MoveMode { set { moveMode = value; } }
 
-    public AIController(GameObject controlTarget, AIMode startMode, float vision) : base(controlTarget) {
+    public AIController(GameObject controlTarget, AIMode startMode, float visionRange) : base(controlTarget) {
         moveMode = startMode;
-        this.vision = vision;
+        this.vision = visionRange;
         startPosition = controlTarget.transform.position;
     }
 
     public override void Update() {
-        if(vision > 0) {
-            if(target == null) {
-                // check for a target
-                List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
-                Enemy controlledScript = controlled.GetComponent<Enemy>();
-                foreach(GameObject enemy in enemies) {
-                    Enemy enemyScript = enemy.GetComponent<Enemy>();
-                    if(enemyScript.IsAlly != controlledScript.IsAlly) {
-                        if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= vision) {
-                            target = enemy;
-                            break;
-                        }
-                    }
-                }
-            }
-            else if(!target.activeInHierarchy || GetTargetDistance() > CalcTrackingVision()) { // determine if target is lost
-                target = null;
-            }
-        }
+        CheckVision();
 
-        if(queuedAbility < 0) {
-            // only ask the enemy which ability to use when there is no ability in use
+        if(!paused) {
             controlled.GetComponent<Enemy>().AIUpdate(this);
-        }
-
-        if(startup > 0) {
-            startup -= Time.deltaTime;
-
-            if(moveMode == AIMode.Wander) {
-                travelTime = 0.2f; // when attacking, give a small moment after attacking before moving again
-            }
-            return; // skip movement
-        }
-
-        // handle set movement paths
-        if(moveMode == AIMode.Wander) {
-            travelTime -= Time.deltaTime;
-
-            if(travelTime <= 0) {
-                // alternate between moving in a direction and pausing
-                if(currentDirection == Vector2.zero) {
-                    travelTime += 1.0f;
-
-                    // pick a new direction
-                    Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
-                    random += -currentDirection * 0.5f; // weight it away from the current direction
-                    if(!IgnoreStart) {
-                        // weight random direction towards starting position, not normalized to be weighted more when further away
-                        random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
-                    }
-
-                    currentDirection = random.normalized;
-                } else {
-                    // stay still for a bit
-                    travelTime += 0.7f;
-                    currentDirection = Vector2.zero;
-                }
-
-                travelTime *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
-            }
+            ChooseMovement();
         }
     }
     
-    public void QueueAbility(int ability, float startupDuration = 0) {
+// Functions for Enemy class
+    public void QueueAbility(int ability, float startup = 0, float endlag = 0) {
         if(startup > 0) {
-            return; // prevent queue-ing another move
+            paused = true;
+            Timer.CreateTimer(startup, false, () => {
+                queuedAbility = ability;
+                paused = false;
+                if(endlag > 0) {
+                    paused = true;
+                    Timer.CreateTimer(endlag, false, () => {
+                        paused = false;
+                    });
+                }
+            });
+        } else {
+            queuedAbility = ability;
+            if(endlag > 0) {
+                paused = true;
+                Timer.CreateTimer(endlag, false, () => {
+                    paused = false;
+                });
+            }
         }
 
-        queuedAbility = ability;
-        startup = startupDuration;
+        if(moveMode == AIMode.Wander && currentDirection == Vector2.zero) {
+            // allow movement again right after endlag
+            travelTimer = 0.0f;
+        }
     }
 
     // override the automatic aim towards the target for something else
@@ -118,8 +83,17 @@ public class AIController : Controller
         specialAim = direction.normalized;
     }
 
+    public float GetTargetDistance() {
+        if(target == null) {
+            return -1f;
+        }
+
+        return Vector3.Distance(controlled.transform.position, target.transform.position);
+    }
+
+// Required controller functions
     public override Vector2 GetMoveDirection() {
-        if(startup > 0) {
+        if(paused) {
             return Vector2.zero; // stay still to indicate an oncoming attack
         }
 
@@ -141,10 +115,6 @@ public class AIController : Controller
     }
 
     public override bool AbilityUsed(int ability) {
-        if(startup > 0) {
-            return false;
-        }
-
         if(ability == queuedAbility) {
             queuedAbility = -1;
             return true;
@@ -176,12 +146,68 @@ public class AIController : Controller
         return Vector2.down;
     }
 
-    public float GetTargetDistance() {
-        if(target == null) {
-            return -1f;
+// Private helper functiosn
+    private void CheckVision() {
+        if(vision <= 0) {
+            return;
         }
 
-        return Vector3.Distance(controlled.transform.position, target.transform.position);
+        if(target == null) {
+            // check for a target
+            List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
+            Enemy controlledScript = controlled.GetComponent<Enemy>();
+            foreach(GameObject enemy in enemies) {
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                if(enemyScript.IsAlly != controlledScript.IsAlly) {
+                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= vision) {
+                        target = enemy;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // determine if target is lost
+            const float TRACK_RANGE_BOOST = 2.0f;
+            float currentVision = vision;
+            if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
+                currentVision /= 2;
+            } else {
+                currentVision += TRACK_RANGE_BOOST;
+            }
+
+            if(!target.activeInHierarchy || GetTargetDistance() > currentVision) {
+                target = null;
+            }
+        }
+    }
+
+    private void ChooseMovement() {
+        if(moveMode == AIMode.Wander) {
+            travelTimer -= Time.deltaTime;
+
+            if(travelTimer <= 0) {
+                // alternate between moving in a direction and pausing
+                if(currentDirection == Vector2.zero) {
+                    travelTimer += 1.0f;
+
+                    // pick a new direction
+                    Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
+                    random += -currentDirection * 0.5f; // weight it away from the current direction
+                    if(!IgnoreStart) {
+                        // weight random direction towards starting position, not normalized to be weighted more when further away
+                        random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
+                    }
+
+                    currentDirection = random.normalized;
+                } else {
+                    // stay still for a bit
+                    travelTimer += 0.7f;
+                    currentDirection = Vector2.zero;
+                }
+
+                travelTimer *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
+            }
+        }
     }
 
     // returns the unit vector towards the target, zero vector if no target
@@ -191,14 +217,5 @@ public class AIController : Controller
         }
 
         return (target.transform.position - controlled.transform.position).normalized;
-    }
-
-    // determines the vision range when currently targetting
-    private float CalcTrackingVision() {
-        if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
-            return vision / 2.0f;
-        }
-
-        return vision + 2.0f; 
     }
 }
