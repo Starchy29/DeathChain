@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// provides a list of all enemies so certain mechanics can check for all enemies in the area
+// provides a list of all enemies and walls so certain mechanics can check for all entities in the area
 public class EntityTracker : MonoBehaviour
 {
     public GameObject[] statusParticlePrefabs; // order should match enum order
@@ -13,15 +13,24 @@ public class EntityTracker : MonoBehaviour
     private List<GameObject> enemies;
     public List<GameObject> Enemies { get { return enemies; } } // other classes should not modify this list
 
-    // needs to happen before Enemy Start() is called
+    private List<GameObject> obstacles; // walls, borders, pits
+    public List<GameObject> Obstacles { get { return obstacles; } } // obstacles can remove themselves from this if they need to
+
+    // needs to happen before Enemy.cs Start()  and WallScript.cs Start() is called
     void Awake()
     {
         enemies = new List<GameObject>();
+        obstacles = new List<GameObject>();
+
         instance = this;
     }
 
     public void AddEnemy(GameObject enemy) {
         enemies.Add(enemy);
+    }
+
+    public void AddObstacle(GameObject obstacle) {
+        obstacles.Add(obstacle);
     }
 
     void Update()

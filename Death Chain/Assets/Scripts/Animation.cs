@@ -18,6 +18,7 @@ public class Animation
     private Sprite[] sprites;
     private AnimationType type;
     private float frameTime; // time spent on each frame
+    private float duration;
 
     private float timer;
     private int frame; // the current frame of the animation, an index of the sprites array
@@ -26,9 +27,11 @@ public class Animation
 
     public bool Done { get; private set; } // tells other classes when this animation has finished
     public Event OnComplete { get; set; }
+    public float Duration { get { return duration; } }
 
     // duration is the time spent from one end of the sprites array to the other
     public Animation(Sprite[] sprites, AnimationType type, float duration) {
+        this.duration = duration;
         this.sprites = sprites;
         this.type = type;
         frameTime = duration / sprites.Length;

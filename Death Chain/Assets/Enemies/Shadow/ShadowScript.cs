@@ -18,7 +18,7 @@ public class ShadowScript : Enemy
             if(currentSlash.GetComponent<MeleeSwipe>().Finished) {
                 Destroy(currentSlash);
                 currentSlash = null;
-                EndDash();
+                //EndDash();
             }
 
             return;
@@ -30,7 +30,7 @@ public class ShadowScript : Enemy
             currentSlash = CreateAttack(SlashPrefab);
             Vector2 aim = controller.GetAimDirection();
             currentSlash.GetComponent<MeleeSwipe>().SetAim(aim, true);
-            Dash(aim * 12);
+            //Dash(aim * 12);
         }
     }
 

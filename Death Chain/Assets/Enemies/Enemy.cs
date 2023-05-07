@@ -39,6 +39,7 @@ public abstract class Enemy : MonoBehaviour
     protected int health;
     protected bool isAlly = false; // whether or not this is fighting for the player
     protected bool sturdy = false; // true means this enemy cannot receive knockback
+    protected bool floating = false; // floating enemies can walk over pits
     protected bool invincible; // some abilities need temporary invincibility
     protected Controller controller;
     protected float[] cooldowns = new float[3];
@@ -48,6 +49,7 @@ public abstract class Enemy : MonoBehaviour
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
+    public bool Floating { get { return floating; } }
     public State CurrentState { get { return state; } }
     public float CollisionRadius { get { return startSize * GetComponent<CircleCollider2D>().radius; } }
     public bool IsCorpse { get { return state == State.Corpse && (deathAnimation == null || currentAnimation.Done); } }
@@ -325,25 +327,33 @@ public abstract class Enemy : MonoBehaviour
         body.velocity = Vector2.zero;
     }
 
-    public void FallInPit(Rect pitArea) {
+    public void FallInPit(PitScript pit) {
         state = State.Falling;
         GetComponent<CircleCollider2D>().enabled = false;
 
         // place this back on the ground
-        Vector2 shiftDir = -body.velocity.normalized;
-        float horizontalDistance = (shiftDir.x > 0 ? pitArea.xMax : pitArea.xMin) - transform.position.x;
-        float verticalDistance = (shiftDir.y > 0 ? pitArea.yMax : pitArea.yMin) - transform.position.y;
-        
+        Vector2 backwards = -body.velocity.normalized;
+        Vector2 awayFromMiddle = (transform.position - (Vector3)pit.Area.center).normalized;
+        body.velocity = Vector3.zero;
+
+        Vector2 shiftDir = Vector2.zero;
+        if(Vector3.Dot(backwards, awayFromMiddle) > 0) {
+            // go backwards if it would be away from the center
+             shiftDir = backwards;
+        } else {
+            // if not backtracking, determine the best spot to position this character
+            shiftDir = awayFromMiddle;
+        }
+
+        float horizontalDistance = (shiftDir.x > 0 ? pit.Area.xMax : pit.Area.xMin) - transform.position.x;
+        float verticalDistance = (shiftDir.y > 0 ? pit.Area.yMax : pit.Area.yMin) - transform.position.y;
+
         float horiScale = (shiftDir.x != 0 ? horizontalDistance / shiftDir.x : float.MaxValue);
         float vertScale = (shiftDir.y != 0 ? verticalDistance / shiftDir.y : float.MaxValue);
 
-        float scale = (horiScale < vertScale ? horiScale : vertScale);
+        float scale = Mathf.Min(horiScale, vertScale);
         scale += CollisionRadius;
-        positionAfterFall = transform.position + (Vector3)(shiftDir * scale);
-
-        // TODO: account for falling after flying
-
-        body.velocity = Vector3.zero;
+        positionAfterFall = transform.position + (Vector3)(backwards * scale);
     }
 
 // Functions for sub classes
@@ -381,14 +391,17 @@ public abstract class Enemy : MonoBehaviour
         maxSpeed = tempSpeed;
     }
 
-    protected void Dash(Vector2 velocity) {
+    protected void Dash(Vector2 velocity, float duration) {
+        if(duration <= 0) {
+            return;
+        }
+
         body.velocity = velocity;
         sturdy = true;
-    }
-
-    protected void EndDash() {
-        sturdy = false;
-        body.velocity = Vector2.zero;
+        Timer.CreateTimer(duration, false, () => {
+            sturdy = false;
+            body.velocity = Vector2.zero;
+        });
     }
 
     private bool UsingAbilityAnimation() { 

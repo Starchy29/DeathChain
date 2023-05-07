@@ -17,6 +17,8 @@ public class BlightScript : Enemy
         walkAnimation = new Animation(walkSprites, AnimationType.Oscillate, 0.4f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
         attackAnimation = new Animation(attackSprites, AnimationType.Rebound, 0.1f);
+
+        //floating = true;
     }
 
     protected override void UpdateAbilities() {
