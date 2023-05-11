@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6466339707796685781}
   - component: {fileID: 6466339707796685779}
   - component: {fileID: -7655887183399200721}
-  - component: {fileID: 6211017368147358155}
+  - component: {fileID: 1377030282642484947}
   m_Layer: 12
   m_Name: BorderWall
   m_TagString: Untagged
@@ -134,7 +134,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!114 &6211017368147358155
+--- !u!114 &1377030282642484947
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,6 +143,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 6466339707796685780}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e06cf9a40614773439122607c2dc217e, type: 3}
+  m_Script: {fileID: 11500000, guid: 9ed286d015f293943bcc1b8cf785e592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

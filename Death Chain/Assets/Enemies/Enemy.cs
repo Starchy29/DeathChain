@@ -160,7 +160,7 @@ public abstract class Enemy : MonoBehaviour
         // apply friction
         const float FRICTION = 20;
         if(body.velocity != Vector2.zero) {
-            Vector2 friction = -body.velocity.normalized * Time.deltaTime * FRICTION;
+            Vector2 friction =  Time.deltaTime * -FRICTION * body.velocity.normalized;
             body.velocity += friction;
             
             // check if friction made this start moving backwards
@@ -191,7 +191,7 @@ public abstract class Enemy : MonoBehaviour
         }
 
         const float ACCEL = 80;
-        body.velocity += moveDirection * Time.deltaTime * ACCEL;
+        body.velocity +=  Time.deltaTime * ACCEL * moveDirection;
             
         // cap speed
         if(body.velocity.sqrMagnitude > currentMaxSpeed * currentMaxSpeed) {
@@ -327,16 +327,16 @@ public abstract class Enemy : MonoBehaviour
         body.velocity = Vector2.zero;
     }
 
-    public void FallInPit(PitScript pit) {
+    public void FallInPit(Rect area) {
         state = State.Falling;
         GetComponent<CircleCollider2D>().enabled = false;
 
         // place this back on the ground
         Vector2 backwards = -body.velocity.normalized;
-        Vector2 awayFromMiddle = (transform.position - (Vector3)pit.Area.center).normalized;
+        Vector2 awayFromMiddle = (transform.position - (Vector3)area.center).normalized;
         body.velocity = Vector3.zero;
 
-        Vector2 shiftDir = Vector2.zero;
+        Vector2 shiftDir;
         if(Vector3.Dot(backwards, awayFromMiddle) > 0) {
             // go backwards if it would be away from the center
              shiftDir = backwards;
@@ -345,8 +345,8 @@ public abstract class Enemy : MonoBehaviour
             shiftDir = awayFromMiddle;
         }
 
-        float horizontalDistance = (shiftDir.x > 0 ? pit.Area.xMax : pit.Area.xMin) - transform.position.x;
-        float verticalDistance = (shiftDir.y > 0 ? pit.Area.yMax : pit.Area.yMin) - transform.position.y;
+        float horizontalDistance = (shiftDir.x > 0 ? area.xMax : area.xMin) - transform.position.x;
+        float verticalDistance = (shiftDir.y > 0 ? area.yMax : area.yMin) - transform.position.y;
 
         float horiScale = (shiftDir.x != 0 ? horizontalDistance / shiftDir.x : float.MaxValue);
         float vertScale = (shiftDir.y != 0 ? verticalDistance / shiftDir.y : float.MaxValue);
@@ -374,9 +374,9 @@ public abstract class Enemy : MonoBehaviour
         Attack script = attack.GetComponent<Attack>();
         script.User = gameObject;
 
-        if(script is Projectile) {
+        if(script is Projectile projectileScript) {
             // for projectiles, default aim to the controller's aim
-            ((Projectile)script).SetDirection(controller.GetAimDirection());
+            projectileScript.SetDirection(controller.GetAimDirection());
         }
 
         return attack;

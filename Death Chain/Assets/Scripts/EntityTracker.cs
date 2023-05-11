@@ -13,14 +13,14 @@ public class EntityTracker : MonoBehaviour
     private List<GameObject> enemies;
     public List<GameObject> Enemies { get { return enemies; } } // other classes should not modify this list
 
-    private List<GameObject> obstacles; // walls, borders, pits
-    public List<GameObject> Obstacles { get { return obstacles; } } // obstacles can remove themselves from this if they need to
+    //private List<GameObject> obstacles; // walls, borders, pits
+    //public List<GameObject> Obstacles { get { return obstacles; } } // obstacles can remove themselves from this if they need to
 
     // needs to happen before Enemy.cs Start()  and WallScript.cs Start() is called
     void Awake()
     {
         enemies = new List<GameObject>();
-        obstacles = new List<GameObject>();
+        //obstacles = new List<GameObject>();
 
         instance = this;
     }
@@ -29,9 +29,9 @@ public class EntityTracker : MonoBehaviour
         enemies.Add(enemy);
     }
 
-    public void AddObstacle(GameObject obstacle) {
-        obstacles.Add(obstacle);
-    }
+    //public void AddObstacle(GameObject obstacle) {
+    //    obstacles.Add(obstacle);
+    //}
 
     void Update()
     {

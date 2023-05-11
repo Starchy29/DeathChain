@@ -10,6 +10,9 @@ public class WallOrPitScript : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("wall or pit script needs to be updated for new pits still");
+        return;
+
         GameObject obstacle = Instantiate(Random.Range(0, 2) == 0 ? wallPrefab : pitPrefab);
         obstacle.transform.position = transform.position;
         obstacle.transform.localScale = transform.localScale;
