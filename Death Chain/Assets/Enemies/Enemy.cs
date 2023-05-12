@@ -327,33 +327,11 @@ public abstract class Enemy : MonoBehaviour
         body.velocity = Vector2.zero;
     }
 
-    public void FallInPit(Rect area) {
+    public void FallInPit(Vector3 positionAfterFall) {
         state = State.Falling;
         GetComponent<CircleCollider2D>().enabled = false;
-
-        // place this back on the ground
-        Vector2 backwards = -body.velocity.normalized;
-        Vector2 awayFromMiddle = (transform.position - (Vector3)area.center).normalized;
         body.velocity = Vector3.zero;
-
-        Vector2 shiftDir;
-        if(Vector3.Dot(backwards, awayFromMiddle) > 0) {
-            // go backwards if it would be away from the center
-             shiftDir = backwards;
-        } else {
-            // if not backtracking, determine the best spot to position this character
-            shiftDir = awayFromMiddle;
-        }
-
-        float horizontalDistance = (shiftDir.x > 0 ? area.xMax : area.xMin) - transform.position.x;
-        float verticalDistance = (shiftDir.y > 0 ? area.yMax : area.yMin) - transform.position.y;
-
-        float horiScale = (shiftDir.x != 0 ? horizontalDistance / shiftDir.x : float.MaxValue);
-        float vertScale = (shiftDir.y != 0 ? verticalDistance / shiftDir.y : float.MaxValue);
-
-        float scale = Mathf.Min(horiScale, vertScale);
-        scale += CollisionRadius;
-        positionAfterFall = transform.position + (Vector3)(backwards * scale);
+        this.positionAfterFall = positionAfterFall;
     }
 
 // Functions for sub classes

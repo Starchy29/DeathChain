@@ -11,9 +11,11 @@ public class PitScript : MonoBehaviour
     private void Start()
     {
         // these should be the values in the empty parent game object. There will be visible differences if it is set up incorrectly in the inspector
-        transform.position = new Vector3(0, 0, 0);
-        transform.localScale = new Vector3(1, 1, 1);
-        transform.rotation = Quaternion.Euler(0, 0, 0);
+        if(transform.position != Vector3.zero || transform.localScale != Vector3.one) {
+            transform.position = new Vector3(0, 0, 0);
+            transform.localScale = new Vector3(1, 1, 1);
+            Debug.Log("improperly changed the transform of the empty parent of a pit");
+        }
 
         zones = new List<Rect>();
 
@@ -22,7 +24,7 @@ public class PitScript : MonoBehaviour
             Transform rectTransform = transform.GetChild(i);
             Vector2 center = rectTransform.position;
             Vector2 dims = rectTransform.localScale; // requires parent scale (1, 1, 1)
-            zones.Add(new Rect(center - dims / 2, dims));
+            zones.Add(new Rect(center - dims/2, dims));
         }
 
         // add rectangles that overlap edges to prevent characters from walking across
@@ -116,15 +118,58 @@ public class PitScript : MonoBehaviour
                 continue;
             }
 
+            // determine if the enemy is inside this pit
+            bool inPit = false;
             Vector3 pos = enemy.transform.position;
             float radius = enemy.GetComponent<Enemy>().CollisionRadius;
             Rect hitbox = new Rect(pos.x - radius, pos.y - radius, 2 * radius, 2 * radius);
             foreach(Rect zone in zones) {
                 if(zone.Contains(hitbox)) {
-                    enemyScript.FallInPit(zone);
+                    inPit = true;
                     break;
                 }
             }
+
+            // determine where to place the enemy back on land
+            if(!inPit) {
+                continue;
+            }
+
+            foreach(Rect zone in zones) {
+                if(!zone.Overlaps(hitbox)) {
+                    continue;
+                }
+
+                float left = zone.xMin - radius;
+                float right = zone.xMax + radius;
+                float top = zone.yMax + radius;
+                float bottom = zone.yMin - radius;
+
+                float closerX;
+                if(Mathf.Abs(hitbox.center.x - left) < Mathf.Abs(hitbox.center.x - right)) {
+                    closerX = left;
+                } else {
+                    closerX = right;
+                }
+
+                float closerY;
+                if(Mathf.Abs(hitbox.center.y - top) < Mathf.Abs(hitbox.center.y - bottom)) {
+                    closerY = top;
+                } else {
+                    closerY = bottom;
+                }
+
+                Vector2 newPos;
+                if(Mathf.Abs(hitbox.center.x - closerX) < Mathf.Abs(hitbox.center.y - closerY)) {
+                    newPos = new Vector2(closerX, hitbox.center.y);
+                } else {
+                    newPos = new Vector2(hitbox.center.x, closerY);
+                }
+
+                hitbox = new Rect(newPos.x - radius, newPos.y - radius, 2 * radius, 2 * radius);
+            }
+
+            enemyScript.FallInPit(hitbox.center);
         }
     }
 }

@@ -21,7 +21,7 @@ public class Projectile : Attack
 
         distance += displacement.magnitude;
         if(distance >= range) {
-            Delete();
+            End();
         }
     }
 
@@ -35,14 +35,14 @@ public class Projectile : Attack
     }
 
     protected override void OnEnemyCollision(Enemy hitEnemy) {
-        Delete();
+        End();
     }
 
     protected override void OnWallCollision(GameObject hitWall) {
-        Delete();
+        End();
     }
 
-    protected void Delete() {
+    protected void End() {
         if(destroyParticle) {
             GameObject particle = Instantiate(destroyParticle);
             particle.transform.position = transform.position;
