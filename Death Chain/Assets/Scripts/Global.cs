@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Direction {
+    None,
+    Up,
+    Down,
+    Left,
+    Right
+}
+
 // a class for utility code that belongs nowhere else
 public static class Global
 {

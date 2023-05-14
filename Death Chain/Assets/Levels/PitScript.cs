@@ -69,48 +69,7 @@ public class PitScript : MonoBehaviour
 
     void Update()
     {
-        // check which sides are blocked after all obstacles have loaded in
-        //blockChecked = true;
-        //if(!blockChecked) {
-        //    blockChecked = true;
-        //    Debug.Log(EntityTracker.Instance.Obstacles.Count);
-
-        //    // create a rectangle on each side to check for intersection
-        //    const float CHECK_WIDTH = 1.0f;
-        //    Rect top = new Rect(area.yMax + CHECK_WIDTH, area.xMin, area.width, CHECK_WIDTH);
-        //    Rect bottom = new Rect(area.yMin, area.xMin, area.width, CHECK_WIDTH);
-        //    Rect left = new Rect(area.xMin - CHECK_WIDTH, area.yMax, CHECK_WIDTH, area.height);
-        //    Rect right = new Rect(area.xMax, area.yMax, CHECK_WIDTH, area.height);
-
-        //    // find which sides are blocked
-        //    foreach(GameObject obstacle in EntityTracker.Instance.Obstacles) {
-        //        Rect checkArea = obstacle.GetComponent<ObstacleScript>().Area;
-        //        if(top.Overlaps(checkArea)) {
-        //            blockedUp = true;
-        //            Debug.Log("up is blocked");
-        //        }
-        //        if(bottom.Overlaps(checkArea)) {
-        //            blockedDown = true;
-        //            Debug.Log("down is blocked");
-        //        }
-        //        if(left.Overlaps(checkArea)) {
-        //            blockedLeft = true;
-        //            Debug.Log("left is blocked");
-        //        }
-        //        if(right.Overlaps(checkArea)) {
-        //            blockedRight = true;
-        //            Debug.Log("right is blocked");
-        //        }
-        //    }
-            
-        //    // if all edges are blocked, remove this pit
-        //    if(blockedRight && blockedLeft && blockedUp && blockedDown) {
-        //        EntityTracker.Instance.Obstacles.Remove(gameObject);
-        //        Destroy(gameObject);
-        //        Debug.Log("Deleted a pit because it was blocked on all sides");
-        //    }
-        //}
-
+        // check each enemy to see if it should fall in this pit
         List<GameObject> enemies = EntityTracker.Instance.Enemies;
         foreach(GameObject enemy in enemies) {
             Enemy enemyScript = enemy.GetComponent<Enemy>();
@@ -122,7 +81,7 @@ public class PitScript : MonoBehaviour
             bool inPit = false;
             Vector3 pos = enemy.transform.position;
             float radius = enemy.GetComponent<Enemy>().CollisionRadius;
-            Rect hitbox = new Rect(pos.x - radius, pos.y - radius, 2 * radius, 2 * radius);
+            Rect hitbox = new Rect(pos.x - radius, pos.y - radius, 2*radius, 2*radius);
             foreach(Rect zone in zones) {
                 if(zone.Contains(hitbox)) {
                     inPit = true;
@@ -130,46 +89,99 @@ public class PitScript : MonoBehaviour
                 }
             }
 
-            // determine where to place the enemy back on land
             if(!inPit) {
                 continue;
             }
 
+            // determine where to place the enemy back on land
             foreach(Rect zone in zones) {
                 if(!zone.Overlaps(hitbox)) {
                     continue;
                 }
 
-                float left = zone.xMin - radius;
-                float right = zone.xMax + radius;
-                float top = zone.yMax + radius;
-                float bottom = zone.yMin - radius;
+                // try shifting the character in a cardinal direction
+                Vector2 left = new Vector2(zone.xMin - radius, hitbox.center.y);
+                Vector2 right = new Vector2(zone.xMax + radius, hitbox.center.y);
+                Vector2 top = new Vector2(hitbox.center.x, zone.yMax + radius);
+                Vector2 bottom = new Vector2(hitbox.center.x, zone.yMin - radius);
+                Vector2[] standardSpots = new Vector2[4] { left, right, top, bottom };
 
-                float closerX;
-                if(Mathf.Abs(hitbox.center.x - left) < Mathf.Abs(hitbox.center.x - right)) {
-                    closerX = left;
-                } else {
-                    closerX = right;
+                // if an edge spot would place the character in a wall, find a spot next to the wall to place it
+                List<Vector2> potentialSpots = new List<Vector2>();
+                foreach(Vector2 edgeSpot in standardSpots) {
+                    Rect testBox = new Rect(edgeSpot.x - radius, edgeSpot.y - radius, 2*radius, 2*radius);
+                    bool horizontalSpot = (edgeSpot - hitbox.center).x != 0; // false: above or below
+
+                    Rect lesserRect = testBox;
+                    bool intersectsWall = true;
+                    while(intersectsWall) {
+                        intersectsWall = false;
+                        Rect? intersectingWall = FindIntersectingWall(lesserRect);
+                        if(intersectingWall.HasValue) {
+                            intersectsWall = true;
+                            if(horizontalSpot) {
+                                lesserRect.center = new Vector2(lesserRect.center.x, intersectingWall.Value.yMin - radius - 0.001f);
+                            } else {
+                                lesserRect.center = new Vector2(intersectingWall.Value.xMin - radius - 0.001f, lesserRect.center.y);
+                            }
+                        }
+                    }
+
+                    Rect greaterRect = testBox;
+                    intersectsWall = true;
+                    while(intersectsWall) {
+                        intersectsWall = false;
+                        Rect? intersectingWall = FindIntersectingWall(greaterRect);
+                        if(intersectingWall.HasValue) {
+                            intersectsWall = true;
+                            if(horizontalSpot) {
+                                greaterRect.center = new Vector2(greaterRect.center.x, intersectingWall.Value.yMax + radius + 0.001f);
+                            } else {
+                                greaterRect.center = new Vector2(intersectingWall.Value.xMax + radius + 0.001f, greaterRect.center.y);
+                            }
+                        }
+                    }
+
+                    // don't use spots over this pit
+                    bool lesserOverPit = false;
+                    bool greaterOverPit = false;
+                    foreach(Rect pitArea in zones) {
+                        if(pitArea.Contains(lesserRect.center)) {
+                            lesserOverPit = true;
+                        }
+                        if(pitArea.Contains(greaterRect.center)) {
+                            greaterOverPit = true;
+                        }
+                    }
+                    if(!lesserOverPit) {
+                        potentialSpots.Add(lesserRect.center);
+                    }
+                    if(!greaterOverPit && lesserRect.center != greaterRect.center) {
+                        potentialSpots.Add(greaterRect.center);
+                    }
                 }
 
-                float closerY;
-                if(Mathf.Abs(hitbox.center.y - top) < Mathf.Abs(hitbox.center.y - bottom)) {
-                    closerY = top;
-                } else {
-                    closerY = bottom;
-                }
-
-                Vector2 newPos;
-                if(Mathf.Abs(hitbox.center.x - closerX) < Mathf.Abs(hitbox.center.y - closerY)) {
-                    newPos = new Vector2(closerX, hitbox.center.y);
-                } else {
-                    newPos = new Vector2(hitbox.center.x, closerY);
-                }
-
-                hitbox = new Rect(newPos.x - radius, newPos.y - radius, 2 * radius, 2 * radius);
+                // find the closest spot of all valid locations
+                potentialSpots.Sort((Vector2 first, Vector2 last) => {
+                    float distanceComparison = Vector2.Distance(first, hitbox.center) - Vector2.Distance(last, hitbox.center);
+                    return (int)(distanceComparison * 100); // multiply by 100 for accurate comparison even with int cast
+                });
+                Vector2 bestSpot = potentialSpots[0];
+                hitbox = new Rect(bestSpot.x - radius, bestSpot.y - radius, 2*radius, 2*radius);
             }
 
             enemyScript.FallInPit(hitbox.center);
         }
+    }
+
+    private Rect? FindIntersectingWall(Rect testBox) {
+        foreach(GameObject wall in EntityTracker.Instance.Walls) {
+            Rect wallArea = wall.GetComponent<WallScript>().Area;
+            if(wallArea.Overlaps(testBox)) {
+                return wallArea;
+            }
+        }
+
+        return null;
     }
 }

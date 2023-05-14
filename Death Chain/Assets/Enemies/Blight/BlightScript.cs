@@ -19,7 +19,6 @@ public class BlightScript : Enemy
         attackAnimation = new Animation(attackSprites, AnimationType.Rebound, 0.1f);
 
         floating = true;
-        ApplyStatus(Status.Speed);
     }
 
     protected override void UpdateAbilities() {

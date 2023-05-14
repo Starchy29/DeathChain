@@ -230,7 +230,6 @@ public abstract class Enemy : MonoBehaviour
         }
 
         health -= amount;
-        Debug.Log(health); // please remember to delete this
         if(!ignoreStatus) {
             GameObject hitEffect = Instantiate(hitParticle, transform);
             hitEffect.transform.localScale = new Vector3(1.25f / transform.localScale.x, 1.25f / transform.localScale.y, 1);
