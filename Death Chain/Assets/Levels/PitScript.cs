@@ -2,69 +2,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// should be attached to an empty game object whose children are all squares. The squares together define the area of the pit. Empty must have scale (1, 1, 1)
+// attached to an object with a simple 1x1 square sprite. Automatically combines with other pits
 public class PitScript : MonoBehaviour
 {
     private List<Rect> zones;
     private const float EDGE_BUFFER = 0.5f; // edges might not line up exactly. As long as they are this distance from each other, they are considered lining up 
 
-    private void Start()
+    void Start()
     {
-        // these should be the values in the empty parent game object. There will be visible differences if it is set up incorrectly in the inspector
-        if(transform.position != Vector3.zero || transform.localScale != Vector3.one) {
-            transform.position = new Vector3(0, 0, 0);
-            transform.localScale = new Vector3(1, 1, 1);
-            Debug.Log("improperly changed the transform of the empty parent of a pit");
-        }
-
+        // check existing pits to see if this should join with them
+        Vector2 center = transform.position;
+        Vector2 dims = transform.localScale;
+        Rect zone = new Rect(center - dims/2, dims);
         zones = new List<Rect>();
+        zones.Add(zone);
 
-        // create rectangles from child squares
-        for(int i = 0; i < transform.childCount; i++) {
-            Transform rectTransform = transform.GetChild(i);
-            Vector2 center = rectTransform.position;
-            Vector2 dims = rectTransform.localScale; // requires parent scale (1, 1, 1)
-            zones.Add(new Rect(center - dims/2, dims));
-        }
-
-        // add rectangles that overlap edges to prevent characters from walking across
-        List<Rect> additionalZones = new List<Rect>();
-        for(int i = 0; i < zones.Count; i++) {
-            for(int j = i + 1; j < zones.Count; j++) {
-                // check if rects have a shared edge
-                if(Mathf.Abs(zones[i].xMin - zones[j].xMax) <= EDGE_BUFFER || Mathf.Abs(zones[i].xMax - zones[j].xMin) <= EDGE_BUFFER) {
-                    // add overlapping rectangle
-                    float leftEdge = Mathf.Min(zones[i].xMin, zones[j].xMin);
-                    float rightEdge = Mathf.Max(zones[i].xMax, zones[j].xMax);
-                    float topEdge = Mathf.Min(zones[i].yMax, zones[j].yMax);
-                    float bottomEdge = Mathf.Max(zones[i].yMin, zones[j].yMin);
-                    additionalZones.Add(new Rect(leftEdge, bottomEdge, rightEdge - leftEdge, topEdge - bottomEdge));
-                }
-                else if(Mathf.Abs(zones[i].yMin - zones[j].yMax) <= EDGE_BUFFER || Mathf.Abs(zones[i].yMax - zones[j].yMin) <= EDGE_BUFFER) {
-                    // add overlapping rectangle
-                    float topEdge = Mathf.Max(zones[i].yMax, zones[j].yMax);
-                    float bottomEdge = Mathf.Min(zones[i].yMin, zones[j].yMin);
-                    float leftEdge = Mathf.Max(zones[i].xMin, zones[j].xMin);
-                    float rightEdge = Mathf.Min(zones[i].xMax, zones[j].xMax);
-                    additionalZones.Add(new Rect(leftEdge, bottomEdge, rightEdge - leftEdge, topEdge - bottomEdge));
-                }
-            }
-        }
-        zones.AddRange(additionalZones);
-
-        // remove any rectangles that are wholly contained by another
-        for(int i = zones.Count - 1; i >= 0; i--) {
-            for(int j = i - 1; j >= 0; j--) {
-                if(zones[j].Contains(zones[i])) {
-                    zones.RemoveAt(i);
+        List<PitScript> joinedPits = new List<PitScript>();
+        Rect joinBox = zone.MakeExpanded(EDGE_BUFFER);
+        foreach(PitScript existingPit in EntityTracker.Instance.Pits) {
+            foreach(Rect existingZone in existingPit.zones) {
+                if(existingZone.Overlaps(joinBox)) {
+                    joinedPits.Add(existingPit);
+                    Debug.Log("i am joining with another pit");
                     break;
                 }
-                if(zones[i].Contains(zones[j])) {
-                    zones.RemoveAt(j);
-                    i--;
-                }
             }
         }
+
+        // add all zones from the adjacent pits to this one
+        foreach(PitScript joiningPit in joinedPits) {
+            foreach(Rect addZone in joiningPit.zones) {
+                zones.Add(addZone);
+            }
+            EntityTracker.Instance.Pits.Remove(joiningPit);
+            Destroy(joiningPit); // TEMP: destroy this script but keep the square around
+        }
+
+        EntityTracker.Instance.Pits.Add(this);
+        ModifyZones();
     }
 
     void Update()
@@ -153,15 +128,17 @@ public class PitScript : MonoBehaviour
                         }
                     }
 
-                    // don't use spots over this pit
+                    // don't allow walls to shift back over this pit
                     bool lesserOverPit = false;
                     bool greaterOverPit = false;
-                    foreach(Rect pitArea in zones) {
-                        if(pitArea.Contains(lesserRect.center)) {
-                            lesserOverPit = true;
-                        }
-                        if(pitArea.Contains(greaterRect.center)) {
-                            greaterOverPit = true;
+                    if(lesserRect.center != edgeSpot || greaterRect.center != edgeSpot) {
+                        foreach(Rect pitArea in zones) {
+                            if(pitArea.Contains(lesserRect.center)) {
+                                lesserOverPit = true;
+                            }
+                            if(pitArea.Contains(greaterRect.center)) {
+                                greaterOverPit = true;
+                            }
                         }
                     }
                     if(!lesserOverPit) {
@@ -194,5 +171,48 @@ public class PitScript : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void ModifyZones() {
+        // add rectangles that overlap edges to prevent characters from walking across
+        List<Rect> additionalZones = new List<Rect>();
+        for(int i = 0; i < zones.Count; i++) {
+            for(int j = i + 1; j < zones.Count; j++) {
+                // check if rects have a shared edge
+                if(Mathf.Abs(zones[i].xMin - zones[j].xMax) <= EDGE_BUFFER || Mathf.Abs(zones[i].xMax - zones[j].xMin) <= EDGE_BUFFER) {
+                    // add overlapping rectangle
+                    float leftEdge = Mathf.Min(zones[i].xMin, zones[j].xMin);
+                    float rightEdge = Mathf.Max(zones[i].xMax, zones[j].xMax);
+                    float topEdge = Mathf.Min(zones[i].yMax, zones[j].yMax);
+                    float bottomEdge = Mathf.Max(zones[i].yMin, zones[j].yMin);
+                    additionalZones.Add(new Rect(leftEdge, bottomEdge, rightEdge - leftEdge, topEdge - bottomEdge));
+                }
+                else if(Mathf.Abs(zones[i].yMin - zones[j].yMax) <= EDGE_BUFFER || Mathf.Abs(zones[i].yMax - zones[j].yMin) <= EDGE_BUFFER) {
+                    // add overlapping rectangle
+                    float topEdge = Mathf.Max(zones[i].yMax, zones[j].yMax);
+                    float bottomEdge = Mathf.Min(zones[i].yMin, zones[j].yMin);
+                    float leftEdge = Mathf.Max(zones[i].xMin, zones[j].xMin);
+                    float rightEdge = Mathf.Min(zones[i].xMax, zones[j].xMax);
+                    additionalZones.Add(new Rect(leftEdge, bottomEdge, rightEdge - leftEdge, topEdge - bottomEdge));
+                }
+            }
+        }
+        zones.AddRange(additionalZones);
+
+        // remove any rectangles that are wholly contained by another
+        for(int i = zones.Count - 1; i >= 0; i--) {
+            for(int j = i - 1; j >= 0; j--) {
+                if(zones[j].Contains(zones[i])) {
+                    zones.RemoveAt(i);
+                    break;
+                }
+                if(zones[i].Contains(zones[j])) {
+                    zones.RemoveAt(j);
+                    i--;
+                }
+            }
+        }
+
+        // TODO: draw pit
     }
 }

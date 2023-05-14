@@ -19,4 +19,9 @@ public static class Global
     {
         return other.xMin >= self.xMin && other.yMin >= self.yMin && other.xMax <= self.xMax && other.yMax <= self.yMax;
     }
+
+    // keeps the center the same, but moves each edge outward equal to the input amount. Shrinks from a negative input
+    public static Rect MakeExpanded(this Rect rect, float amount) {
+        return new Rect(rect.x - amount, rect.y - amount, rect.width + 2*amount, rect.height + 2*amount);
+    }
 }
