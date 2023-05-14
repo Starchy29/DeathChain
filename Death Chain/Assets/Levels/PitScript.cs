@@ -104,7 +104,18 @@ public class PitScript : MonoBehaviour
                 Vector2 right = new Vector2(zone.xMax + radius, hitbox.center.y);
                 Vector2 top = new Vector2(hitbox.center.x, zone.yMax + radius);
                 Vector2 bottom = new Vector2(hitbox.center.x, zone.yMin - radius);
-                Vector2[] standardSpots = new Vector2[4] { left, right, top, bottom };
+                List<Vector2> standardSpots = new List<Vector2>() { left, right, top, bottom };
+
+                // ignore directions that are adjacent to a border wall
+                for(int i = standardSpots.Count - 1; i >= 0; i--) {
+                    Vector2 edgeSpot = standardSpots[i];
+                    Rect testBox = new Rect(edgeSpot.x - radius, edgeSpot.y - radius, 2 * radius, 2 * radius);
+                    foreach(GameObject wall in EntityTracker.Instance.Walls) {
+                        if(wall.layer == LayerMask.NameToLayer("Border") && wall.GetComponent<WallScript>().Area.Overlaps(testBox)) {
+                            standardSpots.RemoveAt(i);
+                        }
+                    }
+                }
 
                 // if an edge spot would place the character in a wall, find a spot next to the wall to place it
                 List<Vector2> potentialSpots = new List<Vector2>();
