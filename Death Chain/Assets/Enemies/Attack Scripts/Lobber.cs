@@ -13,10 +13,13 @@ public class Lobber : MonoBehaviour
 
     private Vector3 velocity;
     private Vector3 pos; // z represents height
+    private bool falling; // true: falling in a pit as a visual effect
+    private float startSize;
 
     private void Start()
     {
         pos = transform.position;
+        startSize = transform.localScale.x;
     }
 
     // must be called whenever created. Direction should be a unit vector
@@ -32,10 +35,37 @@ public class Lobber : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(falling) {
+            const float DURATION_SECONDS = 1.0f;
+            SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+            float newAlpha = sprite.color.a - DURATION_SECONDS * Time.deltaTime;
+            if(newAlpha <= 0) {
+                // end fall
+                Destroy(gameObject);
+            } else {
+                // shrink and fade out
+                sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, newAlpha);
+                float newScale = transform.localScale.x - startSize * (DURATION_SECONDS * 0.7f) * Time.deltaTime;
+                transform.localScale = new Vector3(newScale, newScale, 1);
+            }
+            return;
+        }
+
         velocity.z -= gravity * Time.deltaTime;
         pos += velocity * Time.deltaTime;
 
         if(pos.z < 0) {
+            // don't do anything if landing in a pit
+            foreach(PitScript pit in EntityTracker.Instance.Pits) {
+                foreach(Rect area in pit.Zones) {
+                    if(area.Contains(transform.position)) {
+                        falling = true;
+                        return;
+                    }
+                }
+            }
+
+            // create effect when landing
             storedLandEffect.SetActive(true);
             storedLandEffect.transform.position = transform.position;
             Destroy(gameObject);
@@ -47,7 +77,6 @@ public class Lobber : MonoBehaviour
                 Transform shadow = transform.GetChild(0);
                 shadow.gameObject.transform.position = new Vector3(pos.x, pos.y, 0);
                 shadow.localScale = new Vector3(transform.localScale.x / 2 + pos.z, transform.localScale.y / 2 + pos.z, 1);
-                //shadow.gameObject.GetComponent<SpriteRenderer>().
             }
         }
     }

@@ -8,6 +8,8 @@ public class PitScript : MonoBehaviour
     private List<Rect> zones;
     private const float EDGE_BUFFER = 0.5f; // edges might not line up exactly. As long as they are this distance from each other, they are considered lining up 
 
+    public List<Rect> Zones { get { return zones; } } // nothing else should change this
+
     void Start()
     {
         // check existing pits to see if this should join with them
