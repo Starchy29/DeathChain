@@ -23,7 +23,6 @@ public class PitScript : MonoBehaviour
             foreach(Rect existingZone in existingPit.zones) {
                 if(existingZone.Overlaps(joinBox)) {
                     joinedPits.Add(existingPit);
-                    Debug.Log("i am joining with another pit");
                     break;
                 }
             }
@@ -48,7 +47,12 @@ public class PitScript : MonoBehaviour
         List<GameObject> enemies = EntityTracker.Instance.Enemies;
         foreach(GameObject enemy in enemies) {
             Enemy enemyScript = enemy.GetComponent<Enemy>();
-            if(enemyScript.Floating || enemyScript.CurrentState != Enemy.State.Normal) {
+            if(enemyScript.Floating && !(enemyScript.CurrentState == Enemy.State.Corpse || enemyScript.CurrentState == Enemy.State.Despawing) ) {
+                // let floating enemies fall in the pit if they are dying
+                continue;
+            }
+            if(!enemyScript.Floating && enemyScript.CurrentState != Enemy.State.Normal) {
+                // for grounded enemies, only fall during normal state
                 continue;
             }
 

@@ -118,13 +118,20 @@ public abstract class Enemy : MonoBehaviour
                 SpriteRenderer sprite = GetComponent<SpriteRenderer>();
                 float newAlpha = sprite.color.a - DURATION_SECONDS * Time.deltaTime;
                 if(newAlpha <= 0) {
-                    state = State.Normal;
-                    sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1);
-                    transform.localScale = new Vector3(startSize, startSize, 1);
-                    GetComponent<CircleCollider2D>().enabled = true;
-                    transform.position = positionAfterFall;
-                    TakeDamage(1, true);
+                    // end fall
+                    if(currentAnimation == deathAnimation) {
+                        // if a floating enemy dies over a pit, just despawn it
+                        DeleteThis = true;
+                    } else {
+                        state = State.Normal;
+                        sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1);
+                        transform.localScale = new Vector3(startSize, startSize, 1);
+                        GetComponent<CircleCollider2D>().enabled = true;
+                        transform.position = positionAfterFall;
+                        TakeDamage(1, true);
+                    }
                 } else {
+                    // shrink and fade out
                     sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, newAlpha);
                     float newScale = transform.localScale.x - startSize * (DURATION_SECONDS * 0.7f) * Time.deltaTime;
                     transform.localScale = new Vector3(newScale, newScale, 1);
