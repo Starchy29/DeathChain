@@ -119,7 +119,7 @@ public abstract class Enemy : MonoBehaviour
                 float newAlpha = sprite.color.a - DURATION_SECONDS * Time.deltaTime;
                 if(newAlpha <= 0) {
                     // end fall
-                    if(currentAnimation == deathAnimation) {
+                    if(currentAnimation != null && currentAnimation == deathAnimation) {
                         // if a floating enemy dies over a pit, just despawn it
                         DeleteThis = true;
                     } else {
@@ -361,6 +361,10 @@ public abstract class Enemy : MonoBehaviour
         if(script is Projectile projectileScript) {
             // for projectiles, default aim to the controller's aim
             projectileScript.SetDirection(controller.GetAimDirection());
+        }
+        else if(script is Melee meleeScript) {
+            // melee attacks should be aimed in the character's aim direction
+            meleeScript.SetAim(controller.GetAimDirection());
         }
 
         return attack;

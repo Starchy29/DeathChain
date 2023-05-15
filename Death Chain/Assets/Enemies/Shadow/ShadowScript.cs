@@ -10,27 +10,19 @@ public class ShadowScript : Enemy
 
     protected override void ChildStart()
     {
-        controller = new AIController(gameObject, AIMode.Wander, 7.0f);
+        controller = new AIController(gameObject, AIMode.Wander, 5.0f);
     }
 
     protected override void UpdateAbilities() {
         if(currentSlash != null) {
-            if(currentSlash.GetComponent<MeleeSwipe>().Finished) {
-                Destroy(currentSlash);
-                currentSlash = null;
-                //EndDash();
-            }
-
+            // slash updates automatically
             return;
         }
 
         if(UseAbility(0)) { // slash dash
-            cooldowns[0] = 2.0f;
-
+            cooldowns[0] = 1.3f;
             currentSlash = CreateAttack(SlashPrefab);
-            Vector2 aim = controller.GetAimDirection();
-            currentSlash.GetComponent<MeleeSwipe>().SetAim(aim, true);
-            //Dash(aim * 12);
+            Dash(12.0f * controller.GetAimDirection(), 0.2f);
         }
     }
 
@@ -41,8 +33,8 @@ public class ShadowScript : Enemy
             controller.MoveMode = AIMode.Chase;
         }
 
-        if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 4.0f) {
-            controller.QueueAbility(0, 0.3f);
+        if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 3.0f) {
+            controller.QueueAbility(0, 0.5f, 1.0f);
         }
     }
 }

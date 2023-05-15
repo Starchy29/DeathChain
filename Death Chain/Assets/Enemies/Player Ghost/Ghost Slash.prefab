@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 3459951391140047294}
   - component: {fileID: 3459951391140047295}
   - component: {fileID: 3459951391140047292}
-  - component: {fileID: 7135516317184142174}
   - component: {fileID: 716630644542905827}
+  - component: {fileID: 7415637956254655325}
   m_Layer: 8
   m_Name: Ghost Slash
   m_TagString: Untagged
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3459951391140047293}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -103,25 +103,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.4
---- !u!114 &7135516317184142174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3459951391140047293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b889382bca22e4ba962aae34d98bb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 5
-  knockback: 6
-  effect: 0
-  effectDuration: 0
-  range: 0.7
-  angleWidth: 140
-  speed: 500
 --- !u!114 &716630644542905827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,5 +121,22 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 7025d50a9a771de4083e4e1702a8b473, type: 3}
   - {fileID: 21300000, guid: e9b5bd270395d494e9ba956ecce4b830, type: 3}
   - {fileID: 21300000, guid: 75d5137b3fac7394183c5614467cf4ae, type: 3}
-  type: 3
-  duration: 0.281
+  type: 0
+  duration: 0.3
+--- !u!114 &7415637956254655325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3459951391140047293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d16d196f5bcb54ead728e4cba13628, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 5
+  knockback: 6
+  effect: 0
+  effectDuration: 0
+  range: 0.7
