@@ -34,6 +34,7 @@ public class PlayerGhost : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
         walkAnimation = idleAnimation;
         shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.15f);
+        slashAnimation = new Animation(slashSprites, AnimationType.Forward, 0.2f);
     }
 
     protected override void UpdateAbilities() {
@@ -46,6 +47,8 @@ public class PlayerGhost : Enemy
             cooldowns[0] = slashCooldown;
             currentSlash = CreateAttack(SlashPrefab);
             ApplyEndlag(0.3f, 2.0f);
+            currentAnimation = slashAnimation;
+            slashAnimation.Reset();
             //clockwise = !clockwise;
             //clockwise = true;
         }

@@ -116,7 +116,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 23621fd9ca36e3f44a3bfa51579c608e, type: 3}
   - {fileID: 21300000, guid: d36f27ecfbabe6e46b908f8fed87e6b0, type: 3}
   - {fileID: 21300000, guid: afe4a420c2fa7494bbb7a8f8ec1f8840, type: 3}
-  slashSprites: []
+  slashSprites:
+  - {fileID: 21300000, guid: e735952bd56b5aa41a630ce82014ae67, type: 3}
+  - {fileID: 21300000, guid: 8147fd58ab754ff458c48e4999129928, type: 3}
+  - {fileID: 21300000, guid: c5d5b0bd80710a241a6c8f6dcb583998, type: 3}
+  - {fileID: 21300000, guid: e10b24fdb62eac14c9608587c12edb30, type: 3}
+  - {fileID: 21300000, guid: fc7053b2359c46148a69fe2d22c13eba, type: 3}
   unpossessSprites:
   - {fileID: 21300000, guid: 349c1daf535976a4baeba8fd58948896, type: 3}
   - {fileID: 21300000, guid: 0b8a150239194134183c2df11fda72a9, type: 3}
