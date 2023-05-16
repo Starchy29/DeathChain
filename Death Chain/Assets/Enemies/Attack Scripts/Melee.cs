@@ -12,6 +12,12 @@ public class Melee : Attack
     void Update()
     {
         transform.position = User.transform.position + range * direction;
+        float rotation = Mathf.Atan2(direction.y, direction.x) * 180 / Mathf.PI;
+        if(direction.x < 0) {
+            GetComponent<SpriteRenderer>().flipX = true;
+            rotation += 180;
+        }
+        transform.rotation = Quaternion.Euler(0, 0, rotation);
         
         // auto-deleted by attached particle script
     }

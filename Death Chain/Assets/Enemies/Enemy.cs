@@ -12,9 +12,6 @@ public abstract class Enemy : MonoBehaviour
         Falling, // falling in a pit
     }
 
-    [SerializeField] private GameObject corpseParticle;
-    [SerializeField] private GameObject hitParticle;
-
     [SerializeField] private int BaseHealth;
     [SerializeField] private int BaseSpeed;
     [SerializeField] protected Sprite[] idleSprites;
@@ -151,7 +148,7 @@ public abstract class Enemy : MonoBehaviour
                     DeleteThis = true;
                     OnDeath();
 
-                    GameObject corpse = Instantiate(corpseParticle);
+                    GameObject corpse = Instantiate(EntityTracker.Instance.CorpseParticle);
                     corpse.transform.position = transform.position;
                 }
                 break;
@@ -238,7 +235,7 @@ public abstract class Enemy : MonoBehaviour
 
         health -= amount;
         if(!ignoreStatus) {
-            GameObject hitEffect = Instantiate(hitParticle, transform);
+            GameObject hitEffect = Instantiate(EntityTracker.Instance.HitParticle, transform);
             hitEffect.transform.localScale = new Vector3(1.25f / transform.localScale.x, 1.25f / transform.localScale.y, 1);
             hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
         }

@@ -5,6 +5,8 @@ using UnityEngine;
 // provides a list of all enemies and walls so certain mechanics can check for all entities in the area
 public class EntityTracker : MonoBehaviour
 {
+    public GameObject CorpseParticle;
+    public GameObject HitParticle;
     public GameObject[] statusParticlePrefabs; // order should match enum order
 
     private static EntityTracker instance;
