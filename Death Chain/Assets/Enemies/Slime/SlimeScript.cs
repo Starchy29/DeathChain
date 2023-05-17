@@ -7,13 +7,13 @@ public class SlimeScript : Enemy
     [SerializeField] private Sprite[] shootSprites;
     [SerializeField] private GameObject DropPrefab;
     [SerializeField] private GameObject PuddlePrefab;
-    [SerializeField] private float DropCooldown;
-    [SerializeField] private float PuddleCooldown;
+    private const float SHOOT_CD = 1.0f;
+    private const float PUDDLE_CD = 5.0f;
 
     private Animation shootAnimation;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, 7.0f);
+        controller = new AIController(gameObject, AIMode.Wander, AIMode.Wander, 7.0f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
@@ -24,7 +24,7 @@ public class SlimeScript : Enemy
     protected override void UpdateAbilities() {
         if(UseAbility(0)) {
             // use quad shot ability
-            cooldowns[0] = DropCooldown;
+            cooldowns[0] = SHOOT_CD;
 
             currentAnimation = shootAnimation;
             shootAnimation.Reset();
@@ -51,14 +51,10 @@ public class SlimeScript : Enemy
         }
         else if(UseAbility(1)) {
             // use lob puddle ability
-            cooldowns[1] = PuddleCooldown;
-
+            cooldowns[1] = PUDDLE_CD;
             currentAnimation = shootAnimation;
             shootAnimation.Reset();
-
-            GameObject puddleDrop = Instantiate(PuddlePrefab);
-            puddleDrop.transform.position = transform.position;
-            puddleDrop.GetComponent<Lobber>().Setup(controller.GetAimDirection(), gameObject);
+            CreateAttack(PuddlePrefab);
         }
     }
 

@@ -42,7 +42,12 @@ public abstract class Enemy : MonoBehaviour
     protected float[] cooldowns = new float[3];
 
     public int Health { get { return health; } }
-    public float WalkSpeed { get { return BaseSpeed; } } // used for AI controller
+    public float WalkSpeed { get { 
+        return maxSpeed
+            * (statuses.HasStatus(Status.Speed) ? 1.5f : 1)
+            * (statuses.HasStatus(Status.Slow) ? 0.5f : 1)
+            * (statuses.HasStatus(Status.Freeze) ? 0 : 1);
+    }}
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
@@ -102,7 +107,7 @@ public abstract class Enemy : MonoBehaviour
                 // decrease cooldowns
                 for(int i = 0; i < 3; i++) {
                     if(cooldowns[i] > 0) {
-                        cooldowns[i] -= Time.deltaTime;
+                        cooldowns[i] -= Time.deltaTime * (statuses.HasStatus(Status.Energy) ? 1.5f : 1);
                         if(cooldowns[i] < 0) {
                             cooldowns[i] = 0;
                         }
@@ -172,23 +177,18 @@ public abstract class Enemy : MonoBehaviour
                 body.velocity = Vector2.zero;
             }
         }
+        
+        float currentMaxSpeed = WalkSpeed;
 
         if(knocked) {
             // check for end of knockback
-            if(body.velocity.sqrMagnitude <= maxSpeed * maxSpeed) {
+            if(body.velocity.sqrMagnitude <= currentMaxSpeed * currentMaxSpeed) {
                 knocked = false;
             }
             return;
         }
 
         // regular movement
-        float currentMaxSpeed = maxSpeed;
-        if(statuses.HasStatus(Status.Freeze)) {
-            currentMaxSpeed = 0;
-        } else {
-            currentMaxSpeed *= (statuses.HasStatus(Status.Speed) ? 1.5f : 1) * (statuses.HasStatus(Status.Slow) ? 0.5f : 1);
-        }
-
         Vector2 moveDirection = controller.GetMoveDirection();
         if(maxSpeed <= 0 || moveDirection == Vector2.zero) {
             return;
@@ -200,7 +200,7 @@ public abstract class Enemy : MonoBehaviour
         // cap speed
         if(body.velocity.sqrMagnitude > currentMaxSpeed * currentMaxSpeed) {
             body.velocity = body.velocity.normalized;
-            body.velocity *= maxSpeed;
+            body.velocity *= currentMaxSpeed;
         }
 
         // flip sprite to face move direction
@@ -288,7 +288,7 @@ public abstract class Enemy : MonoBehaviour
         if(invincible && effect == Status.Poison) {
             return;
         }
-
+        
         statuses.Add(effect, duration);
     }
 
@@ -352,6 +352,20 @@ public abstract class Enemy : MonoBehaviour
     protected GameObject CreateAttack(GameObject prefab) {
         GameObject attack = Instantiate(prefab);
         attack.transform.position = transform.position; // defualt placement is directly on top
+        
+        // set up defaults for each ability type
+        Lobber lobberScript = attack.GetComponent<Lobber>();
+        if(lobberScript != null) {
+            lobberScript.Setup(controller.GetAimDirection(), gameObject);
+            return attack;
+        }
+
+        StatusZone zoneScript = attack.GetComponent<StatusZone>();
+        if(zoneScript != null) {
+            zoneScript.IsAlly = isAlly;
+            return attack;
+        }
+        
         Attack script = attack.GetComponent<Attack>();
         script.User = gameObject;
 
@@ -374,6 +388,13 @@ public abstract class Enemy : MonoBehaviour
         }
         endlag = Timer.CreateTimer(duration, false, () => { maxSpeed = BaseSpeed; });
         maxSpeed = tempSpeed;
+    }
+
+    protected void SetSpeed(float speed) {
+        maxSpeed = speed;
+    }
+    protected void ResetSpeed() {
+        maxSpeed = BaseSpeed;
     }
 
     protected void Dash(Vector2 velocity, float duration) {

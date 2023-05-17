@@ -12,7 +12,8 @@ public enum Status {
     Vulnerability,
     Strength,
     Speed,
-    Resistance
+    Resistance,
+    Energy, // faster cooldowns
 }
 
 public class Statuses

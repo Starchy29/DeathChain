@@ -5,17 +5,17 @@ using UnityEngine;
 public enum AIMode { // the way this character moves
     Still,
     Wander,
-    Patrol,
     Chase,
     Flee,
-    Duel
+    //Duel
 }
 
 // Class that allows AI to control the enemies in the game
 public class AIController : Controller
 {
     private GameObject target; // the entity this is trying to attack
-    private AIMode moveMode;
+    private AIMode targetingMovement;
+    private AIMode untargetedMovement;
 
     private const float WANDER_RANGE = 4.0f; // how far enemies are allowed to wander from their starting point
     private readonly float vision; // how far away targets can be seen
@@ -31,10 +31,10 @@ public class AIController : Controller
     public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics 
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
-    public AIMode MoveMode { set { moveMode = value; } }
 
-    public AIController(GameObject controlTarget, AIMode startMode, float visionRange) : base(controlTarget) {
-        moveMode = startMode;
+    public AIController(GameObject controlTarget, AIMode targetingMovement, AIMode untargetedMovement, float visionRange) : base(controlTarget) {
+        this.targetingMovement = targetingMovement;
+        this.untargetedMovement = untargetedMovement;
         this.vision = visionRange;
         startPosition = controlTarget.transform.position;
     }
@@ -72,7 +72,7 @@ public class AIController : Controller
             }
         }
 
-        if(moveMode == AIMode.Wander && currentDirection == Vector2.zero) {
+        if(DetermineCurrentMode() == AIMode.Wander && currentDirection == Vector2.zero) {
             // allow movement again right after endlag
             travelTimer = 0.0f;
         }
@@ -97,7 +97,7 @@ public class AIController : Controller
             return Vector2.zero; // stay still to indicate an oncoming attack
         }
 
-        switch(moveMode) {
+        switch(DetermineCurrentMode()) {
             case AIMode.Still:
                 return Vector2.zero;
 
@@ -108,7 +108,7 @@ public class AIController : Controller
                 if(target == null) {
                     return Vector2.zero;
                 }
-                return CalcDirToTarget();
+                return CalcTargetDirection();
         }
 
         return Vector2.zero;
@@ -135,7 +135,7 @@ public class AIController : Controller
         }
 
         if(target != null) {
-            return CalcDirToTarget();
+            return CalcTargetDirection();
         }
 
         Vector2 move = GetMoveDirection();
@@ -182,7 +182,7 @@ public class AIController : Controller
     }
 
     private void ChooseMovement() {
-        if(moveMode == AIMode.Wander) {
+        if(DetermineCurrentMode() == AIMode.Wander) {
             travelTimer -= Time.deltaTime;
 
             if(travelTimer <= 0) {
@@ -211,11 +211,19 @@ public class AIController : Controller
     }
 
     // returns the unit vector towards the target, zero vector if no target
-    private Vector2 CalcDirToTarget() {
+    private Vector2 CalcTargetDirection() {
         if(target == null) {
             return Vector2.zero;
         }
 
         return (target.transform.position - controlled.transform.position).normalized;
+    }
+
+    private AIMode DetermineCurrentMode() {
+        if(target == null) {
+            return untargetedMovement;
+        } else {
+            return targetingMovement;
+        }
     }
 }

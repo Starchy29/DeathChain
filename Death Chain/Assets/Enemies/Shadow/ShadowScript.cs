@@ -8,9 +8,11 @@ public class ShadowScript : Enemy
     [SerializeField] private GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
 
+    private const float SLASH_CD = 1.3f;
+
     protected override void ChildStart()
     {
-        controller = new AIController(gameObject, AIMode.Wander, 5.0f);
+        controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
     }
 
     protected override void UpdateAbilities() {
@@ -20,19 +22,13 @@ public class ShadowScript : Enemy
         }
 
         if(UseAbility(0)) { // slash dash
-            cooldowns[0] = 1.3f;
+            cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab);
             Dash(12.0f * controller.GetAimDirection(), 0.2f);
         }
     }
 
     public override void AIUpdate(AIController controller) {
-        if(controller.Target == null) {
-            controller.MoveMode = AIMode.Wander;
-        } else {
-            controller.MoveMode = AIMode.Chase;
-        }
-
         if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 3.0f) {
             controller.QueueAbility(0, 0.5f, 1.0f);
         }

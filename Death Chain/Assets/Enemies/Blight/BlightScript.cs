@@ -6,12 +6,12 @@ public class BlightScript : Enemy
 {
     [SerializeField] private Sprite[] attackSprites;
     [SerializeField] private GameObject BlastPrefab;
-    [SerializeField] private float blastCooldown;
+    private const float BLAST_CD = 1.2f;
 
     private Animation attackAnimation;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, 0.0f);
+        controller = new AIController(gameObject, AIMode.Wander, AIMode.Wander, 0.0f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         walkAnimation = new Animation(walkSprites, AnimationType.Oscillate, 0.4f);
@@ -22,11 +22,9 @@ public class BlightScript : Enemy
     protected override void UpdateAbilities() {
         if(UseAbility(0)) {
             // use blast ability
-            cooldowns[0] = blastCooldown;
-
+            cooldowns[0] = BLAST_CD;
             currentAnimation = attackAnimation;
             attackAnimation.Reset();
-
             CreateAttack(BlastPrefab);
         }
     }

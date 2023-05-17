@@ -47,6 +47,10 @@ public class Attack : MonoBehaviour
         }
     }
 
+    public void ModifyDamage(float multiplier) {
+        damage = (int)(multiplier * damage);
+    }
+
     protected virtual Vector2 GetPushDirection(GameObject hitEnemy) { return Vector2.zero; } // does not need to be normalized
     protected virtual void OnEnemyCollision(Enemy hitEnemy) { }
     protected virtual void OnWallCollision(GameObject hitWall) { }

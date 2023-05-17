@@ -8,10 +8,12 @@ public class PlayerGhost : Enemy
     [SerializeField] private Sprite[] shootSprites;
     [SerializeField] private Sprite[] slashSprites;
     [SerializeField] private Sprite[] unpossessSprites;
-    [SerializeField] private float slashCooldown;
-    [SerializeField] private float shootCooldown;
+    
     private Animation slashAnimation;
     private Animation shootAnimation;
+
+    private const float SLASH_CD = 0.6f;
+    private const float SHOOT_CD = 0.8f;
 
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
@@ -44,7 +46,7 @@ public class PlayerGhost : Enemy
         } 
 
         if(UseAbility(0)) { // slash
-            cooldowns[0] = slashCooldown;
+            cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab);
             ApplyEndlag(0.3f, 2.0f);
             currentAnimation = slashAnimation;
@@ -53,7 +55,7 @@ public class PlayerGhost : Enemy
             //clockwise = true;
         }
         else if(UseAbility(1)) { // shoot
-            cooldowns[1] = shootCooldown;
+            cooldowns[1] = SHOOT_CD;
             ApplyEndlag(0.3f, 2.0f);
             CreateAttack(ShotPrefab);
 

@@ -8,15 +8,15 @@ public class MushroomScript : Enemy
     [SerializeField] private Sprite[] teleportSprites;
     [SerializeField] private GameObject sporePrefab;
     [SerializeField] private GameObject selectorPrefab;
-    [SerializeField] private float shootCooldown;
-    [SerializeField] private float warpCooldown;
-    
+    private const float SHOOT_CD = 1.2f;
+    private const float WARP_CD = 3.0f;
+
     private Animation shootAnimation;
     private Animation teleportAnimation;
     private GameObject selector;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Still, 6.0f);
+        controller = new AIController(gameObject, AIMode.Still, AIMode.Still, 6.0f);
         ((AIController)controller).ReleaseAbility = 1; // ai always instantly use teleport
         sturdy = true;
 
@@ -53,7 +53,7 @@ public class MushroomScript : Enemy
 
             // teleport on release
             if(controller.GetReleasedAbility() == 1) {
-                cooldowns[1] = warpCooldown;
+                cooldowns[1] = WARP_CD;
                 if(selectPos == transform.position) {
                     cooldowns[1] = 0.5f; // shorter cooldown if no actual teleport
                     Destroy(selector);
@@ -70,9 +70,8 @@ public class MushroomScript : Enemy
 
         if(UseAbility(0)) {
             // fire spore
-            cooldowns[0] = shootCooldown;
+            cooldowns[0] = SHOOT_CD;
             CreateAttack(sporePrefab);
-
             currentAnimation = shootAnimation;
             shootAnimation.Reset();
         }

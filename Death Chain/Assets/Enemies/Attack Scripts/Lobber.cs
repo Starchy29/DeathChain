@@ -28,8 +28,14 @@ public class Lobber : MonoBehaviour
 
         // create the attack now in case the user dies before this lands
         storedLandEffect = Instantiate(LandEffect);
-        storedLandEffect.GetComponent<Attack>().User = user;
         storedLandEffect.SetActive(false);
+
+        StatusZone zoneScript = storedLandEffect.GetComponent<StatusZone>();
+        if(zoneScript != null) {
+            zoneScript.IsAlly = user.GetComponent<Enemy>().IsAlly;
+        } else {
+            storedLandEffect.GetComponent<Attack>().User = user;
+        }
     }
 
     // Update is called once per frame
