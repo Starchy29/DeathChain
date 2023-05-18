@@ -19,7 +19,7 @@ public class EntityTracker : MonoBehaviour
     public List<GameObject> Walls { get { return walls; } } // walls can remove themselves from this if they need to
 
     private List<PitScript> pits;
-    public List<PitScript> Pits { get { return pits; } } 
+    public List<PitScript> Pits { get { return pits; } }
 
     // needs to happen before Enemy.cs Start() and WallScript.cs Start() is called
     void Awake()

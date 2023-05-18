@@ -31,6 +31,13 @@ public class AIController : Controller
     public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics 
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
+    public AIMode CurrentMode { get {
+        if(target == null) {
+            return untargetedMovement;
+        } else {
+            return targetingMovement;
+        }
+    }}
 
     public AIController(GameObject controlTarget, AIMode targetingMovement, AIMode untargetedMovement, float visionRange) : base(controlTarget) {
         this.targetingMovement = targetingMovement;
@@ -72,7 +79,7 @@ public class AIController : Controller
             }
         }
 
-        if(DetermineCurrentMode() == AIMode.Wander && currentDirection == Vector2.zero) {
+        if(CurrentMode == AIMode.Wander && currentDirection == Vector2.zero) {
             // allow movement again right after endlag
             travelTimer = 0.0f;
         }
@@ -97,18 +104,19 @@ public class AIController : Controller
             return Vector2.zero; // stay still to indicate an oncoming attack
         }
 
-        switch(DetermineCurrentMode()) {
+        switch(CurrentMode) {
             case AIMode.Still:
                 return Vector2.zero;
 
             case AIMode.Wander:
-                return currentDirection;
+                return ModifyDirection(currentDirection);
 
             case AIMode.Chase:
                 if(target == null) {
                     return Vector2.zero;
+                } else {
+                    return ApproachPosition(target.transform.position);
                 }
-                return CalcTargetDirection();
         }
 
         return Vector2.zero;
@@ -146,7 +154,93 @@ public class AIController : Controller
         return Vector2.down;
     }
 
-// Private helper functiosn
+// Private helper functions
+    // returns a direction to move that tries to go straight to a location but moves around obstacles when necessary
+    private Vector2 ApproachPosition(Vector2 targetPosition) {
+        Vector2 idealDirection = (targetPosition - (Vector2)controlled.transform.position).normalized;
+        if(idealDirection == Vector2.zero) {
+            return idealDirection;
+        }
+
+        List<Rect> collisions = FindFutureCollisions(idealDirection);
+        if(collisions.Count <= 0) {
+            return idealDirection;
+        }
+
+        // find middle of all collided walls
+        Vector2 collisionCenter = Vector2.zero;
+        foreach(Rect collision in collisions) {
+            collisionCenter += collision.center;
+        }
+        collisionCenter /= collisions.Count;
+
+        // determine which circular direction gets to the target position faster
+        Vector2 targetVec = targetPosition - collisionCenter;
+        Vector2 currentVec = (Vector2)controlled.transform.position - collisionCenter;
+        float targetAngle = Mathf.Atan2(targetVec.y, targetVec.x);
+        float currentAngle = Mathf.Atan2(currentVec.y, currentVec.x);
+        float clockwiseDelta = targetAngle - currentAngle;
+        float counterDelta = currentAngle - targetAngle;
+        if(clockwiseDelta < 0) {
+            clockwiseDelta += 2 * Mathf.PI;
+        }
+        if(counterDelta < 0) {
+            counterDelta += 2 * Mathf.PI;
+        }
+
+        Vector2 circularDirection = new Vector2(-idealDirection.y, idealDirection.x); // perpendicular counter-clockwise
+        if(clockwiseDelta < counterDelta) {
+            circularDirection *= -1; // perpendicular clockwise instead
+        }
+
+        circularDirection = ModifyDirection(circularDirection); // make sure it passes walls and doesn't walk into a pit
+
+        return circularDirection;
+    }
+
+    // takes the character's desired direction and modifies it to avoid walls and pits. Works best when trying to move in one direction for a while
+    private Vector2 ModifyDirection(Vector2 desiredDirection) {
+        if(desiredDirection == Vector2.zero) {
+            return desiredDirection;
+        }
+
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        List<Rect> overlaps = FindFutureCollisions(desiredDirection);
+        if(overlaps.Count <= 0) {
+            return desiredDirection;
+        }
+
+        bool horiBlocked = false;
+        bool vertBlocked = false;
+        Vector2 horiMid = (Vector2)controlled.transform.position + radius * new Vector2(desiredDirection.x, 0).normalized;
+        Vector2 vertMid = (Vector2)controlled.transform.position + radius * new Vector2(0, desiredDirection.y).normalized;
+        Rect horiCheck = new Rect(horiMid.x - radius, horiMid.y - radius, 2 * radius, 2 * radius);
+        Rect vertCheck = new Rect(vertMid.x - radius, vertMid.y - radius, 2 * radius, 2 * radius);
+        foreach(Rect area in overlaps) {
+            if(area.Overlaps(horiCheck)) {
+                horiBlocked = true;
+            }
+            if(area.Overlaps(vertCheck)) {
+                vertBlocked = true;
+            }
+        }
+
+        if(horiBlocked && vertBlocked) {
+            // if walking into a corner, go backwards
+            return -desiredDirection;
+        }
+        else if(horiBlocked) {
+            desiredDirection.x = 0;
+            return desiredDirection.normalized;
+        }
+        else if(vertBlocked) {
+            desiredDirection.y = 0;
+            return desiredDirection.normalized;
+        }
+
+        return desiredDirection;
+    }
+
     private void CheckVision() {
         if(vision <= 0) {
             return;
@@ -182,7 +276,7 @@ public class AIController : Controller
     }
 
     private void ChooseMovement() {
-        if(DetermineCurrentMode() == AIMode.Wander) {
+        if(CurrentMode == AIMode.Wander) {
             travelTimer -= Time.deltaTime;
 
             if(travelTimer <= 0) {
@@ -219,11 +313,30 @@ public class AIController : Controller
         return (target.transform.position - controlled.transform.position).normalized;
     }
 
-    private AIMode DetermineCurrentMode() {
-        if(target == null) {
-            return untargetedMovement;
-        } else {
-            return targetingMovement;
+    // finds the walls and pits this character would intersect if they moved in this direction
+    private List<Rect> FindFutureCollisions(Vector2 direction) {
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        Vector2 futureSpot = (Vector2)controlled.transform.position + radius * direction.normalized;
+        Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
+        
+        List<Rect> overlaps = new List<Rect>();
+        foreach(GameObject wall in EntityTracker.Instance.Walls) {
+            WallScript wallScript = wall.GetComponent<WallScript>();
+            if(wallScript.Area.Overlaps(futureArea)) {
+                overlaps.Add(wallScript.Area);
+            }
         }
+
+        if(!controlled.GetComponent<Enemy>().Floating) {
+            foreach(PitScript pit in EntityTracker.Instance.Pits) {
+                foreach(Rect zone in pit.Zones) {
+                    if(zone.Overlaps(futureArea)) {
+                        overlaps.Add(zone);
+                    }
+                }
+            }
+        }
+
+        return overlaps;
     }
 }

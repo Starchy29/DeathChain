@@ -11,6 +11,6 @@ public class WallScript : MonoBehaviour
     {
         Vector3 corner = transform.position - transform.localScale / 2;
         area = new Rect(corner.x, corner.y, transform.localScale.x, transform.localScale.y);
-        EntityTracker.Instance.AddWall(gameObject);
+        EntityTracker.Instance.AddWall(gameObject); // must come after rect is created
     }
 }
