@@ -15,7 +15,7 @@ public class AIController : Controller
 {
     private GameObject target; // the entity this is trying to attack
     private AIMode targetingMovement;
-    private AIMode untargetedMovement;
+    private AIMode targetlessMovement;
 
     private const float WANDER_RANGE = 4.0f; // how far enemies are allowed to wander from their starting point
     private readonly float vision; // how far away targets can be seen
@@ -33,15 +33,15 @@ public class AIController : Controller
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
     public AIMode CurrentMode { get {
         if(target == null) {
-            return untargetedMovement;
+            return targetlessMovement;
         } else {
             return targetingMovement;
         }
     }}
 
-    public AIController(GameObject controlTarget, AIMode targetingMovement, AIMode untargetedMovement, float visionRange) : base(controlTarget) {
+    public AIController(GameObject controlTarget, AIMode targetingMovement, AIMode targetlessMovement, float visionRange) : base(controlTarget) {
         this.targetingMovement = targetingMovement;
-        this.untargetedMovement = untargetedMovement;
+        this.targetlessMovement = targetlessMovement;
         this.vision = visionRange;
         startPosition = controlTarget.transform.position;
     }
@@ -112,6 +112,7 @@ public class AIController : Controller
                 return ModifyDirection(currentDirection);
 
             case AIMode.Chase:
+                return currentDirection;
                 if(target == null) {
                     return Vector2.zero;
                 } else {
@@ -275,6 +276,7 @@ public class AIController : Controller
         }
     }
 
+    // determine a direction to move for a span of time
     private void ChooseMovement() {
         if(CurrentMode == AIMode.Wander) {
             travelTimer -= Time.deltaTime;
@@ -300,6 +302,21 @@ public class AIController : Controller
                 }
 
                 travelTimer *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
+            }
+        }
+        else if(CurrentMode == AIMode.Chase) {
+            travelTimer -= Time.deltaTime;
+            if(travelTimer <= 0) {
+                travelTimer += 0.1f;
+                if(target == null) {
+                    currentDirection = Vector2.zero;
+                } else {
+                    if(FindFutureCollisions(target.transform.position - controlled.transform.position).Count > 1) {
+                        // for corners and seams, commit to that direction longer
+                        travelTimer += 0.4f;
+                    }
+                    currentDirection = ApproachPosition(target.transform.position);
+                }
             }
         }
     }
