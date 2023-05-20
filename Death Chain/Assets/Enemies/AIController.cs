@@ -31,6 +31,17 @@ public class AIController : Controller
     public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics 
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
+    public float CurrentVision { get { 
+        if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
+            return vision / 2; // half vision outisde the starting position
+        } 
+        else if(target != null) {
+            return vision + 2; // extra vision when tracking a target
+        }
+        else {
+            return vision;
+        }
+    } }
     public AIMode CurrentMode { get {
         if(target == null) {
             return targetlessMovement;
@@ -103,7 +114,7 @@ public class AIController : Controller
         if(paused) {
             return Vector2.zero; // stay still to indicate an oncoming attack
         }
-
+        
         switch(CurrentMode) {
             case AIMode.Still:
                 return Vector2.zero;
@@ -112,11 +123,11 @@ public class AIController : Controller
                 return ModifyDirection(currentDirection);
 
             case AIMode.Chase:
-                return currentDirection;
+                //return currentDirection;
                 if(target == null) {
                     return Vector2.zero;
                 } else {
-                    return ApproachPosition(target.transform.position);
+                    return TravelAroundOneWall(target.transform.position);
                 }
         }
 
@@ -157,47 +168,47 @@ public class AIController : Controller
 
 // Private helper functions
     // returns a direction to move that tries to go straight to a location but moves around obstacles when necessary
-    private Vector2 ApproachPosition(Vector2 targetPosition) {
-        Vector2 idealDirection = (targetPosition - (Vector2)controlled.transform.position).normalized;
-        if(idealDirection == Vector2.zero) {
-            return idealDirection;
-        }
+    //private Vector2 ApproachPosition(Vector2 targetPosition) {
+    //    Vector2 idealDirection = (targetPosition - (Vector2)controlled.transform.position).normalized;
+    //    if(idealDirection == Vector2.zero) {
+    //        return idealDirection;
+    //    }
 
-        List<Rect> collisions = FindFutureCollisions(idealDirection);
-        if(collisions.Count <= 0) {
-            return idealDirection;
-        }
+    //    List<Rect> collisions = FindFutureCollisions(idealDirection);
+    //    if(collisions.Count <= 0) {
+    //        return idealDirection;
+    //    }
 
-        // find middle of all collided walls
-        Vector2 collisionCenter = Vector2.zero;
-        foreach(Rect collision in collisions) {
-            collisionCenter += collision.center;
-        }
-        collisionCenter /= collisions.Count;
+    //    // find middle of all collided walls
+    //    Vector2 collisionCenter = Vector2.zero;
+    //    foreach(Rect collision in collisions) {
+    //        collisionCenter += collision.center;
+    //    }
+    //    collisionCenter /= collisions.Count;
 
-        // determine which circular direction gets to the target position faster
-        Vector2 targetVec = targetPosition - collisionCenter;
-        Vector2 currentVec = (Vector2)controlled.transform.position - collisionCenter;
-        float targetAngle = Mathf.Atan2(targetVec.y, targetVec.x);
-        float currentAngle = Mathf.Atan2(currentVec.y, currentVec.x);
-        float clockwiseDelta = targetAngle - currentAngle;
-        float counterDelta = currentAngle - targetAngle;
-        if(clockwiseDelta < 0) {
-            clockwiseDelta += 2 * Mathf.PI;
-        }
-        if(counterDelta < 0) {
-            counterDelta += 2 * Mathf.PI;
-        }
+    //    // determine which circular direction gets to the target position faster
+    //    Vector2 targetVec = targetPosition - collisionCenter;
+    //    Vector2 currentVec = (Vector2)controlled.transform.position - collisionCenter;
+    //    float targetAngle = Mathf.Atan2(targetVec.y, targetVec.x);
+    //    float currentAngle = Mathf.Atan2(currentVec.y, currentVec.x);
+    //    float clockwiseDelta = targetAngle - currentAngle;
+    //    float counterDelta = currentAngle - targetAngle;
+    //    if(clockwiseDelta < 0) {
+    //        clockwiseDelta += 2 * Mathf.PI;
+    //    }
+    //    if(counterDelta < 0) {
+    //        counterDelta += 2 * Mathf.PI;
+    //    }
 
-        Vector2 circularDirection = new Vector2(-idealDirection.y, idealDirection.x); // perpendicular counter-clockwise
-        if(clockwiseDelta < counterDelta) {
-            circularDirection *= -1; // perpendicular clockwise instead
-        }
+    //    Vector2 circularDirection = new Vector2(-idealDirection.y, idealDirection.x); // perpendicular counter-clockwise
+    //    if(clockwiseDelta < counterDelta) {
+    //        circularDirection *= -1; // perpendicular clockwise instead
+    //    }
 
-        circularDirection = ModifyDirection(circularDirection); // make sure it passes walls and doesn't walk into a pit
+    //    circularDirection = ModifyDirection(circularDirection); // make sure it passes walls and doesn't walk into a pit
 
-        return circularDirection;
-    }
+    //    return circularDirection;
+    //}
 
     // takes the character's desired direction and modifies it to avoid walls and pits. Works best when trying to move in one direction for a while
     private Vector2 ModifyDirection(Vector2 desiredDirection) {
@@ -254,25 +265,16 @@ public class AIController : Controller
             foreach(GameObject enemy in enemies) {
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
                 if(enemyScript.IsAlly != controlledScript.IsAlly) {
-                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= vision) {
+                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= CurrentVision) {
                         target = enemy;
                         break;
                     }
                 }
             }
-        } else {
-            // determine if target is lost
-            const float TRACK_RANGE_BOOST = 2.0f;
-            float currentVision = vision;
-            if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
-                currentVision /= 2;
-            } else {
-                currentVision += TRACK_RANGE_BOOST;
-            }
-
-            if(!target.activeInHierarchy || GetTargetDistance() > currentVision) {
-                target = null;
-            }
+        } 
+        // check if target is lost
+        else if(!target.activeInHierarchy || GetTargetDistance() > CurrentVision) {
+            target = null;
         }
     }
 
@@ -305,19 +307,15 @@ public class AIController : Controller
             }
         }
         else if(CurrentMode == AIMode.Chase) {
-            travelTimer -= Time.deltaTime;
-            if(travelTimer <= 0) {
-                travelTimer += 0.1f;
-                if(target == null) {
-                    currentDirection = Vector2.zero;
-                } else {
-                    if(FindFutureCollisions(target.transform.position - controlled.transform.position).Count > 1) {
-                        // for corners and seams, commit to that direction longer
-                        travelTimer += 0.4f;
-                    }
-                    currentDirection = ApproachPosition(target.transform.position);
-                }
-            }
+            //travelTimer -= Time.deltaTime;
+            //if(travelTimer <= 0) {
+            //    travelTimer += 0.1f;
+            //    if(target == null) {
+            //        currentDirection = Vector2.zero;
+            //    } else {
+            //        currentDirection = TravelAroundOneWall(target.transform.position);
+            //    }
+            //}
         }
     }
 
@@ -355,5 +353,175 @@ public class AIController : Controller
         }
 
         return overlaps;
+    }
+
+    private Vector2 TravelAroundOneWall(Vector2 targetLocation) {
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+
+        List<Rect> obstacles = new List<Rect>();
+        foreach(GameObject wall in EntityTracker.Instance.Walls) {
+            obstacles.Add(wall.GetComponent<WallScript>().Area);
+        }
+        if(!controlled.GetComponent<Enemy>().Floating) {
+            foreach(PitScript pit in EntityTracker.Instance.Pits) {
+                foreach(Rect area in pit.Zones) {
+                    obstacles.Add(area);
+                }
+            }
+        }
+
+        Vector2 startPosition = controlled.transform.position;
+        Vector2 idealMovement = targetLocation - startPosition;
+        Vector2 idealDirection = idealMovement.normalized;
+
+        // find closest wall/pit that blocks the ideal movement
+        float closestDistance = idealMovement.magnitude;
+        Rect? closestBlock = null;
+        Direction blockedSide = Direction.None;
+        foreach(Rect obstacle in obstacles) {
+            // find if the path intersects this rectangle
+            Vector2? edgePosition = null;
+            float distance = 0;
+            if(idealDirection.x != 0) {
+                // check left or right side
+                float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
+                distance = (targetX - startPosition.x) / idealDirection.x;
+                float y = startPosition.y + idealDirection.y * distance;
+
+                if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
+                    edgePosition = new Vector2(targetX, y);
+                    blockedSide = idealDirection.x < 0 ? Direction.Right : Direction.Left;
+                }
+            }
+            if(idealDirection.y != 0) {
+                // check left or right side
+                float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
+                float newDistance = (targetY - startPosition.y) / idealDirection.y;
+                float x = startPosition.x + idealDirection.x * newDistance;
+                
+                if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
+                    if(!edgePosition.HasValue || newDistance > distance) {
+                        edgePosition = new Vector2(x, targetY);
+                        distance = newDistance;
+                        blockedSide = idealDirection.y < 0 ? Direction.Up : Direction.Down;
+                    }
+                }
+            }
+
+            // determine if this collision is closest
+            if(edgePosition.HasValue && distance < closestDistance) {
+                closestDistance = distance;
+                closestBlock = obstacle;
+            }
+        }
+
+        if(!closestBlock.HasValue) {
+            // straight path works
+            return idealDirection;
+        }
+
+        Rect blocker = closestBlock.Value;
+        Vector2 topLeft = new Vector2(blocker.xMin - radius, blocker.yMax + radius);
+        Vector2 bottomLeft = new Vector2(blocker.xMin - radius, blocker.yMin - radius);
+        Vector2 topRight = new Vector2(blocker.xMax + radius, blocker.yMax + radius);
+        Vector2 bottomRight = new Vector2(blocker.xMax + radius, blocker.yMin - radius);
+
+        Dictionary<Corner, Vector2> cornerPositions = new Dictionary<Corner, Vector2>() {
+            { new Corner(Direction.Left, Direction.Up), topLeft },
+            { new Corner(Direction.Left, Direction.Down), bottomLeft },
+            { new Corner(Direction.Right, Direction.Up), topRight },
+            { new Corner(Direction.Right, Direction.Down), bottomRight }
+        };
+
+        Direction horizontalAccess = Direction.None;
+        if(targetLocation.x < blocker.xMin) {
+            horizontalAccess = Direction.Left;
+        }
+        else if(targetLocation.x > blocker.xMax) {
+            horizontalAccess = Direction.Right;
+        }
+
+        Direction verticalAccess = Direction.None;
+        if(targetLocation.y < blocker.yMin) {
+            verticalAccess = Direction.Down;
+        }
+        else if(targetLocation.y > blocker.yMax) {
+            verticalAccess = Direction.Up;
+        }
+
+        if(horizontalAccess == Direction.None && verticalAccess == Direction.None) {
+            return Vector2.zero;
+        }
+
+        List<Vector2> clockwisePath = new List<Vector2>() { startPosition };
+        List<Vector2> counterPath = new List<Vector2>() { startPosition };
+
+        List<Corner> clockwiseCorners = new List<Corner>();
+        List<Corner> counterCorners = new List<Corner>();
+        switch(blockedSide) {
+            case Direction.Up:
+                clockwiseCorners.Add(new Corner(Direction.Right, Direction.Up));
+                counterCorners.Add(new Corner(Direction.Left, Direction.Up));
+                break;
+
+            case Direction.Down:
+                clockwiseCorners.Add(new Corner(Direction.Left, Direction.Down));
+                counterCorners.Add(new Corner(Direction.Right, Direction.Down));
+                break;
+
+            case Direction.Left:
+                clockwiseCorners.Add(new Corner(Direction.Left, Direction.Up));
+                counterCorners.Add(new Corner(Direction.Left, Direction.Down));
+                break;
+
+            case Direction.Right:
+                clockwiseCorners.Add(new Corner(Direction.Right, Direction.Down));
+                counterCorners.Add(new Corner(Direction.Right, Direction.Up));
+                break;
+        }
+
+        while(clockwiseCorners[clockwiseCorners.Count - 1].Horizontal != horizontalAccess 
+            && clockwiseCorners[clockwiseCorners.Count - 1].Vertical != verticalAccess
+        ) {
+            clockwiseCorners.Add(clockwiseCorners[clockwiseCorners.Count - 1].GetClockwise());
+        }
+
+        while(counterCorners[counterCorners.Count - 1].Horizontal != horizontalAccess 
+            && counterCorners[counterCorners.Count - 1].Vertical != verticalAccess
+        ) {
+            counterCorners.Add(counterCorners[counterCorners.Count - 1].GetCounterClockwise());
+        }
+
+        foreach(Corner corner in clockwiseCorners) {
+            clockwisePath.Add(cornerPositions[corner]);
+        }
+
+        foreach(Corner corner in counterCorners) {
+            counterPath.Add(cornerPositions[corner]);
+        }
+
+        clockwisePath.Add(targetLocation);
+        counterPath.Add(targetLocation);
+
+        List<Vector2> chosenPath = CalcPathDistance(clockwisePath) < CalcPathDistance(counterPath) ? clockwisePath : counterPath;
+        //if(Vector2.Distance(chosenPath[1], startPosition) <= 0.1f) {
+        //    return (chosenPath[2] - startPosition).normalized;
+        //}
+        //Debug.Log(chosenPath[1]);
+        if(Vector2.Dot(chosenPath[1] - chosenPath[0], chosenPath[2] - chosenPath[0]) < 0) {
+            chosenPath.RemoveAt(1);
+        }
+
+        Debug.Log(blockedSide);
+        return (chosenPath[1] - startPosition).normalized;
+    }
+    
+    // takes a list of points where the first and last elements are the beginning and end of a path and returns the distance travelling one point to the next
+    private float CalcPathDistance(List<Vector2> path) {
+        float distance = 0;
+        for(int i = 0; i < path.Count - 1; i++) {
+            distance += Vector2.Distance(path[i], path[i+1]);
+        }
+        return distance;
     }
 }

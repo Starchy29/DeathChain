@@ -12,7 +12,7 @@ public class ShadowScript : Enemy
 
     protected override void ChildStart()
     {
-        controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 20.0f); // NORMAL VISION IS 5
+        controller = new AIController(gameObject, AIMode.Chase, AIMode.Chase, 20.0f); // NORMAL VISION IS 5 and wander for untargeted
     }
 
     protected override void UpdateAbilities() {
