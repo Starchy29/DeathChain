@@ -53,6 +53,13 @@ public struct Corner {
 // a class for utility code that belongs nowhere else
 public static class Global
 {
+    public static Dictionary<Direction, Vector2> DirectionToVector = new Dictionary<Direction, Vector2>() {
+        { Direction.Up, Vector2.up },
+        { Direction.Down, Vector2.down },
+        { Direction.Left, Vector2.left },
+        { Direction.Right, Vector2.right }
+    };
+
 // Extension Methods
     // returns true if the other rectangle is entirely within this one
     public static bool Contains(this Rect self, Rect other)
