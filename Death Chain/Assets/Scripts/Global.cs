@@ -11,44 +11,44 @@ public enum Direction {
     Right
 }
 
-public struct Corner {
-    private static List<Corner> loop = new List<Corner>() {
-        new Corner(Direction.Left, Direction.Up),
-        new Corner(Direction.Right, Direction.Up),
-        new Corner(Direction.Right, Direction.Down),
-        new Corner(Direction.Left, Direction.Down)
-    };
+//public struct Corner {
+//    private static List<Corner> loop = new List<Corner>() {
+//        new Corner(Direction.Left, Direction.Up),
+//        new Corner(Direction.Right, Direction.Up),
+//        new Corner(Direction.Right, Direction.Down),
+//        new Corner(Direction.Left, Direction.Down)
+//    };
 
-    public Direction Horizontal;
-    public Direction Vertical;
+//    public Direction Horizontal;
+//    public Direction Vertical;
 
-    public Corner(Direction horizontal, Direction vertical) {
-        Horizontal = horizontal;
-        Vertical = vertical;
+//    public Corner(Direction horizontal, Direction vertical) {
+//        Horizontal = horizontal;
+//        Vertical = vertical;
 
-        if(horizontal == Direction.Up || horizontal == Direction.Down || vertical == Direction.Left || vertical == Direction.Right) {
-            throw new ArgumentException("Input a vertical value as the horizontal or vice versa.");
-        }
-    }
+//        if(horizontal == Direction.Up || horizontal == Direction.Down || vertical == Direction.Left || vertical == Direction.Right) {
+//            throw new ArgumentException("Input a vertical value as the horizontal or vice versa.");
+//        }
+//    }
 
-    public Corner GetClockwise() {
-        int index = loop.IndexOf(this) + 1;
-        if(index >= loop.Count) {
-            index = 0;
-        }
+//    public Corner GetClockwise() {
+//        int index = loop.IndexOf(this) + 1;
+//        if(index >= loop.Count) {
+//            index = 0;
+//        }
 
-        return loop[index];
-    }
+//        return loop[index];
+//    }
 
-    public Corner GetCounterClockwise() {
-        int index = loop.IndexOf(this) - 1;
-        if(index < 0) {
-            index = loop.Count - 1;
-        }
+//    public Corner GetCounterClockwise() {
+//        int index = loop.IndexOf(this) - 1;
+//        if(index < 0) {
+//            index = loop.Count - 1;
+//        }
 
-        return loop[index];
-    }
-}
+//        return loop[index];
+//    }
+//}
 
 // a class for utility code that belongs nowhere else
 public static class Global

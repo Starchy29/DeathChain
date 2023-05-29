@@ -136,9 +136,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b686d35496fa7d34b963b6dda711dd77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  corpseParticle: {fileID: 5766683498610922712, guid: a4427d231e7813b4daafd440d3402c2b, type: 3}
-  hitParticle: {fileID: 4517559496455415143, guid: c8f3a9e01361a0b40af6f1cca549061b, type: 3}
   BaseHealth: 15
+  BaseSpeed: 0
   idleSprites:
   - {fileID: 21300000, guid: f9b4f4070399577409f7644c8a44223a, type: 3}
   - {fileID: 21300000, guid: c7a42e30306b5e54094c3b26f2c51348, type: 3}
@@ -170,5 +169,3 @@ MonoBehaviour:
   - {fileID: 21300000, guid: eb3f27c5b24cc374f896e9b9e0b4b953, type: 3}
   sporePrefab: {fileID: 5737476528895241311, guid: 8a26eb01dd910614792b6cf710f7c2f8, type: 3}
   selectorPrefab: {fileID: 8634669072577496992, guid: 762f220272a1f4340a6bb39e09efabb1, type: 3}
-  shootCooldown: 1.2
-  warpCooldown: 3

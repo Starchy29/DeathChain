@@ -57,7 +57,7 @@ public class PlayerGhost : Enemy
         else if(UseAbility(1)) { // shoot
             cooldowns[1] = SHOOT_CD;
             ApplyEndlag(0.3f, 2.0f);
-            CreateAttack(ShotPrefab);
+            CreateAttack(ShotPrefab).transform.position += new Vector3(0, 0.3f, 0);
 
             currentAnimation = shootAnimation;
             currentAnimation.Reset();
