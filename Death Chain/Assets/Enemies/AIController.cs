@@ -123,7 +123,11 @@ public class AIController : Controller
                 return ModifyDirection(movementValue);
 
             case AIMode.Chase:
-                return ModifyDirection((movementValue - (Vector2)controlled.transform.position).normalized);
+                if(target == null) {
+                    return Vector2.zero;
+                }
+                Vector2 targetPosition = Approach(target.transform.position);
+                return ModifyDirection((targetPosition - (Vector2)controlled.transform.position).normalized);
         }
 
         return Vector2.zero;
@@ -266,7 +270,7 @@ public class AIController : Controller
                 if(target == null) {
                     movementValue = Vector2.zero;
                 } else {
-                    movementValue = NewApproach(target.transform.position);
+                    movementValue = Approach(target.transform.position);
                 }
             }
         }
@@ -308,176 +312,8 @@ public class AIController : Controller
         return overlaps;
     }
 
-    // returns a direction that approaches the targetLocation, avoiding walls and pits as necessary
-    //private Vector2 Approach(Vector2 targetLocation) {
-    //    float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-
-    //    List<Rect> obstacles = new List<Rect>();
-    //    foreach(GameObject wall in EntityTracker.Instance.Walls) {
-    //        obstacles.Add(wall.GetComponent<WallScript>().Area);
-    //    }
-    //    if(!controlled.GetComponent<Enemy>().Floating) {
-    //        foreach(PitScript pit in EntityTracker.Instance.Pits) {
-    //            foreach(Rect area in pit.Zones) {
-    //                obstacles.Add(area);
-    //            }
-    //        }
-    //    }
-
-    //    Vector2 startPosition = controlled.transform.position;
-    //    Vector2 idealMovement = targetLocation - startPosition;
-    //    Vector2 idealDirection = idealMovement.normalized;
-
-    //    // find closest wall/pit that blocks the ideal movement
-    //    float closestDistance = idealMovement.magnitude;
-    //    Rect? closestBlock = null;
-    //    Direction blockedSide = Direction.None;
-    //    foreach(Rect obstacle in obstacles) {
-    //        // find if the path intersects this rectangle
-    //        Vector2? edgePosition = null;
-    //        float distance = 0;
-    //        if(idealDirection.x != 0) {
-    //            // check left or right side
-    //            float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
-    //            distance = (targetX - startPosition.x) / idealDirection.x;
-    //            float y = startPosition.y + idealDirection.y * distance;
-
-    //            if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
-    //                edgePosition = new Vector2(targetX, y);
-    //                blockedSide = idealDirection.x < 0 ? Direction.Right : Direction.Left;
-    //            }
-    //        }
-    //        if(idealDirection.y != 0) {
-    //            // check left or right side
-    //            float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
-    //            float newDistance = (targetY - startPosition.y) / idealDirection.y;
-    //            float x = startPosition.x + idealDirection.x * newDistance;
-                
-    //            if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
-    //                if(!edgePosition.HasValue || newDistance > distance) {
-    //                    edgePosition = new Vector2(x, targetY);
-    //                    distance = newDistance;
-    //                    blockedSide = idealDirection.y < 0 ? Direction.Up : Direction.Down;
-    //                }
-    //            }
-    //        }
-
-    //        // determine if this collision is closest
-    //        if(edgePosition.HasValue && distance < closestDistance) {
-    //            closestDistance = distance;
-    //            closestBlock = obstacle;
-    //        }
-    //    }
-
-    //    if(!closestBlock.HasValue) {
-    //        // straight path works
-    //        return idealDirection;
-    //    }
-
-    //    // find which way to go around this obstacle
-    //    Rect blocker = closestBlock.Value;
-    //    Vector2 topLeft = new Vector2(blocker.xMin - radius, blocker.yMax + radius);
-    //    Vector2 bottomLeft = new Vector2(blocker.xMin - radius, blocker.yMin - radius);
-    //    Vector2 topRight = new Vector2(blocker.xMax + radius, blocker.yMax + radius);
-    //    Vector2 bottomRight = new Vector2(blocker.xMax + radius, blocker.yMin - radius);
-
-    //    Dictionary<Corner, Vector2> cornerPositions = new Dictionary<Corner, Vector2>() {
-    //        { new Corner(Direction.Left, Direction.Up), topLeft },
-    //        { new Corner(Direction.Left, Direction.Down), bottomLeft },
-    //        { new Corner(Direction.Right, Direction.Up), topRight },
-    //        { new Corner(Direction.Right, Direction.Down), bottomRight }
-    //    };
-
-    //    Direction horizontalAccess = Direction.None;
-    //    if(targetLocation.x < blocker.xMin) {
-    //        horizontalAccess = Direction.Left;
-    //    }
-    //    else if(targetLocation.x > blocker.xMax) {
-    //        horizontalAccess = Direction.Right;
-    //    }
-
-    //    Direction verticalAccess = Direction.None;
-    //    if(targetLocation.y < blocker.yMin) {
-    //        verticalAccess = Direction.Down;
-    //    }
-    //    else if(targetLocation.y > blocker.yMax) {
-    //        verticalAccess = Direction.Up;
-    //    }
-
-    //    if(horizontalAccess == Direction.None && verticalAccess == Direction.None) {
-    //        return Vector2.zero;
-    //    }
-
-    //    List<Vector2> clockwisePath = new List<Vector2>() { startPosition };
-    //    List<Vector2> counterPath = new List<Vector2>() { startPosition };
-
-    //    List<Corner> clockwiseCorners = new List<Corner>();
-    //    List<Corner> counterCorners = new List<Corner>();
-    //    switch(blockedSide) {
-    //        case Direction.Up:
-    //            clockwiseCorners.Add(new Corner(Direction.Right, Direction.Up));
-    //            counterCorners.Add(new Corner(Direction.Left, Direction.Up));
-    //            break;
-
-    //        case Direction.Down:
-    //            clockwiseCorners.Add(new Corner(Direction.Left, Direction.Down));
-    //            counterCorners.Add(new Corner(Direction.Right, Direction.Down));
-    //            break;
-
-    //        case Direction.Left:
-    //            clockwiseCorners.Add(new Corner(Direction.Left, Direction.Up));
-    //            counterCorners.Add(new Corner(Direction.Left, Direction.Down));
-    //            break;
-
-    //        case Direction.Right:
-    //            clockwiseCorners.Add(new Corner(Direction.Right, Direction.Down));
-    //            counterCorners.Add(new Corner(Direction.Right, Direction.Up));
-    //            break;
-    //    }
-
-    //    while(clockwiseCorners[clockwiseCorners.Count - 1].Horizontal != horizontalAccess 
-    //        && clockwiseCorners[clockwiseCorners.Count - 1].Vertical != verticalAccess
-    //    ) {
-    //        clockwiseCorners.Add(clockwiseCorners[clockwiseCorners.Count - 1].GetClockwise());
-    //    }
-
-    //    while(counterCorners[counterCorners.Count - 1].Horizontal != horizontalAccess 
-    //        && counterCorners[counterCorners.Count - 1].Vertical != verticalAccess
-    //    ) {
-    //        counterCorners.Add(counterCorners[counterCorners.Count - 1].GetCounterClockwise());
-    //    }
-
-    //    foreach(Corner corner in clockwiseCorners) {
-    //        clockwisePath.Add(cornerPositions[corner]);
-    //    }
-
-    //    foreach(Corner corner in counterCorners) {
-    //        counterPath.Add(cornerPositions[corner]);
-    //    }
-
-    //    clockwisePath.Add(targetLocation);
-    //    counterPath.Add(targetLocation);
-
-    //    List<Vector2> chosenPath = CalcPathDistance(clockwisePath) < CalcPathDistance(counterPath) ? clockwisePath : counterPath;
-
-    //    if(Vector2.Dot(chosenPath[1] - chosenPath[0], chosenPath[2] - chosenPath[0]) < 0) {
-    //        chosenPath.RemoveAt(1);
-    //    }
-
-    //    return (chosenPath[1] - startPosition).normalized;
-    //}
-    
-    // takes a list of points where the first and last elements are the beginning and end of a path and returns the distance travelling one point to the next
-    private float CalcPathDistance(List<Vector2> path) {
-        float distance = 0;
-        for(int i = 0; i < path.Count - 1; i++) {
-            distance += Vector2.Distance(path[i], path[i+1]);
-        }
-        return distance;
-    }
-
     // returns a position to move towards, navigating around obstacles as necessary
-    private Vector2 NewApproach(Vector2 targetLocation) {
+    private Vector2 Approach(Vector2 targetLocation) {
         // compile all rectangles that can block movement, expanded by the radius
         float radius = controlled.GetComponent<Enemy>().CollisionRadius;
         List<Rect> obstacles = new List<Rect>();
@@ -499,7 +335,6 @@ public class AIController : Controller
         // find closest wall/pit that blocks the ideal movement
         float closestDistance = idealMovement.magnitude;
         Rect? closestBlock = null;
-        //Direction blockedSide = Direction.None;
         foreach(Rect obstacle in obstacles) {
             // find if the path intersects this rectangle
             Vector2? edgePosition = null;
@@ -512,7 +347,6 @@ public class AIController : Controller
 
                 if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
                     edgePosition = new Vector2(targetX, y);
-                    //blockedSide = idealDirection.x < 0 ? Direction.Right : Direction.Left;
                 }
             }
             if(idealDirection.y != 0) {
@@ -525,7 +359,6 @@ public class AIController : Controller
                     if(!edgePosition.HasValue || newDistance > distance) {
                         edgePosition = new Vector2(x, targetY);
                         distance = newDistance;
-                        //blockedSide = idealDirection.y < 0 ? Direction.Up : Direction.Down;
                     }
                 }
             }
@@ -576,20 +409,12 @@ public class AIController : Controller
         }
 
         // find the spots on the surrounding rectangle that the character and the target are closest to
-        Vector2 FindEdgeSpot(Vector2 start) {
+        Vector2? FindEdgeSpot(Vector2 start) {
             Vector2 closestEdgeSpot = start;
-            if(start.x > obstacleSurrounder.xMax) {
-                closestEdgeSpot.x = obstacleSurrounder.xMax;
-            }
-            else if(start.x < obstacleSurrounder.xMin) {
-                closestEdgeSpot.x = obstacleSurrounder.xMin;
-            }
-            if(start.y > obstacleSurrounder.yMax) {
-                closestEdgeSpot.y = obstacleSurrounder.yMax;
-            }
-            else if(start.y < obstacleSurrounder.yMin) {
-                closestEdgeSpot.y = obstacleSurrounder.yMin;
-            }
+            closestEdgeSpot.x = Mathf.Min(closestEdgeSpot.x, obstacleSurrounder.xMax);
+            closestEdgeSpot.x = Mathf.Max(closestEdgeSpot.x, obstacleSurrounder.xMin);
+            closestEdgeSpot.y = Mathf.Min(closestEdgeSpot.y, obstacleSurrounder.yMax);
+            closestEdgeSpot.y = Mathf.Max(closestEdgeSpot.y, obstacleSurrounder.yMin);
 
             if(closestEdgeSpot != start) {
                 // outside rectangle
@@ -601,7 +426,7 @@ public class AIController : Controller
             bool blockedDown = false;
             bool blockedLeft = false;
             bool blockedRight = false;
-            foreach(Rect blocker in obstacles) {
+            foreach(Rect blocker in fullObstacle) {
                 if(start.x > blocker.xMin && start.x < blocker.xMax) {
                     if(blocker.center.y > start.y) {
                         blockedUp = true;
@@ -620,22 +445,14 @@ public class AIController : Controller
             }
 
             List<Vector2> potentialSpots = new List<Vector2>();
-            if(!blockedUp) {
-                potentialSpots.Add(new Vector2(start.x, obstacleSurrounder.yMax));
-            }
-            if(!blockedDown) {
-                potentialSpots.Add(new Vector2(start.x, obstacleSurrounder.yMin));
-            }
-            if(!blockedRight) {
-                potentialSpots.Add(new Vector2(obstacleSurrounder.xMax, start.y));
-            }
-            if(!blockedLeft) {
-                potentialSpots.Add(new Vector2(obstacleSurrounder.xMin, start.y));
-            }
+            if(!blockedUp) potentialSpots.Add(new Vector2(start.x, obstacleSurrounder.yMax));
+            if(!blockedDown) potentialSpots.Add(new Vector2(start.x, obstacleSurrounder.yMin));
+            if(!blockedRight) potentialSpots.Add(new Vector2(obstacleSurrounder.xMax, start.y));
+            if(!blockedLeft) potentialSpots.Add(new Vector2(obstacleSurrounder.xMin, start.y));
 
             if(potentialSpots.Count <= 0) {
-                // returning the start spot indicates that there was no valid direction of accessing the point
-                return start;
+                // cannot find a good valid edge spot
+                return null;
             }
 
             potentialSpots.Sort((Vector2 current, Vector2 next) => {
@@ -645,41 +462,15 @@ public class AIController : Controller
             return potentialSpots[0];
         }
 
-        Vector2 characterEdgeSpot = FindEdgeSpot(startPosition);
-        Vector2 targetEdgeSpot = FindEdgeSpot(targetLocation);
-        
-        // DEBUG LOGGING
-        Direction charSide = Direction.None;
-        if(characterEdgeSpot.x == obstacleSurrounder.xMin) {
-            charSide = Direction.Left;
+        Vector2? maybeChar = FindEdgeSpot(startPosition);
+        Vector2? maybeTarg = FindEdgeSpot(targetLocation);
+        if(!maybeChar.HasValue || !maybeTarg.HasValue) {
+            // give up and use direct path if no alternate route can be found
+            return targetLocation;
         }
-        if(characterEdgeSpot.x == obstacleSurrounder.xMax) {
-            charSide = Direction.Right;
-        }
-        if(characterEdgeSpot.y == obstacleSurrounder.yMin) {
-            charSide = Direction.Down;
-        }
-        if(characterEdgeSpot.y == obstacleSurrounder.yMax) {
-            charSide = Direction.Up;
-        }
-        Direction targSide = Direction.None;
-        if(targetEdgeSpot.x == obstacleSurrounder.xMin) {
-            targSide = Direction.Left;
-        }
-        if(targetEdgeSpot.x == obstacleSurrounder.xMax) {
-            targSide = Direction.Right;
-        }
-        if(targetEdgeSpot.y == obstacleSurrounder.yMin) {
-            targSide = Direction.Down;
-        }
-        if(targetEdgeSpot.y == obstacleSurrounder.yMax) {
-            targSide = Direction.Up;
-        }
-        Debug.Log($"start: {charSide}, goal: {targSide}");
-        Debug.Log($"start: {characterEdgeSpot}, goal: {targetEdgeSpot}");
-        Debug.Log("rect: " + obstacleSurrounder.min + ", " + obstacleSurrounder.max);
 
-        // TODO: ACCOUNT FOR ALL BLOCKED SIDES
+        Vector2 characterEdgeSpot = maybeChar.Value;
+        Vector2 targetEdgeSpot = maybeTarg.Value;
 
         // TODO: FIND WHICH SIDES ARE INACCESSABLE (based on border wall?)
         // determine which way around the obstacle is shorter
@@ -694,7 +485,6 @@ public class AIController : Controller
                 targetCorner.x = targetEdgeSpot.x > characterEdgeSpot.x ? obstacleSurrounder.xMax : obstacleSurrounder.xMin;
                 targetCorner.y += (characterEdgeSpot.y > obstacleSurrounder.center.y ? radius : -radius);
             }
-            Debug.Log($"same side, target: {targetCorner}");
             return targetCorner;
         }
         else if(characterEdgeSpot.x == obstacleSurrounder.xMin && targetEdgeSpot.x == obstacleSurrounder.xMax
@@ -705,7 +495,17 @@ public class AIController : Controller
             float upDist = (obstacleSurrounder.yMax - characterEdgeSpot.y) + (obstacleSurrounder.yMax - targetEdgeSpot.y);
             float downDist = (characterEdgeSpot.y - obstacleSurrounder.yMin) + (targetEdgeSpot.y - obstacleSurrounder.yMin);
             targetSideMiddle.y = upDist > downDist ? obstacleSurrounder.yMin - radius : obstacleSurrounder.yMax + radius;
-            Debug.Log($"opposite hori, target: {targetSideMiddle}");
+
+            foreach(Rect obstacle in fullObstacle) {
+                if(upDist > downDist && obstacle.yMax < startPosition.y || downDist > upDist && obstacle.yMin > startPosition.y) {
+                    if(characterEdgeSpot.x == obstacleSurrounder.xMin && obstacle.xMin < targetSideMiddle.x) {
+                        targetSideMiddle.x = obstacle.xMin - radius;
+                    } 
+                    else if(characterEdgeSpot.x == obstacleSurrounder.xMax && obstacle.xMax > targetSideMiddle.x) {
+                        targetSideMiddle.x = obstacle.xMax + radius;
+                    }
+                }
+            }
             return targetSideMiddle;
         }
         else if(characterEdgeSpot.y == obstacleSurrounder.yMin && targetEdgeSpot.y == obstacleSurrounder.yMax
@@ -716,7 +516,17 @@ public class AIController : Controller
             float rightDist = (obstacleSurrounder.xMax - characterEdgeSpot.x) + (obstacleSurrounder.xMax - targetEdgeSpot.x);
             float leftDist = (characterEdgeSpot.x - obstacleSurrounder.xMin) + (targetEdgeSpot.x - obstacleSurrounder.xMin);
             targetSideMiddle.x = rightDist > leftDist ? obstacleSurrounder.xMin - radius : obstacleSurrounder.xMax + radius;
-            Debug.Log($"opposite vert, target: {targetSideMiddle}");
+
+            foreach(Rect obstacle in fullObstacle) {
+                if(rightDist > leftDist && obstacle.xMax < startPosition.x || leftDist > rightDist && obstacle.xMin > startPosition.x) {
+                    if(characterEdgeSpot.y == obstacleSurrounder.yMin && obstacle.yMin < targetSideMiddle.y) {
+                        targetSideMiddle.y = obstacle.yMin - radius;
+                    } 
+                    else if(characterEdgeSpot.y == obstacleSurrounder.yMax && obstacle.yMax > targetSideMiddle.y) {
+                        targetSideMiddle.y = obstacle.yMax + radius;
+                    }
+                }
+            }
             return targetSideMiddle;
         }
         else {
@@ -729,7 +539,6 @@ public class AIController : Controller
             }
             targetCorner.x += (characterEdgeSpot.x > obstacleSurrounder.center.x ? radius : -radius);
             targetCorner.y += (characterEdgeSpot.y > obstacleSurrounder.center.y ? radius : -radius);
-            Debug.Log($"around corner, target: {targetCorner}");
             return targetCorner;
         }
     }
