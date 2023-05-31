@@ -337,7 +337,7 @@ public abstract class Enemy : MonoBehaviour
         this.positionAfterFall = positionAfterFall;
     }
 
-// Functions for sub classes
+    #region Functions for sub-classes
     protected abstract void ChildStart();
     protected abstract void UpdateAbilities();
 
@@ -408,6 +408,16 @@ public abstract class Enemy : MonoBehaviour
             sturdy = false;
             body.velocity = Vector2.zero;
         });
+    }
+    #endregion
+
+    public void MakeMiniboss() {
+        ApplyStatus(Status.Energy);
+        ApplyStatus(Status.Speed);
+        ApplyStatus(Status.Strength);
+        ApplyStatus(Status.Resistance);
+        startSize *= 1.5f;;
+        transform.localScale = new Vector3(startSize, startSize, 1);
     }
 
     private bool UsingAbilityAnimation() { 

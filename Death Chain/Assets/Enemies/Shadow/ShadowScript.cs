@@ -12,7 +12,7 @@ public class ShadowScript : Enemy
 
     protected override void ChildStart()
     {
-        controller = new AIController(gameObject, AIMode.Chase, AIMode.Chase, 20.0f); // NORMAL VISION IS 5 and wander for untargeted
+        controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
     }
 
     protected override void UpdateAbilities() {
@@ -29,7 +29,6 @@ public class ShadowScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        return; // FOR TESTING OBVIOUSLY REMEMBER TO REMOVE THIS
         if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 3.0f) {
             controller.QueueAbility(0, 0.5f, 1.0f);
         }
