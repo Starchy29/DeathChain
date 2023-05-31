@@ -31,6 +31,7 @@ public abstract class Enemy : MonoBehaviour
     private float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
     private Timer endlag;
     private float startSize; // assumes width and height are equal
+    private bool faceLocked; // prevents changing the face direction from moving
     private Vector3 positionAfterFall; // for fall in pit mechanic
 
     protected int health;
@@ -78,6 +79,7 @@ public abstract class Enemy : MonoBehaviour
             // check for an ability animation finishing
             if(UsingAbilityAnimation() && currentAnimation.Done) {
                 currentAnimation = idleAnimation;
+                faceLocked = false;
             }
         }
 
@@ -204,11 +206,13 @@ public abstract class Enemy : MonoBehaviour
         }
 
         // flip sprite to face move direction
-        if(moveDirection.x > 0) {
-            GetComponent<SpriteRenderer>().flipX = false;
-        } 
-        else if(moveDirection.x < 0) {
-            GetComponent<SpriteRenderer>().flipX = true;
+        if(!faceLocked) {
+            if(moveDirection.x > 0) {
+                GetComponent<SpriteRenderer>().flipX = false;
+            } 
+            else if(moveDirection.x < 0) {
+                GetComponent<SpriteRenderer>().flipX = true;
+            }
         }
 
         // use walk animation unless mid-ability
@@ -311,7 +315,7 @@ public abstract class Enemy : MonoBehaviour
             state = State.Normal;
         }
 
-        GetComponent<CircleCollider2D>().enabled = true; // enable collider
+        GetComponent<CircleCollider2D>().enabled = true;
         GetComponent<Rigidbody2D>().mass = 0.000001f; // prevent walking through other enemies
     }
 
@@ -352,11 +356,13 @@ public abstract class Enemy : MonoBehaviour
     protected GameObject CreateAttack(GameObject prefab) {
         GameObject attack = Instantiate(prefab);
         attack.transform.position = transform.position; // defualt placement is directly on top
-        
+
+        Vector2 aim = controller.GetAimDirection();
+
         // set up defaults for each ability type
         Lobber lobberScript = attack.GetComponent<Lobber>();
         if(lobberScript != null) {
-            lobberScript.Setup(controller.GetAimDirection(), gameObject);
+            lobberScript.Setup(aim, gameObject);
             return attack;
         }
 
@@ -371,11 +377,11 @@ public abstract class Enemy : MonoBehaviour
 
         if(script is Projectile projectileScript) {
             // for projectiles, default aim to the controller's aim
-            projectileScript.SetDirection(controller.GetAimDirection());
+            projectileScript.SetDirection(aim);
         }
         else if(script is Melee meleeScript) {
             // melee attacks should be aimed in the character's aim direction
-            meleeScript.SetAim(controller.GetAimDirection());
+            meleeScript.SetAim(aim);
         }
 
         return attack;
@@ -390,11 +396,24 @@ public abstract class Enemy : MonoBehaviour
         maxSpeed = tempSpeed;
     }
 
+    // functions for altering the character's walk speed
     protected void SetSpeed(float speed) {
         maxSpeed = speed;
     }
     protected void ResetSpeed() {
         maxSpeed = BaseSpeed;
+    }
+
+    protected void FaceAttack() {
+        Vector2 aim = controller.GetAimDirection();
+        if(aim.x > 0) {
+            GetComponent<SpriteRenderer>().flipX = false;
+        }
+        else if(aim.x < 0) {
+            GetComponent<SpriteRenderer>().flipX = true;
+        }
+
+        faceLocked = true;
     }
 
     protected void Dash(Vector2 velocity, float duration) {

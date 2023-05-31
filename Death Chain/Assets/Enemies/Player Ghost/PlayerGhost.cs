@@ -48,6 +48,7 @@ public class PlayerGhost : Enemy
         if(UseAbility(0)) { // slash
             cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab);
+            FaceAttack();
             ApplyEndlag(0.3f, 2.0f);
             currentAnimation = slashAnimation;
             slashAnimation.Reset();
@@ -58,10 +59,10 @@ public class PlayerGhost : Enemy
             cooldowns[1] = SHOOT_CD;
             ApplyEndlag(0.3f, 2.0f);
             CreateAttack(ShotPrefab).transform.position += new Vector3(0, 0.3f, 0);
+            FaceAttack();
 
             currentAnimation = shootAnimation;
             currentAnimation.Reset();
-            GetComponent<SpriteRenderer>().flipX = controller.GetAimDirection().x < 0; // face shoot direction (when unmoving)
         }
     }
 

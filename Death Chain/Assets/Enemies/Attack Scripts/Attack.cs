@@ -10,6 +10,8 @@ public class Attack : MonoBehaviour
     [SerializeField] protected Status effect;
     [SerializeField] protected float effectDuration; // a duration of zero means no status is applied
 
+    private List<Enemy> recentHits = new List<Enemy>();
+
     private GameObject user;
     public GameObject User { get { return user; }
         set { // must be set by the attack user on creation, remember that the user might die when the attack is still going
@@ -32,8 +34,8 @@ public class Attack : MonoBehaviour
             case 10: // aerial enemies
                 // check if colliding with an enemy or ally
                 Enemy enemyScript = collision.gameObject.GetComponent<Enemy>();
-                if(enemyScript != null && enemyScript.IsAlly != isAlly) {
-                    if(knockback > 0) {
+                if(enemyScript != null && enemyScript.IsAlly != isAlly && !recentHits.Contains(enemyScript)) {
+                    if (knockback > 0) {
                         enemyScript.Push(GetPushDirection(enemyScript.gameObject).normalized * knockback);
                         // knockback must be before damage becuase death needs to eliminate momentum
                     }
@@ -42,6 +44,14 @@ public class Attack : MonoBehaviour
                         enemyScript.ApplyStatus(effect, effectDuration);
                     }
                     OnEnemyCollision(enemyScript);
+
+                    // prevent retriggering the attack for a fraction of a second
+                    recentHits.Add(enemyScript);
+                    Timer.CreateTimer(0.1f, false, () => { 
+                        if(recentHits != null) {
+                            recentHits.Remove(enemyScript);
+                        }
+                    });
                 }
                 break;
         }
