@@ -316,16 +316,9 @@ public class AIController : Controller
     private Vector2 Approach(Vector2 targetLocation) {
         // compile all rectangles that can block movement, expanded by the radius
         float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        List<Rect> obstacles = new List<Rect>();
-        foreach(GameObject wall in EntityTracker.Instance.Walls) {
-            obstacles.Add(wall.GetComponent<WallScript>().Area);
-        }
+        List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
         if(!controlled.GetComponent<Enemy>().Floating) {
-            foreach(PitScript pit in EntityTracker.Instance.Pits) {
-                foreach(Rect area in pit.Zones) {
-                    obstacles.Add(area);
-                }
-            }
+            obstacles.AddRange(EntityTracker.Instance.PitAreas);
         }
 
         Vector2 startPosition = controlled.transform.position;
@@ -472,7 +465,124 @@ public class AIController : Controller
         Vector2 characterEdgeSpot = maybeChar.Value;
         Vector2 targetEdgeSpot = maybeTarg.Value;
 
-        // TODO: FIND WHICH SIDES ARE INACCESSABLE (based on border wall?)
+        // find which ways around the obstacle would be blocked by a border
+        List<Vector2> borderSpots = new List<Vector2>();
+        foreach(Rect border in EntityTracker.Instance.BorderAreas) {
+            if(border.MakeExpanded(2 * radius).Overlaps(obstacleSurrounder)) {
+                borderSpots.Add(FindEdgeSpot(border.center).Value);
+            }
+        }
+
+        if(borderSpots.Count > 1) {
+            // test if both directions are blocked
+            Vector2 startToEnd = targetEdgeSpot - characterEdgeSpot;
+            Vector2 perp = new Vector2(-startToEnd.y, startToEnd.x);
+            Vector2 startToBorder = borderSpots[0] - characterEdgeSpot;
+            if(Vector2.Dot(startToBorder, perp) < 0) {
+                perp = -perp;
+            }
+            for(int i = 1; i < borderSpots.Count; i++) {
+                Vector2 startToNextBorder = borderSpots[i] - characterEdgeSpot;
+                if(Vector2.Dot(startToNextBorder, perp) <= 0) {
+                    // no valid path because blocked in both directions
+                    return targetLocation;
+                }
+            }
+        }
+        if(borderSpots.Count > 0) { // if multiple borders, but there is a valid direction, use the first to represent them all
+            List<Vector2> corners = new List<Vector2>() { // clockwise starting at bottom left
+                new Vector2(obstacleSurrounder.xMin, obstacleSurrounder.yMin),
+                new Vector2(obstacleSurrounder.xMin, obstacleSurrounder.yMax),
+                new Vector2(obstacleSurrounder.xMax, obstacleSurrounder.yMax),
+                new Vector2(obstacleSurrounder.xMax, obstacleSurrounder.yMin)
+            };
+
+            // determine which two corners are the potential targets
+            int clockCorner = 0;
+            int counterCorner = 0;
+            if(corners.Contains(characterEdgeSpot)) {
+                clockCorner = corners.IndexOf(characterEdgeSpot);
+                clockCorner++;
+                if(clockCorner > corners.Count - 1) {
+                    clockCorner = 0;
+                }
+                counterCorner = clockCorner - 2;
+                if(counterCorner < 0) {
+                    counterCorner += corners.Count;
+                }
+            }
+            else if(characterEdgeSpot.x == obstacleSurrounder.xMin) {
+                clockCorner = 1;
+                counterCorner = 0;
+            }
+            else if(characterEdgeSpot.y == obstacleSurrounder.yMax) {
+                clockCorner = 2;
+                counterCorner = 1;
+            }
+            else if(characterEdgeSpot.x == obstacleSurrounder.xMax) {
+                clockCorner = 3;
+                counterCorner = 2;
+            }
+            else {
+                clockCorner = 0;
+                counterCorner = 3;
+            }
+
+            // see if going clockwise gets to the target
+            bool blocked = false;
+            bool foundCorner = false;
+
+            bool startBlocked = borderSpots[0].IsBetween(corners[clockCorner], characterEdgeSpot);
+            bool startTarget = targetEdgeSpot.IsBetween(corners[clockCorner], characterEdgeSpot);
+            if(startBlocked && startTarget) {
+                if(Vector2.Distance(characterEdgeSpot, borderSpots[0]) > Vector2.Distance(characterEdgeSpot, targetEdgeSpot)) {
+                    foundCorner = true;
+                } else {
+                    blocked = true;
+                }
+            }
+            else if(startTarget) {
+                foundCorner = true;
+            }
+            else if(startBlocked) {
+                blocked = true;
+            }
+
+            int currentCorner = clockCorner;
+            while(!blocked && !foundCorner) {
+                int nextCorner = currentCorner + 1;
+                if(nextCorner >= corners.Count) {
+                    nextCorner = 0;
+                }
+                bool foundTarget = targetEdgeSpot.IsBetween(corners[currentCorner], corners[nextCorner]);
+                bool foundBlocker = borderSpots[0].IsBetween(corners[currentCorner], corners[nextCorner]);
+                if(foundBlocker && foundTarget) {
+                    if(Vector2.Distance(corners[currentCorner], borderSpots[0]) > Vector2.Distance(corners[currentCorner], targetEdgeSpot)) {
+                        foundCorner = true;
+                    } else {
+                        blocked = true;
+                    }
+                }
+                else if(foundTarget) {
+                    foundCorner = true;
+                }
+                else if(foundBlocker) {
+                    blocked = true;
+                }
+
+                currentCorner = nextCorner;
+            }
+
+            // otherwise go counter clockwise instead
+            Vector2 targetCorner = corners[clockCorner];
+            if(!foundCorner) {
+                targetCorner = corners[counterCorner];
+            }
+            targetCorner.x += targetCorner.x > obstacleSurrounder.center.x ? radius : -radius;
+            targetCorner.y += targetCorner.y > obstacleSurrounder.center.y ? radius : -radius;
+            return targetCorner;
+        }
+
         // determine which way around the obstacle is shorter
         if (characterEdgeSpot.x == targetEdgeSpot.x || characterEdgeSpot.y == targetEdgeSpot.y) {
             // on the same side, approach the corner of that side

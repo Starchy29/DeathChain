@@ -32,4 +32,15 @@ public static class Global
     public static Rect MakeExpanded(this Rect rect, float amount) {
         return new Rect(rect.x - amount, rect.y - amount, rect.width + 2*amount, rect.height + 2*amount);
     }
+
+    // determines if this point lies on the line segment between the other vectors
+    public static bool IsBetween(this Vector2 test, Vector2 start, Vector2 end) {
+        if(test == start || test == end) {
+            return true;
+        }
+
+        bool onLine = Vector2.Dot((test - start).normalized, (end - start).normalized) == 1;
+        bool between = Vector2.Dot(start - test, end - test) < 0;
+        return onLine && between;
+    }
 }
