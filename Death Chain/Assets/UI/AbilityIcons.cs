@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class AbilityIcons : MonoBehaviour
 {
-    [SerializeField] private Sprite PossessIcon;
+    [SerializeField] public Sprite PossessIcon;
     [SerializeField] private Sprite SlashIcon;
     [SerializeField] private Sprite ShootIcon;
     [SerializeField] private Sprite BlastIcon;
-    [SerializeField] private Sprite TeleportIcon;
+    [SerializeField] private Sprite ShroomTeleportIcon;
     [SerializeField] private Sprite PuddleIcon;
     [SerializeField] private Sprite WebIcon;
 
@@ -28,7 +28,7 @@ public class AbilityIcons : MonoBehaviour
             return new Sprite[] { BlastIcon, null, null };
         }
         else if(enemyScript is MushroomScript) {
-            return new Sprite[] { ShootIcon, TeleportIcon, null };
+            return new Sprite[] { ShootIcon, ShroomTeleportIcon, null };
         }
         else if(enemyScript is ShadowScript) {
             return new Sprite[] { SlashIcon, null, null };

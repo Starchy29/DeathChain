@@ -479,7 +479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5845115521941679702, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5845115521941679704, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_RootOrder
@@ -1296,7 +1296,7 @@ MonoBehaviour:
   - {fileID: 1209593815}
   - {fileID: 394539875}
   - {fileID: 2026076424}
-  - {fileID: 1969528354}
+  - {fileID: 0}
 --- !u!4 &1831789909
 Transform:
   m_ObjectHideFlags: 0
@@ -1329,11 +1329,6 @@ MonoBehaviour:
   HitParticle: {fileID: 4517559496455415143, guid: c8f3a9e01361a0b40af6f1cca549061b, type: 3}
   statusParticlePrefabs:
   - {fileID: 7171046559570198394, guid: df82022f20b9dd745a6dea164ac2418e, type: 3}
---- !u!1 &1969528354 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5887746927401730266, guid: 18b08d16f2698404c833a76fbe2ef0ca, type: 3}
-  m_PrefabInstance: {fileID: 5887746927051218680}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2026076424 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5887746927458150384, guid: 18b08d16f2698404c833a76fbe2ef0ca, type: 3}
@@ -1352,11 +1347,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3210773263146579857, guid: dc195ab12f328c543b49c9ed96717875, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 8.72
       objectReference: {fileID: 0}
     - target: {fileID: 3210773263146579857, guid: dc195ab12f328c543b49c9ed96717875, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 2.6
       objectReference: {fileID: 0}
     - target: {fileID: 3210773263146579857, guid: dc195ab12f328c543b49c9ed96717875, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1486,7 +1481,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7768061846100552947, guid: 587f37774f5687e44992bf4c5b05ce35, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7768061846100552957, guid: 587f37774f5687e44992bf4c5b05ce35, type: 3}
       propertyPath: m_RootOrder

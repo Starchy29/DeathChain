@@ -37,7 +37,7 @@ public class PlayerScript : MonoBehaviour
         healthBarHeight = soulHealthBar.transform.localScale.y;
         healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
         corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
-        abilityButtons[3].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, ABILITY_ALPHA);
+        SetAbilityIcons();
     }
 
     void Update()
