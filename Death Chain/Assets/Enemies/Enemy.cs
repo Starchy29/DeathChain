@@ -25,7 +25,6 @@ public abstract class Enemy : MonoBehaviour
 
     private State state = State.Normal;
     private Rigidbody2D body;
-    private Statuses statuses; // conveniently track all status effects
     private float poisonTimer; // tracks when to deal poison damage
     private bool knocked = false; // true means movement is locked as this is being pushed
     private float maxSpeed; // how fast this character can move without factoring in status effects. Can be changed by own abilities
@@ -35,6 +34,7 @@ public abstract class Enemy : MonoBehaviour
     private Vector3 positionAfterFall; // for fall in pit mechanic
 
     protected int health;
+    protected Statuses statuses; // conveniently track all status effects
     protected bool isAlly = false; // whether or not this is fighting for the player
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected bool floating = false; // floating enemies can walk over pits
@@ -79,6 +79,7 @@ public abstract class Enemy : MonoBehaviour
             // check for an ability animation finishing
             if(UsingAbilityAnimation() && currentAnimation.Done) {
                 currentAnimation = idleAnimation;
+                currentAnimation.Reset();
                 faceLocked = false;
             }
         }
@@ -353,11 +354,24 @@ public abstract class Enemy : MonoBehaviour
         return (endlag == null || !endlag.Active) && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
     }
 
-    protected GameObject CreateAttack(GameObject prefab) {
+    protected GameObject CreateAttack(GameObject prefab, bool faceAttack = false) {
         GameObject attack = Instantiate(prefab);
         attack.transform.position = transform.position; // defualt placement is directly on top
 
-        Vector2 aim = controller.GetAimDirection();
+        Vector2 aim = Vector2.zero;
+        if(controller != null) {
+            aim = controller.GetAimDirection();
+        }
+
+        if(faceAttack) {
+            faceLocked = true;
+            if (aim.x > 0) {
+                GetComponent<SpriteRenderer>().flipX = false;
+            }
+            else if(aim.x < 0) {
+                GetComponent<SpriteRenderer>().flipX = true;
+            }
+        }
 
         // set up defaults for each ability type
         Lobber lobberScript = attack.GetComponent<Lobber>();
@@ -402,18 +416,6 @@ public abstract class Enemy : MonoBehaviour
     }
     protected void ResetSpeed() {
         maxSpeed = BaseSpeed;
-    }
-
-    protected void FaceAttack() {
-        Vector2 aim = controller.GetAimDirection();
-        if(aim.x > 0) {
-            GetComponent<SpriteRenderer>().flipX = false;
-        }
-        else if(aim.x < 0) {
-            GetComponent<SpriteRenderer>().flipX = true;
-        }
-
-        faceLocked = true;
     }
 
     protected void Dash(Vector2 velocity, float duration) {

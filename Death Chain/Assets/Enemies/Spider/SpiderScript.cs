@@ -36,7 +36,7 @@ public class SpiderScript : Enemy
                 charging = false;
                 ResetSpeed();
             } else {
-                charge += CHARGE_RATE * Time.deltaTime;
+                charge += CHARGE_RATE * Time.deltaTime * (statuses.HasStatus(Status.Energy) ? 1.5f : 1f);
                 if(charge > MAX_CHARGE) {
                     charge = MAX_CHARGE;
                 }

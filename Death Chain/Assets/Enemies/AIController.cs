@@ -32,15 +32,15 @@ public class AIController : Controller
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
     public float CurrentVision { get { 
-        if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
-            return vision / 2; // half vision outisde the starting position
+        float result = vision;
+        float distFromStart = Vector2.Distance(controlled.transform.position, startPosition);
+        if(!IgnoreStart && distFromStart > WANDER_RANGE) {
+            result *= (2 * WANDER_RANGE - distFromStart) / WANDER_RANGE; // decreased vision when outside the starting area
         } 
-        else if(target != null) {
-            return vision + 2; // extra vision when tracking a target
+        if(target != null) {
+            result += 2; // extra vision when tracking a target
         }
-        else {
-            return vision;
-        }
+        return result;
     } }
     public AIMode CurrentMode { get {
         if(target == null) {
@@ -65,8 +65,8 @@ public class AIController : Controller
             ChooseMovement();
         }
     }
-    
-// Functions for Enemy class
+
+    #region Functions for Enemy class
     public void QueueAbility(int ability, float startup = 0, float endlag = 0) {
         if(startup > 0) {
             paused = true;
@@ -108,8 +108,9 @@ public class AIController : Controller
 
         return Vector3.Distance(controlled.transform.position, target.transform.position);
     }
+    #endregion
 
-// Required controller functions
+    #region Required controller functions
     public override Vector2 GetMoveDirection() {
         if(paused) {
             return Vector2.zero; // stay still to indicate an oncoming attack
@@ -164,8 +165,9 @@ public class AIController : Controller
 
         return Vector2.down;
     }
+    #endregion
 
-// Private helper functions
+    #region Helper functions
     // takes the character's desired direction and modifies it to avoid walls and pits. Works best when trying to move in one direction for a while
     private Vector2 ModifyDirection(Vector2 desiredDirection) {
         if(desiredDirection == Vector2.zero) {
@@ -173,7 +175,25 @@ public class AIController : Controller
         }
 
         float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        List<Rect> overlaps = FindFutureCollisions(desiredDirection);
+        float checkDistance = radius * controlled.GetComponent<Enemy>().WalkSpeed / 4;
+        Vector2 futureSpot = (Vector2)controlled.transform.position + checkDistance * desiredDirection.normalized;
+        Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
+        
+        List<Rect> overlaps = new List<Rect>();
+        foreach(Rect wall in EntityTracker.Instance.RegularWallAreas) {
+            if(wall.Overlaps(futureArea)) {
+                overlaps.Add(wall);
+            }
+        }
+
+        if(!controlled.GetComponent<Enemy>().Floating) {
+            foreach(Rect pit in EntityTracker.Instance.PitAreas) {
+                if(pit.Overlaps(futureArea)) {
+                    overlaps.Add(pit);
+                }
+            }
+        }
+
         if(overlaps.Count <= 0) {
             return desiredDirection;
         }
@@ -652,4 +672,5 @@ public class AIController : Controller
             return targetCorner;
         }
     }
+    #endregion
 }
