@@ -17,12 +17,14 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField] private GameObject soulHealthBar;
     [SerializeField] private GameObject corpseHealthBar;
+    [SerializeField] private GameObject[] abilityButtons;
 
     private int playerHealth;
     private Timer decayTimer;
 
     private const float DECAY_FREQ = 2.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
+    private const float ABILITY_ALPHA = 0.5f; 
     private float healthBarHeight; // used to represent the width of each health point
     private Vector3 healthBarStart;
 
@@ -35,6 +37,7 @@ public class PlayerScript : MonoBehaviour
         healthBarHeight = soulHealthBar.transform.localScale.y;
         healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
         corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
+        abilityButtons[3].GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, ABILITY_ALPHA);
     }
 
     void Update()
@@ -112,6 +115,7 @@ public class PlayerScript : MonoBehaviour
 
                 playerCharacter = closestOption;
                 playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
+                SetAbilityIcons();
             }
         }
         else { // possess not pressed
@@ -134,8 +138,22 @@ public class PlayerScript : MonoBehaviour
             soulHealthBar.transform.localScale = new Vector3(playerHealth * healthBarHeight, healthBarHeight, 1);
             soulHealthBar.transform.localPosition = healthBarStart + new Vector3(playerHealth * healthBarHeight / 2, 0, 0);
         }
-            // abilities
-            // souls
+
+        float[] cooldowns = playerCharacter.GetComponent<Enemy>().Cooldowns;
+        for(int i = 0; i < 3; i++) {
+            Color color = Color.white;
+            if(cooldowns[i] > 2) {
+                color = new Color(0.5f, 0.0f, 0.0f);
+            }
+            else if(cooldowns[i] > 1) {
+                color = Color.red;
+            }
+            else if(cooldowns[i] > 0) {
+                color = new Color(1.0f, 0.5f, 0.0f);
+            }
+            color.a = ABILITY_ALPHA;
+            abilityButtons[i].GetComponent<SpriteRenderer>().color = color;
+        }
     }
 
     // checks for release of the possess button
@@ -172,5 +190,19 @@ public class PlayerScript : MonoBehaviour
         playerCharacter.GetComponent<Enemy>().Unpossess();
         playerCharacter = playerGhost;
         playerCharacter.GetComponent<PlayerGhost>().Setup(playerHealth);
+        SetAbilityIcons();
+    }
+
+    private void SetAbilityIcons() {
+        Sprite[] icons = AbilityIcons.Instance.GetIcons(playerCharacter.GetComponent<Enemy>());
+        for(int i = 0; i < 3; i++) {
+            Sprite sprite = icons[i];
+            if(sprite == null) {
+                abilityButtons[i].transform.GetChild(0).gameObject.SetActive(false);
+            } else {
+                abilityButtons[i].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = sprite;
+                abilityButtons[i].transform.GetChild(0).gameObject.SetActive(true);
+            }
+        }
     }
 }

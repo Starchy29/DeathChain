@@ -50,6 +50,7 @@ public abstract class Enemy : MonoBehaviour
             * (statuses.HasStatus(Status.Freeze) ? 0 : 1);
     }}
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
+    public float[] Cooldowns { get { return cooldowns; } }
     public bool IsAlly { get { return isAlly; } }
     public bool IsPlayer { get { return controller is PlayerController; } }
     public bool Floating { get { return floating; } }
