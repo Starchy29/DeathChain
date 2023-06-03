@@ -82,6 +82,16 @@ public class MushroomScript : Enemy
         }
     }
 
+    private void Teleport() {
+        transform.position = selector.transform.position;
+        Destroy(selector);
+        selector = null;
+
+        currentAnimation.ChangeType(AnimationType.Reverse);
+        currentAnimation.OnComplete = null;
+        currentAnimation.Reset();
+    }
+
     public override void AIUpdate(AIController controller) {
         if(cooldowns[1] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 2.0f) {
             // check for a potential warp target
@@ -94,18 +104,8 @@ public class MushroomScript : Enemy
                 }
             }
         }
-        if(cooldowns[0] <= 0 && controller.Target != null) {
+        if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false) ) {
             controller.QueueAbility(0, 0.3f);
         }
-    }
-
-    private void Teleport() {
-        transform.position = selector.transform.position;
-        Destroy(selector);
-        selector = null;
-
-        currentAnimation.ChangeType(AnimationType.Reverse);
-        currentAnimation.OnComplete = null;
-        currentAnimation.Reset();
     }
 }

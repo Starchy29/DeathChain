@@ -108,6 +108,11 @@ public class AIController : Controller
 
         return Vector3.Distance(controlled.transform.position, target.transform.position);
     }
+
+    // detects if the target is blocked by walls and maybe pits for selecting attacks
+    public bool IsTargetBlocked(bool checkPits) {
+        return target != null && FindBlocker(target.transform.position, checkPits).HasValue;
+    }
     #endregion
 
     #region Required controller functions
@@ -283,17 +288,6 @@ public class AIController : Controller
                 travelTimer *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
             }
         }
-        else if(CurrentMode == AIMode.Chase) {
-            travelTimer -= Time.deltaTime;
-            if(travelTimer <= 0) {
-                travelTimer += 0.0f;
-                if(target == null) {
-                    movementValue = Vector2.zero;
-                } else {
-                    movementValue = Approach(target.transform.position);
-                }
-            }
-        }
     }
 
     // returns the unit vector towards the target, zero vector if no target
@@ -305,44 +299,16 @@ public class AIController : Controller
         return (target.transform.position - controlled.transform.position).normalized;
     }
 
-    // finds the walls and pits this character would intersect if they moved in this direction
-    private List<Rect> FindFutureCollisions(Vector2 direction) {
-        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        Vector2 futureSpot = (Vector2)controlled.transform.position + radius * direction.normalized;
-        Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
-        
-        List<Rect> overlaps = new List<Rect>();
-        foreach(GameObject wall in EntityTracker.Instance.Walls) {
-            WallScript wallScript = wall.GetComponent<WallScript>();
-            if(wallScript.Area.Overlaps(futureArea)) {
-                overlaps.Add(wallScript.Area);
-            }
-        }
-
-        if(!controlled.GetComponent<Enemy>().Floating) {
-            foreach(PitScript pit in EntityTracker.Instance.Pits) {
-                foreach(Rect zone in pit.Zones) {
-                    if(zone.Overlaps(futureArea)) {
-                        overlaps.Add(zone);
-                    }
-                }
-            }
-        }
-
-        return overlaps;
-    }
-
-    // returns a position to move towards, navigating around obstacles as necessary
-    private Vector2 Approach(Vector2 targetLocation) {
-        // compile all rectangles that can block movement, expanded by the radius
+    // finds the closest obstacle that blocks a straight path to the target, if any
+    private Rect? FindBlocker(Vector2 targetLocation, bool checkPits) {
         float radius = controlled.GetComponent<Enemy>().CollisionRadius;
         List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
-        if(!controlled.GetComponent<Enemy>().Floating) {
+        if(checkPits) {
             obstacles.AddRange(EntityTracker.Instance.PitAreas);
         }
 
-        Vector2 startPosition = controlled.transform.position;
-        Vector2 idealMovement = targetLocation - startPosition;
+        Vector2 currentPosition = controlled.transform.position;
+        Vector2 idealMovement = targetLocation - currentPosition;
         Vector2 idealDirection = idealMovement.normalized;
 
         // find closest wall/pit that blocks the ideal movement
@@ -355,8 +321,8 @@ public class AIController : Controller
             if(idealDirection.x != 0) {
                 // check left or right side
                 float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
-                distance = (targetX - startPosition.x) / idealDirection.x;
-                float y = startPosition.y + idealDirection.y * distance;
+                distance = (targetX - currentPosition.x) / idealDirection.x;
+                float y = currentPosition.y + idealDirection.y * distance;
 
                 if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
                     edgePosition = new Vector2(targetX, y);
@@ -365,8 +331,8 @@ public class AIController : Controller
             if(idealDirection.y != 0) {
                 // check left or right side
                 float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
-                float newDistance = (targetY - startPosition.y) / idealDirection.y;
-                float x = startPosition.x + idealDirection.x * newDistance;
+                float newDistance = (targetY - currentPosition.y) / idealDirection.y;
+                float x = currentPosition.x + idealDirection.x * newDistance;
                 
                 if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
                     if(!edgePosition.HasValue || newDistance > distance) {
@@ -383,6 +349,20 @@ public class AIController : Controller
             }
         }
 
+        return closestBlock;
+    }
+
+    // returns a position to move towards, navigating around obstacles as necessary
+    private Vector2 Approach(Vector2 targetLocation) {
+        // compile all rectangles that can block movement, expanded by the radius
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
+        if(!controlled.GetComponent<Enemy>().Floating) {
+            obstacles.AddRange(EntityTracker.Instance.PitAreas);
+        }
+
+        Vector2 currentPosition = controlled.transform.position;
+        Rect? closestBlock = FindBlocker(targetLocation, !controlled.GetComponent<Enemy>().Floating);
         if(!closestBlock.HasValue) {
             // straight path works
             return targetLocation;
@@ -475,7 +455,7 @@ public class AIController : Controller
             return potentialSpots[0];
         }
 
-        Vector2? maybeChar = FindEdgeSpot(startPosition);
+        Vector2? maybeChar = FindEdgeSpot(currentPosition);
         Vector2? maybeTarg = FindEdgeSpot(targetLocation);
         if(!maybeChar.HasValue || !maybeTarg.HasValue) {
             // give up and use direct path if no alternate route can be found
@@ -627,7 +607,7 @@ public class AIController : Controller
             targetSideMiddle.y = upDist > downDist ? obstacleSurrounder.yMin - radius : obstacleSurrounder.yMax + radius;
 
             foreach(Rect obstacle in fullObstacle) {
-                if(upDist > downDist && obstacle.yMax < startPosition.y || downDist > upDist && obstacle.yMin > startPosition.y) {
+                if(upDist > downDist && obstacle.yMax < currentPosition.y || downDist > upDist && obstacle.yMin > currentPosition.y) {
                     if(characterEdgeSpot.x == obstacleSurrounder.xMin && obstacle.xMin < targetSideMiddle.x) {
                         targetSideMiddle.x = obstacle.xMin - radius;
                     } 
@@ -648,7 +628,7 @@ public class AIController : Controller
             targetSideMiddle.x = rightDist > leftDist ? obstacleSurrounder.xMin - radius : obstacleSurrounder.xMax + radius;
 
             foreach(Rect obstacle in fullObstacle) {
-                if(rightDist > leftDist && obstacle.xMax < startPosition.x || leftDist > rightDist && obstacle.xMin > startPosition.x) {
+                if(rightDist > leftDist && obstacle.xMax < currentPosition.x || leftDist > rightDist && obstacle.xMin > currentPosition.x) {
                     if(characterEdgeSpot.y == obstacleSurrounder.yMin && obstacle.yMin < targetSideMiddle.y) {
                         targetSideMiddle.y = obstacle.yMin - radius;
                     } 

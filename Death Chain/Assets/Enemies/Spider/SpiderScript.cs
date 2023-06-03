@@ -78,7 +78,7 @@ public class SpiderScript : Enemy
             }
             controller.QueueAbility(1, 1, 0.6f);
         }
-        else if(cooldowns[0] <= 0 && controller.Target != null && controller.GetMoveDirection() == Vector2.zero) {
+        else if(cooldowns[0] <= 0 && controller.Target != null && controller.GetMoveDirection() == Vector2.zero && !controller.IsTargetBlocked(false)) {
             // draw bow when not moving
             controller.QueueAbility(0);
         }

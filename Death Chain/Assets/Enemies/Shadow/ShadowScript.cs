@@ -29,7 +29,7 @@ public class ShadowScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 3.0f) {
+        if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 3.0f && !controller.IsTargetBlocked(true)) {
             controller.QueueAbility(0, 0.5f, 1.0f);
         }
     }
