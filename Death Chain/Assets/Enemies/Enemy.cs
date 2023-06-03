@@ -39,6 +39,7 @@ public abstract class Enemy : MonoBehaviour
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected bool floating = false; // floating enemies can walk over pits
     protected bool invincible; // some abilities need temporary invincibility
+    protected bool dashing;
     protected Controller controller;
     protected float[] cooldowns = new float[3];
 
@@ -419,16 +420,26 @@ public abstract class Enemy : MonoBehaviour
         maxSpeed = BaseSpeed;
     }
 
-    protected void Dash(Vector2 velocity, float duration) {
+    protected void Dash(Vector2 velocity, float duration, float endlag = 0) {
         if(duration <= 0) {
             return;
         }
 
         body.velocity = velocity;
         sturdy = true;
+        dashing = true;
         Timer.CreateTimer(duration, false, () => {
-            sturdy = false;
             body.velocity = Vector2.zero;
+
+            if(endlag > 0) {
+                Timer.CreateTimer(endlag, false, () => {
+                    sturdy = false;
+                    dashing = false;
+                });
+            } else {
+                sturdy = false;
+                dashing = false;
+            }
         });
     }
     #endregion

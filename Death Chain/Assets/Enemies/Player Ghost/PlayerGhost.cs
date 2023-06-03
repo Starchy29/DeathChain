@@ -17,7 +17,6 @@ public class PlayerGhost : Enemy
 
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
-    //private bool clockwise; // which way the slash should go, alternates every time
     private int trueHealth;
 
     public GameObject ShotPrefab;
@@ -51,8 +50,6 @@ public class PlayerGhost : Enemy
             ApplyEndlag(0.3f, 2.0f);
             currentAnimation = slashAnimation;
             slashAnimation.Reset();
-            //clockwise = !clockwise;
-            //clockwise = true;
         }
         else if(UseAbility(1)) { // shoot
             cooldowns[1] = SHOOT_CD;

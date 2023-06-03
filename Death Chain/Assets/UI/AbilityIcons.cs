@@ -7,6 +7,7 @@ public class AbilityIcons : MonoBehaviour
     [SerializeField] public Sprite PossessIcon;
     [SerializeField] private Sprite SlashIcon;
     [SerializeField] private Sprite ShootIcon;
+    [SerializeField] private Sprite DashIcon;
     [SerializeField] private Sprite BlastIcon;
     [SerializeField] private Sprite ShroomTeleportIcon;
     [SerializeField] private Sprite PuddleIcon;
@@ -31,7 +32,7 @@ public class AbilityIcons : MonoBehaviour
             return new Sprite[] { ShootIcon, ShroomTeleportIcon, null };
         }
         else if(enemyScript is ShadowScript) {
-            return new Sprite[] { SlashIcon, null, null };
+            return new Sprite[] { SlashIcon, DashIcon, null };
         }
         else if(enemyScript is SlimeScript) {
             return new Sprite[] { ShootIcon, PuddleIcon, null };

@@ -8,7 +8,8 @@ public class ShadowScript : Enemy
     [SerializeField] private GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
 
-    private const float SLASH_CD = 1.3f;
+    private const float SLASH_CD = 1.0f;
+    private const float DASH_CD = 1.5f;
 
     protected override void ChildStart()
     {
@@ -16,21 +17,32 @@ public class ShadowScript : Enemy
     }
 
     protected override void UpdateAbilities() {
-        if(currentSlash != null) {
+        if(currentSlash != null || dashing) {
             // slash updates automatically
             return;
         }
 
-        if(UseAbility(0)) { // slash dash
+        if(UseAbility(0)) { // slash
             cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab);
-            Dash(12.0f * controller.GetAimDirection(), 0.2f);
+            ApplyEndlag(0.3f, 0.5f);
+        }
+        else if(UseAbility(1)) { // dash
+            cooldowns[1] = DASH_CD;
+            Dash(20.0f * controller.GetAimDirection(), 0.12f, 0.1f);
         }
     }
 
     public override void AIUpdate(AIController controller) {
-        if(cooldowns[0] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 3.0f && !controller.IsTargetBlocked(true)) {
-            controller.QueueAbility(0, 0.5f, 1.0f);
+        if(controller.Target == null || controller.IsTargetBlocked(true)) {
+            return;
+        }
+
+        if(cooldowns[0] <= 0 && controller.GetTargetDistance() <= 2.0f) {
+            controller.QueueAbility(0, 0.4f, 0.0f);
+        }
+        else if(cooldowns[1] <= 0 && controller.GetTargetDistance() >= 4.0f) {
+            controller.QueueAbility(1);
         }
     }
 }
