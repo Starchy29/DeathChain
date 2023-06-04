@@ -16,9 +16,9 @@ public class AIController : Controller
     private GameObject target; // the entity this is trying to attack
     private AIMode targetingMovement;
     private AIMode targetlessMovement;
+    private readonly float vision; // how far away targets can be seen
 
     private const float WANDER_RANGE = 4.0f; // how far enemies are allowed to wander from their starting point
-    private readonly float vision; // how far away targets can be seen
     private readonly Vector2 startPosition;
 
     private Vector2 movementValue; // optional variable for movement modes that have certain paths
@@ -60,7 +60,7 @@ public class AIController : Controller
     public override void Update() {
         CheckVision();
 
-        if(!paused) {
+        if(!paused && queuedAbility < 0) {
             controlled.GetComponent<Enemy>().AIUpdate(this);
             ChooseMovement();
         }
@@ -109,7 +109,7 @@ public class AIController : Controller
         return Vector3.Distance(controlled.transform.position, target.transform.position);
     }
 
-    // detects if the target is blocked by walls and maybe pits for selecting attacks
+    // detects if the target is blocked by walls and maybe pits for selecting attacks. Accounts for having no target
     public bool IsTargetBlocked(bool checkPits) {
         return target != null && FindBlocker(target.transform.position, checkPits).HasValue;
     }
@@ -173,6 +173,34 @@ public class AIController : Controller
     #endregion
 
     #region Helper functions
+    private void CheckVision() {
+        if(vision <= 0) {
+            return;
+        }
+
+        if(target == null) {
+            // check for a target
+            List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
+            Enemy controlledScript = controlled.GetComponent<Enemy>();
+            foreach(GameObject enemy in enemies) {
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                if(enemyScript.IsAlly != controlledScript.IsAlly && !enemyScript.IsCorpse) {
+                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= CurrentVision) {
+                        target = enemy;
+                        break;
+                    }
+                }
+            }
+        } 
+        // check if target is lost
+        else if(!target.activeInHierarchy || target.GetComponent<Enemy>().IsCorpse || GetTargetDistance() > CurrentVision) {
+            if(paused) {
+                specialAim = CalcTargetDirection(); // if the player leaves the character's range when an attack is queued, attack at their last seen location
+            }
+            target = null;
+        }
+    }
+
     // takes the character's desired direction and modifies it to avoid walls and pits. Works best when trying to move in one direction for a while
     private Vector2 ModifyDirection(Vector2 desiredDirection) {
         if(desiredDirection == Vector2.zero) {
@@ -232,31 +260,6 @@ public class AIController : Controller
         }
 
         return desiredDirection;
-    }
-
-    private void CheckVision() {
-        if(vision <= 0) {
-            return;
-        }
-
-        if(target == null) {
-            // check for a target
-            List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
-            Enemy controlledScript = controlled.GetComponent<Enemy>();
-            foreach(GameObject enemy in enemies) {
-                Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if(enemyScript.IsAlly != controlledScript.IsAlly && !enemyScript.IsCorpse) {
-                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= CurrentVision) {
-                        target = enemy;
-                        break;
-                    }
-                }
-            }
-        } 
-        // check if target is lost
-        else if(!target.activeInHierarchy || target.GetComponent<Enemy>().IsCorpse || GetTargetDistance() > CurrentVision) {
-            target = null;
-        }
     }
 
     // determine a direction to move for a span of time

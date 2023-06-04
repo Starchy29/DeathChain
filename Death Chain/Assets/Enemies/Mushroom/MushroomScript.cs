@@ -17,7 +17,7 @@ public class MushroomScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Still, AIMode.Still, 6.0f);
-        ((AIController)controller).ReleaseAbility = 1; // ai always instantly use teleport
+        ((AIController)controller).ReleaseAbility = 1; // ai always instantly uses teleport
         sturdy = true;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
@@ -104,8 +104,9 @@ public class MushroomScript : Enemy
                 }
             }
         }
-        if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false) ) {
+        else if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false) ) {
             controller.QueueAbility(0, 0.3f);
+            Debug.Log("shoot queued " + controller.Target);
         }
     }
 }

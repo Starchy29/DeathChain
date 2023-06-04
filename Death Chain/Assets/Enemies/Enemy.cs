@@ -68,9 +68,9 @@ public abstract class Enemy : MonoBehaviour
         startSize = transform.localScale.x;
         body = GetComponent<Rigidbody2D>();
         EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
-        currentAnimation = idleAnimation;
-
+        
         ChildStart();
+        currentAnimation = idleAnimation; // animations are created by child classes
     }
 
     void Update()

@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7103515171346265320, guid: e687d0df887dcd74fa2b4adc379cce9e, type: 3}
       propertyPath: m_Name
-      value: Resistance Pickup
+      value: Resistance Pickup Variant
       objectReference: {fileID: 0}
     - target: {fileID: 7103515171346265321, guid: e687d0df887dcd74fa2b4adc379cce9e, type: 3}
       propertyPath: effect
