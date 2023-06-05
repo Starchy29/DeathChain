@@ -61,6 +61,12 @@ public class PlayerGhost : Enemy
         }
     }
 
+    protected override void DestroyDependents() {
+        if(currentSlash != null) {
+            Destroy(currentSlash);
+        }
+    }
+
     // when unpossessing, allow the player info tracker to pass the right values for the player
     public void Setup(int health) {
         trueHealth = health; // used to override when health is set in Enemy.Start()

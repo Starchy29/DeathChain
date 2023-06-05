@@ -251,7 +251,8 @@ public abstract class Enemy : MonoBehaviour
         if(health <= 0) {
             body.velocity = Vector2.zero;
             statuses.ClearPoison();
-            for(int i = 0; i < 3; i++) {
+            DestroyDependents();
+            for (int i = 0; i < 3; i++) {
                 cooldowns[i] = 0;
             }
 
@@ -335,6 +336,7 @@ public abstract class Enemy : MonoBehaviour
         currentAnimation = deathAnimation;
         currentAnimation.ChangeType(AnimationType.Forward);
         body.velocity = Vector2.zero;
+        DestroyDependents();
     }
 
     public void FallInPit(Vector3 positionAfterFall) {
@@ -347,10 +349,11 @@ public abstract class Enemy : MonoBehaviour
     #region Functions for sub-classes
     protected abstract void ChildStart();
     protected abstract void UpdateAbilities();
+    protected virtual void OnDeath() { }
+    protected virtual void DestroyDependents() { } // Remove any game objects that this enemy tracks when dying/unpossessed
 
     // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
     public virtual void AIUpdate(AIController controller) { }
-    protected virtual void OnDeath() { }
 
     protected bool UseAbility(int ability) {
         return (endlag == null || !endlag.Active) && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);

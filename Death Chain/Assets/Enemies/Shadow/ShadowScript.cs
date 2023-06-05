@@ -33,6 +33,12 @@ public class ShadowScript : Enemy
         }
     }
 
+    protected override void DestroyDependents() {
+        if(currentSlash != null) {
+            Destroy(currentSlash);
+        }
+    }
+
     public override void AIUpdate(AIController controller) {
         if(controller.Target == null || controller.IsTargetBlocked(true)) {
             return;

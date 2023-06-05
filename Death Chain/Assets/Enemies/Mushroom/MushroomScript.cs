@@ -82,6 +82,12 @@ public class MushroomScript : Enemy
         }
     }
 
+    protected override void DestroyDependents() {
+        if(selector != null) {
+            Destroy(selector);
+        }
+    }
+
     private void Teleport() {
         transform.position = selector.transform.position;
         Destroy(selector);
@@ -106,7 +112,6 @@ public class MushroomScript : Enemy
         }
         else if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false) ) {
             controller.QueueAbility(0, 0.3f);
-            Debug.Log("shoot queued " + controller.Target);
         }
     }
 }
