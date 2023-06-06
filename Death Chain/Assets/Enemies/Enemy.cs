@@ -448,10 +448,10 @@ public abstract class Enemy : MonoBehaviour
     #endregion
 
     public void MakeMiniboss() {
-        ApplyStatus(Status.Energy);
-        ApplyStatus(Status.Speed);
-        ApplyStatus(Status.Strength);
-        ApplyStatus(Status.Resistance);
+        statuses.Add(Status.Energy, 3600, false);
+        statuses.Add(Status.Strength, 3600, false);
+        statuses.Add(Status.Speed, 3600, false);
+        statuses.Add(Status.Resistance, 3600, false);
         startSize *= 1.5f;;
         transform.localScale = new Vector3(startSize, startSize, 1);
     }

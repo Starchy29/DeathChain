@@ -34,18 +34,20 @@ public class Statuses
             durations[i] -= Time.deltaTime;
             if(durations[i] < 0) {
                 durations[i] = 0;
-                MonoBehaviour.Destroy(particles[i]);
-                particles[i] = null;
+                if(particles[i] != null) {
+                    MonoBehaviour.Destroy(particles[i]);
+                    particles[i] = null;
+                }
             }
         }
     }
 
     // apply a status effect for some time
-    public void Add(Status effect, float duration) {
+    public void Add(Status effect, float duration, bool addParticle = true) {
         int index = (int)effect;
         durations[index] += duration;
 
-        if(particles[index] == null && index < EntityTracker.Instance.statusParticlePrefabs.Length) {
+        if(addParticle && particles[index] == null && index < EntityTracker.Instance.statusParticlePrefabs.Length) {
             particles[index] = MonoBehaviour.Instantiate(EntityTracker.Instance.statusParticlePrefabs[index]);
             particles[index].transform.SetParent(user.transform);
             particles[index].transform.localPosition = Vector3.zero;

@@ -7,7 +7,6 @@ public class SpiderScript : Enemy
     [SerializeField] private GameObject ShotPrefab;
     [SerializeField] private GameObject WebPrefab;
 
-    //private const float SHOOT_CD = 
     private const float WEB_CD = 6.0f;
     private const float CHARGE_RATE = 12.0f;
     private const float MAX_CHARGE = 16.0f;
