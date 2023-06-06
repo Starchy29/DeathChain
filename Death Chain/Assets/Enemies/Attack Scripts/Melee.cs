@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// an attack that stays adjacent to the user for a duration. The duration is set by the game object's particle script
-[RequireComponent(typeof(Particle))]
+// an attack that stays adjacent to the user for a duration
 public class Melee : Attack
 {
     [SerializeField] private float range; // distance from center of user
+    [SerializeField] private float meleeDuration;
     private Vector3 direction;
 
     void Update()
@@ -19,7 +19,10 @@ public class Melee : Attack
         }
         transform.rotation = Quaternion.Euler(0, 0, rotation);
         
-        // auto-deleted by attached particle script
+        meleeDuration -= Time.deltaTime;
+        if(meleeDuration <= 0) {
+            Destroy(gameObject);
+        }
     }
 
     // must be called whenever this is created to set the aim direction

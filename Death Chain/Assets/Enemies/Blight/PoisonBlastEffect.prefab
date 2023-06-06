@@ -107,4 +107,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0a4917db5ba61a04f903cc1c86a51986, type: 3}
   - {fileID: 21300000, guid: 715486284c4059c4b84254848bda3f30, type: 3}
   - {fileID: 21300000, guid: 6bda9da67163fe64183c2cc13ec617b3, type: 3}
+  type: 0
   duration: 0.4
+  destroyWhenDone: 1

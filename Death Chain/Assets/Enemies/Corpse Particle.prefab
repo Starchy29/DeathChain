@@ -110,3 +110,4 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 92de5c7952f1dab41848985f8dc4a4d6, type: 3}
   type: 0
   duration: 0.5
+  destroyWhenDone: 1

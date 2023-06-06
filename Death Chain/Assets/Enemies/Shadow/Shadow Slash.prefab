@@ -130,6 +130,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 167bf4bf225869e4b8d560b7aec6df5f, type: 3}
   type: 0
   duration: 0.2
+  destroyWhenDone: 0
 --- !u!114 &6624044014973880999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,3 +148,4 @@ MonoBehaviour:
   effect: 0
   effectDuration: 0
   range: 0.8
+  meleeDuration: 0.2

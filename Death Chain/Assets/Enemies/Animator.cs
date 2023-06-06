@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // a game object that is simply an animation that deletes itself when done
-public class Particle : MonoBehaviour
+public class Animator : MonoBehaviour
 {
     [SerializeField] private Sprite[] sprites;
     [SerializeField] private AnimationType type;
     [SerializeField] private float duration;
+    [SerializeField] private bool destroyWhenDone;
     private Animation effect;
 
     void Start()
@@ -18,7 +19,7 @@ public class Particle : MonoBehaviour
     void Update()
     {
         effect.Update(GetComponent<SpriteRenderer>());
-        if(effect.Done) {
+        if(destroyWhenDone && effect.Done) {
             Destroy(gameObject);
         }
     }
