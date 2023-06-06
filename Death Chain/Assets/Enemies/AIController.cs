@@ -21,7 +21,7 @@ public class AIController : Controller
     private const float WANDER_RANGE = 4.0f; // how far enemies are allowed to wander from their starting point
     private readonly Vector2 startPosition;
 
-    private Vector2 movementValue; // optional variable for movement modes that have certain paths
+    private Vector2 currentDirection; // optional variable for movement modes that have certain paths
     private float travelTimer; // amount of time to travel in the current direction
 
     private Vector2 specialAim; // allows enemies to aim in specific directions
@@ -90,7 +90,7 @@ public class AIController : Controller
             }
         }
 
-        if(CurrentMode == AIMode.Wander && movementValue == Vector2.zero) {
+        if(CurrentMode == AIMode.Wander && currentDirection == Vector2.zero) {
             // allow movement again right after endlag
             travelTimer = 0.0f;
         }
@@ -123,10 +123,14 @@ public class AIController : Controller
         
         switch(CurrentMode) {
             case AIMode.Still:
+                if(Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE / 2) {
+                    // return to start circle
+                    return (startPosition - (Vector2)controlled.transform.position).normalized;
+                }
                 return Vector2.zero;
 
             case AIMode.Wander:
-                return ModifyDirection(movementValue);
+                return ModifyDirection(currentDirection);
 
             case AIMode.Chase:
                 if(target == null) {
@@ -265,30 +269,29 @@ public class AIController : Controller
     // determine a direction to move for a span of time
     private void ChooseMovement() {
         if(CurrentMode == AIMode.Wander) {
-            // use movementValue as current direction
-            travelTimer -= Time.deltaTime;
+            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed, where 4 is considered average
 
             if(travelTimer <= 0) {
                 // alternate between moving in a direction and pausing
-                if(movementValue == Vector2.zero) {
-                    travelTimer += 1.0f;
+                if(currentDirection == Vector2.zero) {
+                    travelTimer += 0.8f;
 
                     // pick a new direction
                     Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
-                    random += -movementValue * 0.5f; // weight it away from the current direction
+                    random += -currentDirection * 0.5f; // weight it away from the current direction
                     if(!IgnoreStart) {
                         // weight random direction towards starting position, not normalized to be weighted more when further away
                         random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
                     }
 
-                    movementValue = random.normalized;
+                    currentDirection = random.normalized;
                 } else {
                     // stay still for a bit
-                    travelTimer += 0.7f;
-                    movementValue = Vector2.zero;
+                    travelTimer += 0.6f;
+                    currentDirection = Vector2.zero;
                 }
 
-                travelTimer *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
+                //travelTimer *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
             }
         }
     }
