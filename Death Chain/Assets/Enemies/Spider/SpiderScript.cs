@@ -17,7 +17,7 @@ public class SpiderScript : Enemy
     private float charge; // speed of the projectile
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, AIMode.Still, 5.0f);
+        controller = new AIController(gameObject, AIMode.Wander, AIMode.Still, 6.0f);
 
         //idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
         //walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
@@ -28,11 +28,10 @@ public class SpiderScript : Enemy
     protected override void UpdateAbilities() {
         if(charging) {
             if(controller.GetReleasedAbility() == 0) {
-                if(charge >= 4.0f) {
-                    GameObject shot = CreateAttack(ShotPrefab);
-                    shot.GetComponent<Projectile>().SetSpeed(charge);
-                    shot.GetComponent<Projectile>().ModifyDamage(charge / MAX_CHARGE);
-                }
+                cooldowns[0] = 1.0f;
+                GameObject shot = CreateAttack(ShotPrefab);
+                shot.GetComponent<Projectile>().SetSpeed(charge);
+                shot.GetComponent<Projectile>().ModifyDamage(charge / MAX_CHARGE);
                 charging = false;
                 ResetSpeed();
             } else {
@@ -47,7 +46,7 @@ public class SpiderScript : Enemy
         if(UseAbility(0)) {
             // start pulling back "bow"
             charging = true;
-            charge = 0;
+            charge = 4.0f;
             SetSpeed(CHARGE_WALK_SPEED);
         }
         else if(UseAbility(1)) {
@@ -60,8 +59,8 @@ public class SpiderScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(controller.Target == null || charge >= MAX_CHARGE * controller.GetTargetDistance() / 5.0f) { // release charging shot when the target leaves range
-            // draw bow an amount proportional to how far the target is
+        if(controller.Target == null || charge >= MAX_CHARGE * controller.GetTargetDistance() / 5.0f && !controller.IsTargetBlocked(false)) {
+            // draw bow an amount proportional to how far the target is, but also release when the target is lost
             controller.ReleaseAbility = 0;
         } else {
             controller.ReleaseAbility = -1;
@@ -76,9 +75,9 @@ public class SpiderScript : Enemy
             if(controller.Target == null) {
                 controller.SetAim(new Vector2(Random.value - 0.5f, Random.value - 0.5f));
             }
-            controller.QueueAbility(1, 1, 0.6f);
+            controller.QueueAbility(1, 0.3f, 0.3f);
         }
-        else if(cooldowns[0] <= 0 && controller.Target != null && controller.GetMoveDirection() == Vector2.zero && !controller.IsTargetBlocked(false)) {
+        else if(cooldowns[0] <= 0 && controller.Target != null && controller.GetMoveDirection() == Vector2.zero) {
             // draw bow when not moving
             controller.QueueAbility(0);
         }
