@@ -33,7 +33,7 @@ public class ShadowScript : Enemy
         }
     }
 
-    protected override void DestroyDependents() {
+    protected override void ResetAndClear() {
         if(currentSlash != null) {
             Destroy(currentSlash);
         }

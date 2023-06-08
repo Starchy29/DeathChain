@@ -115,8 +115,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373945bd321770441a9a48e1230d3e82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 4
+  damage: 2
   knockback: 6
+  effect: 0
+  effectDuration: 0
   speed: 12
   range: 20
   destroyParticle: {fileID: 1109597486317767876, guid: c3e105112996bfd4abb0c26b6e6cf2d0, type: 3}
@@ -140,3 +142,4 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 2d6c875a4308d424dbade583322fb2d2, type: 3}
   type: 3
   duration: 0.2
+  destroyWhenDone: 0

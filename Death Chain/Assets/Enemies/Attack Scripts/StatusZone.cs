@@ -7,6 +7,7 @@ public class StatusZone : MonoBehaviour
 {
     [SerializeField] private Status effect;
     [SerializeField] private float duration;
+    [SerializeField] private float enterAmount;
     private const float TICK_RATE = 0.2f; // seconds
     private Timer timer;
     private List<Enemy> enemiesWithin;
@@ -35,6 +36,7 @@ public class StatusZone : MonoBehaviour
         Enemy script = collision.gameObject.GetComponent<Enemy>();
         if(script != null && script.IsAlly != IsAlly) {
             enemiesWithin.Add(script);
+            script.ApplyStatus(effect, enterAmount);
         }
     }
 

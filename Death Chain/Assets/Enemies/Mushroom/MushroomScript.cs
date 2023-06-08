@@ -18,6 +18,7 @@ public class MushroomScript : Enemy
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Still, AIMode.Still, 6.0f);
         ((AIController)controller).ReleaseAbility = 1; // ai always instantly uses teleport
+        ((AIController)controller).IgnoreStart = true; // don't allow teleporting to affect vision
         sturdy = true;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
@@ -82,7 +83,7 @@ public class MushroomScript : Enemy
         }
     }
 
-    protected override void DestroyDependents() {
+    protected override void ResetAndClear() {
         if(selector != null) {
             Destroy(selector);
         }

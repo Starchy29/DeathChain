@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc87db83a048a54cbb72b8b9312b8cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseHealth: 9
+  BaseHealth: 4
   BaseSpeed: 7
   idleSprites:
   - {fileID: 21300000, guid: 2c14ed1272857ae4ba2f248528ad4d33, type: 3}
@@ -175,4 +175,3 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9e53db7d9ac36d04e869e8fe7c865668, type: 3}
   - {fileID: 21300000, guid: 9cef95300da69a341b0dba3c9c0d1687, type: 3}
   BlastPrefab: {fileID: 3387492980565856137, guid: 43ea57e402339bf4ba7986f49c3d5d9a, type: 3}
-  blastCooldown: 1.2

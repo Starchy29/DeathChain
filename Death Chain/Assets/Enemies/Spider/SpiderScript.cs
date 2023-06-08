@@ -16,7 +16,7 @@ public class SpiderScript : Enemy
     private float charge; // speed of the projectile
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, AIMode.Still, 6.0f);
+        controller = new AIController(gameObject, AIMode.Wander, AIMode.Still, 5.5f);
 
         //idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
         //walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
@@ -57,8 +57,13 @@ public class SpiderScript : Enemy
         }
     }
 
+    protected override void ResetAndClear()
+    {
+        charging = false;
+    }
+
     public override void AIUpdate(AIController controller) {
-        if(controller.Target == null || charge >= MAX_CHARGE * controller.GetTargetDistance() / 5.0f && !controller.IsTargetBlocked(false)) {
+        if(controller.Target == null || charge >= Mathf.Min(MAX_CHARGE * controller.GetTargetDistance() / 5.0f, MAX_CHARGE) && !controller.IsTargetBlocked(false)) {
             // draw bow an amount proportional to how far the target is, but also release when the target is lost
             controller.ReleaseAbility = 0;
         } else {

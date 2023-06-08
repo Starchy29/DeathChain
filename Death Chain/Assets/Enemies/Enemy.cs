@@ -99,14 +99,15 @@ public abstract class Enemy : MonoBehaviour
                 UpdateAbilities();
 
                 // manage poison damage
+                const float POISON_RATE = 1.0f;
                 if(statuses.HasStatus(Status.Poison)) {
                     poisonTimer -= Time.deltaTime;
                     if(poisonTimer <= 0) {
-                        poisonTimer += 0.5f; // poison tick rate
+                        poisonTimer += POISON_RATE;
                         TakeDamage(1, true); // damage per tick
                     }
                 } else {
-                    poisonTimer = 0;
+                    poisonTimer = POISON_RATE - 0.1f; // reduced slightly so x seconds = x damage
                 }
                 
                 // decrease cooldowns
@@ -251,7 +252,7 @@ public abstract class Enemy : MonoBehaviour
         if(health <= 0) {
             body.velocity = Vector2.zero;
             statuses.ClearPoison();
-            DestroyDependents();
+            ResetAndClear();
             for (int i = 0; i < 3; i++) {
                 cooldowns[i] = 0;
             }
@@ -303,6 +304,7 @@ public abstract class Enemy : MonoBehaviour
     public void Possess(PlayerController player) {
         controller = player;
         health = BaseHealth; // reset health
+        ResetSpeed(); // in case the enemy changed its own speed
         isAlly = true;
 
         // become non-corpse
@@ -336,7 +338,7 @@ public abstract class Enemy : MonoBehaviour
         currentAnimation = deathAnimation;
         currentAnimation.ChangeType(AnimationType.Forward);
         body.velocity = Vector2.zero;
-        DestroyDependents();
+        ResetAndClear();
     }
 
     public void FallInPit(Vector3 positionAfterFall) {
@@ -349,8 +351,8 @@ public abstract class Enemy : MonoBehaviour
     #region Functions for sub-classes
     protected abstract void ChildStart();
     protected abstract void UpdateAbilities();
-    protected virtual void OnDeath() { }
-    protected virtual void DestroyDependents() { } // Remove any game objects that this enemy tracks when dying/unpossessed
+    protected virtual void OnDeath() { } // for special abilities when dying
+    protected virtual void ResetAndClear() { } // Remove any game objects that this enemy tracks and reset from special states
 
     // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
     public virtual void AIUpdate(AIController controller) { }

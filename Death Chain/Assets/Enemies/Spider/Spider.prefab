@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 906dc6e59e0fcf34880218a3c4af8e8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseHealth: 12
+  BaseHealth: 7
   BaseSpeed: 5
   idleSprites: []
   walkSprites: []

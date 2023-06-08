@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 4
-  knockback: 0
+  knockback: 4
   effect: 0
   effectDuration: 0
   speed: 10
