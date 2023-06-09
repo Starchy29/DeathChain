@@ -120,7 +120,7 @@ MonoBehaviour:
   effect: 0
   effectDuration: 0
   speed: 8
-  range: 6
+  range: 5
   destroyParticle: {fileID: 4254228291827393436, guid: e75f3f8082405c649b7765ea0de72b3f, type: 3}
 --- !u!114 &3310698106766437731
 MonoBehaviour:

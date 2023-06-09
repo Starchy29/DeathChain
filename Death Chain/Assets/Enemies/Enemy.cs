@@ -326,14 +326,14 @@ public abstract class Enemy : MonoBehaviour
     }
 
     public void Unpossess() {
-        // temporary
         if(deathAnimation == null) {
+            // temporary
             DeleteThis = true;
             return;
         }
 
         state = State.Despawing;
-        controller = null; // just to be safe
+        controller = null;
         GetComponent<CircleCollider2D>().enabled = false;
         currentAnimation = deathAnimation;
         currentAnimation.ChangeType(AnimationType.Forward);

@@ -9,7 +9,7 @@ public class ShadowScript : Enemy
     private GameObject currentSlash; // null means not currently slashing
 
     private const float SLASH_CD = 1.0f;
-    private const float DASH_CD = 1.5f;
+    private const float DASH_CD = 1.0f;
 
     protected override void ChildStart()
     {
@@ -18,14 +18,13 @@ public class ShadowScript : Enemy
 
     protected override void UpdateAbilities() {
         if(currentSlash != null || dashing) {
-            // slash updates automatically
             return;
         }
 
         if(UseAbility(0)) { // slash
             cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab);
-            ApplyEndlag(0.3f, 0.5f);
+            ApplyEndlag(0.2f, 1.0f);
         }
         else if(UseAbility(1)) { // dash
             cooldowns[1] = DASH_CD;
