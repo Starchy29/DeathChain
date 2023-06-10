@@ -14,6 +14,8 @@ public class ShadowScript : Enemy
     protected override void ChildStart()
     {
         controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
+
+        idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
     }
 
     protected override void UpdateAbilities() {
