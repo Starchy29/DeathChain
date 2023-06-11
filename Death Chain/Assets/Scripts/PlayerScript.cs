@@ -30,10 +30,12 @@ public class PlayerScript : MonoBehaviour
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
 
+    void Awake() {
+        instance = this;
+    }
+
     void Start()
     {
-        instance = this;
-
         healthBarHeight = soulHealthBar.transform.localScale.y;
         healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
         corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);

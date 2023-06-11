@@ -37,6 +37,7 @@ public class EntityTracker : MonoBehaviour
         PitAreas = new List<Rect>();
 
         instance = this;
+        Timer.ClearTimers();
     }
 
     public void AddEnemy(GameObject enemy) {

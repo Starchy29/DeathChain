@@ -16,7 +16,7 @@ public class AbilityIcons : MonoBehaviour
     private static AbilityIcons instance;
     public static AbilityIcons Instance { get { return instance; } }
 
-    void Start()
+    void Awake()
     {
         instance = this;
     }
