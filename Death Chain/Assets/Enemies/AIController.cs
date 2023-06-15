@@ -455,8 +455,7 @@ public class AIController : Controller
             }
 
             potentialSpots.Sort((Vector2 current, Vector2 next) => {
-                float diff = Vector2.Distance(start, current) - Vector2.Distance(start, next);
-                return (int)(diff * 100);
+                return Vector2.Distance(start, current) < Vector2.Distance(start, next) ? -1 : 1;
             });
             return potentialSpots[0];
         }

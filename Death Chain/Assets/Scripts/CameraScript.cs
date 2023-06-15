@@ -13,6 +13,7 @@ public class CameraScript : MonoBehaviour
         instance = this;
     }
 
+    // use fixed update to prevent camera jitters
     void FixedUpdate()
     {
         Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
@@ -39,8 +40,7 @@ public class CameraScript : MonoBehaviour
 
         if(!targetPos.HasValue) {
             potentialSpots.Sort((Vector2 current, Vector2 next) => {
-                float diff = Vector2.Distance(playerPos, current) - Vector2.Distance(playerPos, next);
-                return (int)(diff * 100);
+                return Vector2.Distance(playerPos, current) < Vector2.Distance(playerPos, next) ? -1 : 1;
             });
             targetPos = new Vector3(potentialSpots[0].x, potentialSpots[0].y, transform.position.z);
         }
@@ -50,12 +50,13 @@ public class CameraScript : MonoBehaviour
         float speed = 8.0f;
         speed += distance;
         float shift = speed * Time.deltaTime;
-        Debug.Log(shift + ", " + distance);
         if(shift > distance) {
             transform.position = targetPos.Value;
         } else {
             transform.position = transform.position + shift * (targetPos.Value - transform.position).normalized;
         }
+
+        DebugDisplay.Instance.PlaceDot(targetPos.Value, "camera target");
     }
 
     public void AddCameraZone(Rect newZone) {
@@ -67,6 +68,7 @@ public class CameraScript : MonoBehaviour
         // determine where the center of the camera can be inside this zone
         Rect positionZone = MakePositionZone(newZone);
         positionZones.Add(positionZone);
+        DebugDisplay.Instance.DisplayRect(positionZone);
 
         // find which zones the new one is adjacent to
         List<Rect> adjacentZones = new List<Rect>();
@@ -89,6 +91,7 @@ public class CameraScript : MonoBehaviour
                 float top = Mathf.Max(adjPosition.yMin, positionZone.yMin);
                 float bottom = Mathf.Min(adjPosition.yMax, positionZone.yMax);
                 positionZones.Add(new Rect(left, bottom, right - left, top - bottom));
+                DebugDisplay.Instance.DisplayRect(new Rect(left, bottom, right - left, top - bottom));
             }
             else if(adjPosition.yMin < positionZone.yMax && adjPosition.yMax > positionZone.yMin) {
                 // left or right
@@ -97,6 +100,7 @@ public class CameraScript : MonoBehaviour
                 float top = Mathf.Min(adjPosition.yMax, positionZone.yMax);
                 float bottom = Mathf.Max(adjPosition.yMin, positionZone.yMin);
                 positionZones.Add(new Rect(left, bottom, right - left, top - bottom));
+                DebugDisplay.Instance.DisplayRect(new Rect(left, bottom, right - left, top - bottom));
             }
             // else diagonal, so no actual connection
         }
@@ -128,6 +132,7 @@ public class CameraScript : MonoBehaviour
                     float top = vert.center.y < hori1.center.y ? Mathf.Max(hori1.yMin, hori2.yMin) : vert.yMin;
                     float bottom = vert.center.y < hori1.center.y ? vert.yMax : Mathf.Min(hori1.yMax, hori2.yMax);
                     positionZones.Add(new Rect(left, bottom, right - left, top - bottom));
+                    DebugDisplay.Instance.DisplayRect(new Rect(left, bottom, right - left, top - bottom));
                 }
             }
         }
