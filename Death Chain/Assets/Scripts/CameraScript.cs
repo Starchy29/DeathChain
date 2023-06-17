@@ -4,8 +4,8 @@ using UnityEngine;
 public class CameraScript : MonoBehaviour
 {
     private readonly Vector2 SIZE = new Vector2(21.33f, 12); // values found through observation
-    private List<Rect> cameraZones = new List<Rect>(); // areas that the camera's view area must not leave
-    private List<Rect> positionZones = new List<Rect>(); // areas that the middle of the camera must not leave, determined from cameraZones
+    private List<Vector2> cameraPoints = new List<Vector2>(); // points that connetc to form the camera's movable area
+    private List<Rect> cameraZones = new List<Rect>(); // areas that the middle of the camera must not leave, determined from cameraZones
     private static CameraScript instance;
     public static CameraScript Instance { get { return instance; } }
 
@@ -13,9 +13,18 @@ public class CameraScript : MonoBehaviour
         instance = this;
     }
 
+    static bool madeDebug = false;
     // use fixed update to prevent camera jitters
     void FixedUpdate()
     {
+        // DEBUG PLEASE REMOVE
+        if(!madeDebug) {
+            madeDebug = true;
+            foreach(Rect zone in cameraZones) {
+                DebugDisplay.Instance.DisplayRect(zone);
+            }
+        }
+
         Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
 
         if(cameraZones.Count <= 0) {
@@ -25,7 +34,7 @@ public class CameraScript : MonoBehaviour
 
         Vector3? targetPos = null;
         List<Vector2> potentialSpots = new List<Vector2>();
-        foreach(Rect positionZone in positionZones) {
+        foreach(Rect positionZone in cameraZones) {
             // check if the player is inside this zone
             if(positionZone.Contains(playerPos)) {
                 targetPos = new Vector3(playerPos.x, playerPos.y, transform.position.z);
@@ -59,86 +68,109 @@ public class CameraScript : MonoBehaviour
         DebugDisplay.Instance.PlaceDot(targetPos.Value, "camera target");
     }
 
-    public void AddCameraZone(Rect newZone) {
-        if(newZone.width < SIZE.x || newZone.height < SIZE.y) {
-            Debug.Log("Camera Zone was too small");
+    // adds an area that the camera can move in based on a position. It automatially connects the point to nearby points to create movable areas
+    public void AddCameraZone(Vector2 movePoint) {
+        // find adjacent points
+        Rect adjacencyChecker = new Rect(movePoint - 1.1f * SIZE, 2 * 1.1f * SIZE); // stretch by 1.1 in case the point is a tad too far
+        Vector2?[,] pointGrid = new Vector2?[3, 3];
+        pointGrid[1, 1] = movePoint;
+        foreach(Vector2 oldPoint in cameraPoints) {
+            if(adjacencyChecker.Contains(oldPoint)) {
+                Vector2 relativity = oldPoint - movePoint;
+                int row = 1;
+                const float BUFFER = 2f;
+                if(relativity.y > BUFFER) {
+                    row = 2;
+                }
+                else if(relativity.y < -BUFFER) {
+                    row = 0;
+                }
+
+                int col = 1;
+                if(relativity.x > BUFFER) {
+                    col = 2;
+                }
+                else if(relativity.x < -BUFFER) {
+                    col = 0;
+                }
+
+                pointGrid[row, col] = oldPoint;
+            }
+        }
+
+        cameraPoints.Add(movePoint);
+
+        // connect to the adjacent points
+        Vector2Int[] shifts = new Vector2Int[4] { 
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
+        List<Rect> addedZones = new List<Rect>();
+        foreach(Vector2Int shift in shifts) {
+            Vector2? adjacent = pointGrid[1 + shift.x, 1 + shift.y];
+            if(adjacent.HasValue) {
+                addedZones.Add(new Rect(
+                    Mathf.Min(adjacent.Value.x, movePoint.x),
+                    Mathf.Min(adjacent.Value.y, movePoint.y),
+                    Mathf.Max(adjacent.Value.x, movePoint.x) - Mathf.Min(adjacent.Value.x, movePoint.x),
+                    Mathf.Max(adjacent.Value.y, movePoint.y) - Mathf.Min(adjacent.Value.y, movePoint.y)
+                ));
+            }
+        }
+
+        if(addedZones.Count == 0) {
+            // no adjacent points, just create a single dot to snap to
+            cameraZones.Add(new Rect(movePoint.x, movePoint.y, 0, 0));
             return;
         }
 
-        // determine where the center of the camera can be inside this zone
-        Rect positionZone = MakePositionZone(newZone);
-        positionZones.Add(positionZone);
-        DebugDisplay.Instance.DisplayRect(positionZone);
-
-        // find which zones the new one is adjacent to
-        List<Rect> adjacentZones = new List<Rect>();
-        Rect enlarged = newZone.MakeExpanded(1); // allow zones slighlty apart to be considered adjacent
-        foreach(Rect oldZone in cameraZones) {
-            if(oldZone.Overlaps(enlarged)) {
-                adjacentZones.Add(oldZone);
+        // check for completed corners
+        Vector2Int[] corners = new Vector2Int[4] {
+            new Vector2Int(0, 0),
+            new Vector2Int(2, 0),
+            new Vector2Int(0, 2),
+            new Vector2Int(2, 2)
+        };
+        foreach(Vector2Int corner in corners) {
+            if(!pointGrid[corner.y, corner.x].HasValue) {
+                continue;
             }
-        }
 
-        cameraZones.Add(newZone); // add the new one after checking the old ones
+            bool completed = true;
+            foreach(Vector2Int shift in shifts) {
+                Vector2Int spot = corner + shift;
+                if(spot.x < 0 || spot.x > 2 || spot.y < 0 || spot.y > 2) {
+                    continue;
+                }
 
-        // connect the new zone to all of the adjacent ones
-        foreach(Rect adjacent in adjacentZones) {
-            Rect adjPosition = MakePositionZone(adjacent);
-            if(adjPosition.xMin < positionZone.xMax && adjPosition.xMax > positionZone.xMin) {
-                // above or below
-                float left = Mathf.Max(adjPosition.xMin, positionZone.xMin);
-                float right = Mathf.Min(adjPosition.xMax, positionZone.xMax);;
-                float top = Mathf.Max(adjPosition.yMin, positionZone.yMin);
-                float bottom = Mathf.Min(adjPosition.yMax, positionZone.yMax);
-                positionZones.Add(new Rect(left, bottom, right - left, top - bottom));
-                DebugDisplay.Instance.DisplayRect(new Rect(left, bottom, right - left, top - bottom));
-            }
-            else if(adjPosition.yMin < positionZone.yMax && adjPosition.yMax > positionZone.yMin) {
-                // left or right
-                float left = Mathf.Min(adjPosition.xMax, positionZone.xMax);
-                float right = Mathf.Max(adjPosition.xMin, positionZone.xMin); ;
-                float top = Mathf.Min(adjPosition.yMax, positionZone.yMax);
-                float bottom = Mathf.Max(adjPosition.yMin, positionZone.yMin);
-                positionZones.Add(new Rect(left, bottom, right - left, top - bottom));
-                DebugDisplay.Instance.DisplayRect(new Rect(left, bottom, right - left, top - bottom));
-            }
-            // else diagonal, so no actual connection
-        }
-
-        // if any sides are adjacent to each other, fill in that corner space
-        for(int i = 0; i < adjacentZones.Count; i++) {
-            for(int j = i + 1; j < adjacentZones.Count; j++) {
-                if(adjacentZones[i].MakeExpanded(1).Overlaps(adjacentZones[j])) {
-                    Rect iZone = MakePositionZone(adjacentZones[i]);
-                    Rect jZone = MakePositionZone(adjacentZones[j]);
-
-                    // find which two of the three adjacent zones are horizontal to each other
-                    Rect hori1 = iZone;
-                    Rect hori2 = jZone;
-                    Rect vert = positionZone;
-                    if(Mathf.Abs(iZone.center.y - newZone.center.y) < Mathf.Abs(hori1.center.y - hori2.center.y)) {
-                        hori1 = iZone;
-                        hori2 = newZone;
-                        vert = jZone;
-                    }
-                    if(Mathf.Abs(jZone.center.y - newZone.center.y) < Mathf.Abs(hori1.center.y - hori2.center.y)) {
-                        hori1 = jZone;
-                        hori2 = newZone;
-                        vert = iZone;
-                    }
-
-                    float left = vert.xMin;
-                    float right = vert.xMax;
-                    float top = vert.center.y < hori1.center.y ? Mathf.Max(hori1.yMin, hori2.yMin) : vert.yMin;
-                    float bottom = vert.center.y < hori1.center.y ? vert.yMax : Mathf.Min(hori1.yMax, hori2.yMax);
-                    positionZones.Add(new Rect(left, bottom, right - left, top - bottom));
-                    DebugDisplay.Instance.DisplayRect(new Rect(left, bottom, right - left, top - bottom));
+                if(!pointGrid[spot.y, spot.x].HasValue) {
+                    completed = false;
+                    break;
                 }
             }
-        }
-    }
 
-    private Rect MakePositionZone(Rect cameraZone) {
-        return new Rect(cameraZone.x + SIZE.x / 2, cameraZone.y + SIZE.y / 2, cameraZone.width - SIZE.x, cameraZone.height - SIZE.y);
+            if(completed) {
+                Vector2 cornerPos = pointGrid[corner.y, corner.x].Value;
+                addedZones.Add(new Rect(
+                    Mathf.Min(cornerPos.x, movePoint.x),
+                    Mathf.Min(cornerPos.y, movePoint.y),
+                    Mathf.Max(cornerPos.x, movePoint.x) - Mathf.Min(cornerPos.x, movePoint.x),
+                    Mathf.Max(cornerPos.y, movePoint.y) - Mathf.Min(cornerPos.y, movePoint.y)
+                ));
+            }
+        }
+
+        // remove old zones that are now overlapped and add new zones
+        foreach(Rect newZone in addedZones) {
+            for(int i = cameraZones.Count - 1; i >= 0; i--) {
+                if(newZone.Contains(cameraZones[i])) {
+                    cameraZones.RemoveAt(i);
+                }
+            }
+
+            cameraZones.Add(newZone);
+        }
     }
 }

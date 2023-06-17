@@ -76,7 +76,7 @@ public class LevelGeneration : MonoBehaviour
             }
 
             // form rectangle
-            CameraScript.Instance.AddCameraZone(new Rect(left, bottom, right - left, top - bottom));
+            //CameraScript.Instance.AddCameraZone(new Rect(left, bottom, right - left, top - bottom));
         }
     }
 

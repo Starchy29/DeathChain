@@ -27,6 +27,13 @@ public class DebugDisplay : MonoBehaviour
     }
 
     public void DisplayRect(Rect area) {
+        if(area.width == 0) {
+            area = new Rect(area.xMin - 0.2f, area.yMin, 0.4f, area.height);
+        }
+        if(area.height == 0) {
+            area = new Rect(area.xMin, area.yMin - 0.2f, area.width, 0.4f);
+        }
+
         GameObject newRect = Instantiate(DebugRect);
         newRect.transform.position = area.center;
         newRect.transform.localScale = area.size;
