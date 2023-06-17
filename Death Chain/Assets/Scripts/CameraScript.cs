@@ -13,18 +13,9 @@ public class CameraScript : MonoBehaviour
         instance = this;
     }
 
-    static bool madeDebug = false;
     // use fixed update to prevent camera jitters
     void FixedUpdate()
     {
-        // DEBUG PLEASE REMOVE
-        if(!madeDebug) {
-            madeDebug = true;
-            foreach(Rect zone in cameraZones) {
-                DebugDisplay.Instance.DisplayRect(zone);
-            }
-        }
-
         Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
 
         if(cameraZones.Count <= 0) {
@@ -64,8 +55,6 @@ public class CameraScript : MonoBehaviour
         } else {
             transform.position = transform.position + shift * (targetPos.Value - transform.position).normalized;
         }
-
-        DebugDisplay.Instance.PlaceDot(targetPos.Value, "camera target");
     }
 
     // adds an area that the camera can move in based on a position. It automatially connects the point to nearby points to create movable areas
