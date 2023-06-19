@@ -8,7 +8,6 @@ public class ShadowScript : Enemy
     [SerializeField] private GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
 
-    private const float SLASH_CD = 1.0f;
     private const float DASH_CD = 1.0f;
     private bool firstSlash; // false: second slash
 
@@ -44,7 +43,7 @@ public class ShadowScript : Enemy
         }
         else if(UseAbility(1)) { // dash
             cooldowns[1] = DASH_CD;
-            Dash(20.0f * controller.GetAimDirection(), 0.12f, 0.1f);
+            Dash(20.0f * controller.GetMoveDirection(), 0.12f, 0.1f);
         }
     }
 

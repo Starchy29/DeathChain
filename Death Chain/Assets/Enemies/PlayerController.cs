@@ -7,28 +7,26 @@ public class PlayerController : Controller
 {
     private const float DEAD_RADIUS = 0.2f;
     private const float BUFFER_DURATION = 0.5f;
-    private int controllerIndex;
-    private bool useKeyboard;
+    private int? controllerIndex;
+    private bool usingKeyboard;
 
     private Vector2 aim = Vector2.up; // the last direction the player held. Used when the player is not aiming
     private int bufferAbility = -1;
 
     // multiplayer controls: enter a big controller index to make it the keyboard user
-    public PlayerController(GameObject controlTarget, int controllerIndex = 99) : base(controlTarget) {
+    public PlayerController(GameObject controlTarget, int? controllerIndex) : base(controlTarget) {
         this.controllerIndex = controllerIndex;
-        useKeyboard = false;
+        usingKeyboard = false;
 
-        if(controllerIndex > 3) {
-            // this is how to make a player use the keyboard with no controller
-            useKeyboard = true;
-            this.controllerIndex = 64; // assuming no computer has this many controller inputs
+        if(!controllerIndex.HasValue) {
+            usingKeyboard = true;
         }
     }
 
     // default for single player
     public PlayerController(GameObject controlTarget) : base(controlTarget) {
         controllerIndex = 0;
-        useKeyboard = true;
+        usingKeyboard = true;
     }
 
     public override void Update() {
@@ -55,23 +53,25 @@ public class PlayerController : Controller
     }
 
     public override Vector2 GetMoveDirection() {
-        if(controllerIndex < Gamepad.all.Count) {
-            Vector2 joystick = Gamepad.all[controllerIndex].leftStick.ReadValue();
+        if(controllerIndex.HasValue && controllerIndex < Gamepad.all.Count) {
+            Vector2 joystick = Gamepad.all[controllerIndex.Value].leftStick.ReadValue();
             if(joystick.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 // joystick gets first priority
                 joystick.Normalize();
                 return joystick;
             }
 
-            Vector2 dPad = Gamepad.all[controllerIndex].dpad.ReadValue();
+            Vector2 dPad = Gamepad.all[controllerIndex.Value].dpad.ReadValue();
             if(dPad.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 // controller gets priority over keyboard
                 dPad.Normalize();
                 return dPad;
             }
+
+            return Vector2.zero; // prevent keyboard input when gampad is plugged in
         }
 
-        if(useKeyboard) {
+        if(usingKeyboard) {
             Vector2 keyboard = new Vector2();
             if(Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) {
                 keyboard.y += 1;
@@ -95,9 +95,9 @@ public class PlayerController : Controller
     }
 
     private int DetermineUsedAbility() {
-        if(controllerIndex < Gamepad.all.Count) {
+        if(controllerIndex.HasValue && controllerIndex < Gamepad.all.Count) {
             // check gamepad
-            Gamepad controller = Gamepad.all[controllerIndex];
+            Gamepad controller = Gamepad.all[controllerIndex.Value];
             if(controller.xButton.wasPressedThisFrame || controller.rightTrigger.wasPressedThisFrame) {
                 return 0;
             }
@@ -107,9 +107,11 @@ public class PlayerController : Controller
             if(controller.bButton.wasPressedThisFrame || controller.leftShoulder.wasPressedThisFrame) {
                 return 2;
             }
+
+            return -1; // prevent keyboard input when gampad is plugged in
         }
 
-        if(useKeyboard) {
+        if(usingKeyboard) {
             // check keyboard
             if(Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) {
                 return 0;
@@ -126,9 +128,9 @@ public class PlayerController : Controller
     }
 
     public override int GetReleasedAbility() {
-        if(controllerIndex < Gamepad.all.Count) {
+        if(controllerIndex.HasValue && controllerIndex < Gamepad.all.Count) {
             // check gamepad
-            Gamepad controller = Gamepad.all[controllerIndex];
+            Gamepad controller = Gamepad.all[controllerIndex.Value];
             if(controller.xButton.wasReleasedThisFrame || controller.rightTrigger.wasReleasedThisFrame) {
                 return 0;
             }
@@ -138,9 +140,11 @@ public class PlayerController : Controller
             if(controller.bButton.wasReleasedThisFrame || controller.leftShoulder.wasReleasedThisFrame) {
                 return 2;
             }
+
+            return -1; // prevent keyboard input when gampad is plugged in
         }
 
-        if(useKeyboard) {
+        if(usingKeyboard) {
             // check keyboard
             if(Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame) {
                 return 0;
@@ -157,9 +161,9 @@ public class PlayerController : Controller
     }
 
     private Vector2 DetermineAim() {
-        if(controllerIndex < Gamepad.all.Count) { // prioritize using controller
+        if(controllerIndex.HasValue && controllerIndex < Gamepad.all.Count) { // prioritize using controller
             // if they want to use the right stick to aim, prioritize that over the normal stick
-            Vector2 rightStick = Gamepad.all[controllerIndex].rightStick.ReadValue();
+            Vector2 rightStick = Gamepad.all[controllerIndex.Value].rightStick.ReadValue();
             if(rightStick.sqrMagnitude >= DEAD_RADIUS * DEAD_RADIUS) {
                 return rightStick.normalized;
             }
@@ -173,7 +177,7 @@ public class PlayerController : Controller
             return aim;
         }
 
-        if(useKeyboard && Mouse.current != null) {
+        if(usingKeyboard && Mouse.current != null) {
             // use mouse for aim
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             Vector2 playerToMouse = mouseWorldPos - controlled.transform.position;
