@@ -10,6 +10,7 @@ public class ShadowScript : Enemy
 
     private const float SLASH_CD = 1.0f;
     private const float DASH_CD = 1.0f;
+    private bool firstSlash; // false: second slash
 
     protected override void ChildStart()
     {
@@ -17,6 +18,8 @@ public class ShadowScript : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.8f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
+
+        firstSlash = true;
     }
 
     protected override void UpdateAbilities() {
@@ -25,9 +28,19 @@ public class ShadowScript : Enemy
         }
 
         if(UseAbility(0)) { // slash
-            cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab);
-            ApplyEndlag(0.2f, 1.0f);
+
+            if(firstSlash) {
+                cooldowns[0] = 0.3f;
+                ApplyEndlag(0.3f, 1.0f);
+                firstSlash = false;
+                Timer.CreateTimer(0.6f, false, () => { firstSlash = true; });
+            } else {
+                cooldowns[0] = 1.0f;
+                firstSlash = true;
+                currentSlash.GetComponent<Melee>().ReverseDirection();
+            }
+
         }
         else if(UseAbility(1)) { // dash
             cooldowns[1] = DASH_CD;
@@ -47,7 +60,11 @@ public class ShadowScript : Enemy
         }
 
         if(cooldowns[0] <= 0 && controller.GetTargetDistance() <= 2.0f) {
-            controller.QueueAbility(0, 0.4f, 0.0f);
+            float startup = 0.4f;
+            if(!firstSlash) {
+                startup = 0.0f;
+            }
+            controller.QueueAbility(0, startup, 0.0f);
         }
         else if(cooldowns[1] <= 0 && controller.GetTargetDistance() >= 4.0f) {
             controller.QueueAbility(1);

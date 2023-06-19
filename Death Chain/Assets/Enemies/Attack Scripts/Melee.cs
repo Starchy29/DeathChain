@@ -30,6 +30,11 @@ public class Melee : Attack
         this.direction = (Vector3)direction;
     }
 
+    // makes the animation play as a swipe going in the opposite direction
+    public void ReverseDirection() {
+        GetComponent<SpriteRenderer>().flipY = true;
+    }
+
     // push away from user
     protected override Vector2 GetPushDirection(GameObject hitEnemy) {
         return hitEnemy.transform.position - User.transform.position;
