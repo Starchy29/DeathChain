@@ -15,7 +15,8 @@ public class ShadowScript : Enemy
     {
         controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
 
-        idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.4f);
+        idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.8f);
+        walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
     }
 
     protected override void UpdateAbilities() {

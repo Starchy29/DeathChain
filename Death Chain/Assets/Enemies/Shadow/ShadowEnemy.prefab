@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3210773263146579871}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6, y: 1.6, z: 1}
+  m_LocalScale: {x: 1.8, y: 1.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -143,6 +143,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 56d5cbed67500044b9c2830aed353f80, type: 3}
   - {fileID: 21300000, guid: fc1a1edad58e3dd40b0a2616cfd11fad, type: 3}
   - {fileID: 21300000, guid: 902f0edfa7d70ca4b8fd73d3d6770b2f, type: 3}
-  walkSprites: []
+  walkSprites:
+  - {fileID: 21300000, guid: d9dbdddfcb425f9478b9635f44712aa5, type: 3}
+  - {fileID: 21300000, guid: 90013217385cfad45a6aa037182656d1, type: 3}
+  - {fileID: 21300000, guid: dca17ef0410ed614284c439d6dcf9cf9, type: 3}
+  - {fileID: 21300000, guid: f677ae7d792da694d9d33a78b93328b7, type: 3}
   deathSprites: []
   SlashPrefab: {fileID: 5419157273776416848, guid: 0221cab06e24279479e762d48463b75e, type: 3}

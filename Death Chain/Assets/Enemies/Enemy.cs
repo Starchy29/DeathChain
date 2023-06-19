@@ -168,9 +168,10 @@ public abstract class Enemy : MonoBehaviour
 
     private void DoMovement() {
         // assume idle animation unless mid-ability
-        if(idleAnimation != null && !UsingAbilityAnimation()) {
-            currentAnimation = idleAnimation;
-        }
+        //if(currentAnimation != idleAnimation && idleAnimation != null && !UsingAbilityAnimation()) {
+        //    currentAnimation = idleAnimation;
+        //    currentAnimation.Reset();
+        //}
 
         // apply friction
         const float FRICTION = 20;
@@ -197,6 +198,10 @@ public abstract class Enemy : MonoBehaviour
         // regular movement
         Vector2 moveDirection = controller.GetMoveDirection();
         if(maxSpeed <= 0 || moveDirection == Vector2.zero) {
+            if(currentAnimation != idleAnimation && idleAnimation != null && !UsingAbilityAnimation()) {
+                currentAnimation = idleAnimation;
+                currentAnimation.Reset();
+            }
             return;
         }
 
@@ -220,8 +225,9 @@ public abstract class Enemy : MonoBehaviour
         }
 
         // use walk animation unless mid-ability
-        if(walkAnimation != null && !UsingAbilityAnimation()) {
+        if(currentAnimation != walkAnimation && walkAnimation != null && !UsingAbilityAnimation()) {
             currentAnimation = walkAnimation;
+            currentAnimation.Reset();
         }
         
         GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // draw lower characters in front
@@ -290,6 +296,10 @@ public abstract class Enemy : MonoBehaviour
 
         knocked = true;
         body.velocity = force;
+        if(idleAnimation != null) {
+            currentAnimation = idleAnimation;
+            currentAnimation.Reset();
+        }
     }
 
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration
