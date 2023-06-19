@@ -148,5 +148,19 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 90013217385cfad45a6aa037182656d1, type: 3}
   - {fileID: 21300000, guid: dca17ef0410ed614284c439d6dcf9cf9, type: 3}
   - {fileID: 21300000, guid: f677ae7d792da694d9d33a78b93328b7, type: 3}
-  deathSprites: []
+  deathSprites:
+  - {fileID: 21300000, guid: 6ca30240f7bd48d44b94df55eb078f9c, type: 3}
+  - {fileID: 21300000, guid: ad1cfe5cc52a509468aef9f6244de86c, type: 3}
+  - {fileID: 21300000, guid: 84b854e158ed1c84cb70248a5782f7ca, type: 3}
+  - {fileID: 21300000, guid: b8f2497d32f294b4da9162f1ac607c47, type: 3}
+  - {fileID: 21300000, guid: e5af66f71794f9f41b2e10be29465fd9, type: 3}
+  - {fileID: 21300000, guid: 6b4185424da9dff4cb233c78f9bd83e9, type: 3}
+  - {fileID: 21300000, guid: 667632b442e5fca45b865a381ede72d1, type: 3}
+  - {fileID: 21300000, guid: ee0b359bdea016240964cb8603d57172, type: 3}
+  - {fileID: 21300000, guid: e72ce69c7faccea409394ac98c98540f, type: 3}
+  - {fileID: 21300000, guid: 864c1edf4e2f91b40b4dbe5771203dbf, type: 3}
+  - {fileID: 21300000, guid: 2d899e8c1cf3d5d4cb1ec1118cb45ae8, type: 3}
+  - {fileID: 21300000, guid: d1a3a67e0180654448ad034ad25dbc29, type: 3}
+  - {fileID: 21300000, guid: b21880641e6ff1944967123ce4350918, type: 3}
+  - {fileID: 21300000, guid: 49d52be8a5c3bba4495ba0c93ccaad5a, type: 3}
   SlashPrefab: {fileID: 5419157273776416848, guid: 0221cab06e24279479e762d48463b75e, type: 3}

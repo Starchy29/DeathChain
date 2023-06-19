@@ -17,6 +17,7 @@ public class ShadowScript : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.8f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
+        deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
 
         firstSlash = true;
     }
@@ -43,7 +44,11 @@ public class ShadowScript : Enemy
         }
         else if(UseAbility(1)) { // dash
             cooldowns[1] = DASH_CD;
-            Dash(20.0f * controller.GetMoveDirection(), 0.12f, 0.1f);
+            Vector2 direction = controller.GetMoveDirection();
+            if(direction == Vector2.zero) {
+                direction = controller.GetAimDirection();
+            }
+            Dash(20.0f * direction, 0.12f, 0.1f);
         }
     }
 
@@ -58,7 +63,7 @@ public class ShadowScript : Enemy
             return;
         }
 
-        if(cooldowns[0] <= 0 && controller.GetTargetDistance() <= 2.0f) {
+        if(cooldowns[0] <= 0 && (controller.GetTargetDistance() <= 2.0f || !firstSlash)) {
             float startup = 0.4f;
             if(!firstSlash) {
                 startup = 0.0f;
