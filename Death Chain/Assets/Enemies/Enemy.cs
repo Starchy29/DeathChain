@@ -441,6 +441,8 @@ public abstract class Enemy : MonoBehaviour
         }
 
         body.velocity = velocity;
+        GetComponent<SpriteRenderer>().flipX = velocity.x < 0;
+
         sturdy = true;
         dashing = true;
         Timer.CreateTimer(duration, false, () => {
@@ -450,10 +452,14 @@ public abstract class Enemy : MonoBehaviour
                 Timer.CreateTimer(endlag, false, () => {
                     sturdy = false;
                     dashing = false;
+                    currentAnimation = idleAnimation;
+                    currentAnimation.Reset();
                 });
             } else {
                 sturdy = false;
                 dashing = false;
+                currentAnimation = idleAnimation;
+                currentAnimation.Reset();
             }
         });
     }

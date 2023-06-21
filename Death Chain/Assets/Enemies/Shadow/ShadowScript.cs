@@ -6,8 +6,11 @@ using UnityEngine;
 public class ShadowScript : Enemy
 {
     [SerializeField] private GameObject SlashPrefab;
-    private GameObject currentSlash; // null means not currently slashing
+    [SerializeField] private Sprite[] dashSprites;
 
+    private Animation dashAnimation;
+
+    private GameObject currentSlash; // null means not currently slashing
     private const float DASH_CD = 1.0f;
     private bool firstSlash; // false: second slash
 
@@ -18,6 +21,7 @@ public class ShadowScript : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.8f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
+        dashAnimation = new Animation(dashSprites, AnimationType.Loop, 0.3f);
 
         firstSlash = true;
     }
@@ -49,6 +53,8 @@ public class ShadowScript : Enemy
                 direction = controller.GetAimDirection();
             }
             Dash(20.0f * direction, 0.12f, 0.1f);
+            currentAnimation = dashAnimation;
+            currentAnimation.Reset();
         }
     }
 

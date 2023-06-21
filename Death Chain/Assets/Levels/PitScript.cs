@@ -19,6 +19,11 @@ public class PitScript : MonoBehaviour
         zones = new List<Rect>();
         zones.Add(zone);
 
+        Debug.Log(gameObject.name);
+        if(transform.position.x == -6) {
+            Debug.Log(zone);
+        }
+
         List<PitScript> joinedPits = new List<PitScript>();
         Rect joinBox = zone.MakeExpanded(EDGE_BUFFER);
         foreach(PitScript existingPit in EntityTracker.Instance.Pits) {

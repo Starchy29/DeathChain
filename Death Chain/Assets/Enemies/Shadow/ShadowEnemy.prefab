@@ -164,3 +164,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b21880641e6ff1944967123ce4350918, type: 3}
   - {fileID: 21300000, guid: 49d52be8a5c3bba4495ba0c93ccaad5a, type: 3}
   SlashPrefab: {fileID: 5419157273776416848, guid: 0221cab06e24279479e762d48463b75e, type: 3}
+  dashSprites:
+  - {fileID: 21300000, guid: 7436e94efc1d4d84089ea50302842970, type: 3}
+  - {fileID: 21300000, guid: 4239bddd23df338418baa7afe6fb70d1, type: 3}
+  - {fileID: 21300000, guid: 9027996f384656546bb17cfc2493cf36, type: 3}
