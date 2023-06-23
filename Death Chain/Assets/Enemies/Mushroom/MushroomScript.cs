@@ -16,7 +16,7 @@ public class MushroomScript : Enemy
     private GameObject selector;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Still, AIMode.Still, 6.0f);
+        controller = new AIController(gameObject, AIMode.Still, AIMode.Still, 7.0f);
         ((AIController)controller).ReleaseAbility = 1; // ai always instantly uses teleport
         ((AIController)controller).IgnoreStart = true; // don't allow teleporting to affect vision
         sturdy = true;
@@ -104,7 +104,8 @@ public class MushroomScript : Enemy
             // check for a potential warp target
             List<GameObject> enemies = EntityTracker.Instance.Enemies;
             foreach(GameObject enemy in enemies) {
-                if(enemy.GetComponent<Enemy>().IsCorpse && Vector2.Distance(transform.position, enemy.transform.position) > 2.0f) {
+                float distance = Vector2.Distance(transform.position, enemy.transform.position);
+                if(enemy.GetComponent<Enemy>().IsCorpse && distance > 2.0f && distance < 8.0f) {
                     controller.SetAim(controller.Target.gameObject.transform.position - transform.position); // try to move past attacker
                     controller.QueueAbility(1, 0);
                     break;

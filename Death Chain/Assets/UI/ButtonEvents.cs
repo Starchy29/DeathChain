@@ -6,6 +6,6 @@ using UnityEngine.SceneManagement;
 public class ButtonEvents : MonoBehaviour
 {
     public void StartClicked() {
-        SceneManager.LoadScene("Gameplay");
+        SceneManager.LoadScene("Custom Level");
     }
 }

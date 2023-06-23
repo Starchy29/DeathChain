@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : Controller
 {
     private const float DEAD_RADIUS = 0.2f;
-    private const float BUFFER_DURATION = 0.5f;
+    private const float BUFFER_DURATION = 0.35f;
     private int? controllerIndex;
     private bool usingKeyboard;
 

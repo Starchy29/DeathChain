@@ -13,7 +13,7 @@ public class PlayerGhost : Enemy
     private Animation shootAnimation;
 
     private const float SLASH_CD = 0.6f;
-    private const float SHOOT_CD = 0.8f;
+    private const float SHOOT_CD = 1.0f;
 
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing

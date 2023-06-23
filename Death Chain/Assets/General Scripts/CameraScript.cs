@@ -11,6 +11,8 @@ public class CameraScript : MonoBehaviour
 
     void Awake() {
         instance = this;
+        Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
+        transform.position = new Vector3(playerPos.x, playerPos.y, transform.position.z);
     }
 
     // use fixed update to prevent camera jitters

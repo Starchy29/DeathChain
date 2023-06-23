@@ -107,7 +107,7 @@ public abstract class Enemy : MonoBehaviour
                         TakeDamage(1, true); // damage per tick
                     }
                 } else {
-                    poisonTimer = POISON_RATE - 0.1f; // reduced slightly so x seconds = x damage
+                    poisonTimer = POISON_RATE / 3; // the first poison damage happens sooner than normal
                 }
                 
                 // decrease cooldowns

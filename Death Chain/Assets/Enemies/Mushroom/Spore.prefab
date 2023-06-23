@@ -120,7 +120,7 @@ MonoBehaviour:
   effect: 0
   effectDuration: 0
   speed: 12
-  range: 20
+  range: 15
   destroyParticle: {fileID: 1109597486317767876, guid: c3e105112996bfd4abb0c26b6e6cf2d0, type: 3}
   bounces: 3
 --- !u!114 &-1608385281448739836
