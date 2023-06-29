@@ -46,7 +46,7 @@ public class SpiderScript : Enemy
             // start pulling back "bow"
             charging = true;
             charge = 4.0f;
-            SetSpeed(CHARGE_WALK_SPEED);
+            SetNewSpeed(CHARGE_WALK_SPEED);
         }
         else if(UseAbility(1)) {
             // use lob web zone

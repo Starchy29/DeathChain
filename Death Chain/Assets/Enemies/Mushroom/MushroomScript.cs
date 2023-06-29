@@ -40,7 +40,7 @@ public class MushroomScript : Enemy
                 float bestDot = -1;
                 List<GameObject> enemies = EntityTracker.Instance.Enemies;
                 foreach(GameObject enemy in enemies) {
-                    if(enemy.GetComponent<Enemy>().IsCorpse) {
+                    if(enemy.GetComponent<Enemy>().IsCorpse && Vector2.Distance(enemy.transform.position, transform.position) < 12) {
                         float dot = Vector2.Dot(aim, (enemy.transform.position - transform.position).normalized);
                         if(dot > bestDot) {
                             bestDot = dot;

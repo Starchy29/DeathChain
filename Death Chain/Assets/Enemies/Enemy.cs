@@ -32,6 +32,7 @@ public abstract class Enemy : MonoBehaviour
     private float startSize; // assumes width and height are equal
     private bool faceLocked; // prevents changing the face direction from moving
     private Vector3 positionAfterFall; // for fall in pit mechanic
+    private Timer dashTimer; // if non-null, this is currently dashing
 
     protected int health;
     protected Statuses statuses; // conveniently track all status effects
@@ -39,9 +40,9 @@ public abstract class Enemy : MonoBehaviour
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected bool floating = false; // floating enemies can walk over pits
     protected bool invincible; // some abilities need temporary invincibility
-    protected bool dashing;
     protected Controller controller;
     protected float[] cooldowns = new float[3];
+    protected bool Dashing { get { return dashTimer != null; } }
 
     public int Health { get { return health; } }
     public float WalkSpeed { get { 
@@ -136,7 +137,7 @@ public abstract class Enemy : MonoBehaviour
                         transform.localScale = new Vector3(startSize, startSize, 1);
                         GetComponent<CircleCollider2D>().enabled = true;
                         transform.position = positionAfterFall;
-                        TakeDamage(1, true);
+                        TakeDamage(2, true);
                     }
                 } else {
                     // shrink and fade out
@@ -254,38 +255,47 @@ public abstract class Enemy : MonoBehaviour
             hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
         }
 
-        // check for death
-        if(health <= 0) {
-            body.velocity = Vector2.zero;
-            statuses.ClearPoison();
-            ResetAndClear();
-            for (int i = 0; i < 3; i++) {
-                cooldowns[i] = 0;
-            }
+        if(health > 0) {
+            return;
+        }
 
-            if(!IsPlayer) {
-                // become a corpse that can be possessed
-                state = State.Corpse;
-                //Timer.CreateTimer(5.0f, false, () => { // despawn corpse after some time
-                //    if(state == State.Corpse) { // don't delete if resurrected
-                //        DeleteThis = true;
-                //        GameObject corpse = Instantiate(corpseParticle);
-                //        corpse.transform.position = transform.position;
-                //    }
-                //});
-                Timer.CreateTimer(0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
-                GetComponent<CircleCollider2D>().enabled = false; // disable collider
+        // die
+        body.velocity = Vector2.zero;
+        statuses.ClearPoison();
+        ResetAndClear();
+        for (int i = 0; i < 3; i++) {
+            cooldowns[i] = 0;
+        }
 
-                // play death animation
-                if(deathAnimation != null) {
-                    currentAnimation = deathAnimation;
-                    currentAnimation.ChangeType(AnimationType.Forward); // make sure it is forward because rezzing plays it backwards
-                } else {
-                    // temporary
-                    GetComponent<SpriteRenderer>().color = Color.black;
-                }
-            }
-            // else: player death handled by PlayerScript.cs
+        if(Dashing) {
+            dashTimer.End();
+            EndDash();
+        }
+
+        if(IsPlayer) {
+            // player death handled by PlayerScript.cs
+            return;
+        }
+
+        // become a corpse that can be possessed
+        state = State.Corpse;
+        //Timer.CreateTimer(5.0f, false, () => { // despawn corpse after some time
+        //    if(state == State.Corpse) { // don't delete if resurrected
+        //        DeleteThis = true;
+        //        GameObject corpse = Instantiate(corpseParticle);
+        //        corpse.transform.position = transform.position;
+        //    }
+        //});
+        Timer.CreateTimer(0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
+        GetComponent<CircleCollider2D>().enabled = false; // disable collider
+
+        // play death animation
+        if(deathAnimation != null) {
+            currentAnimation = deathAnimation;
+            currentAnimation.ChangeType(AnimationType.Forward); // make sure it is forward because rezzing plays it backwards
+        } else {
+            // temporary
+            GetComponent<SpriteRenderer>().color = Color.black;
         }
     }
 
@@ -356,6 +366,11 @@ public abstract class Enemy : MonoBehaviour
         GetComponent<CircleCollider2D>().enabled = false;
         body.velocity = Vector3.zero;
         this.positionAfterFall = positionAfterFall;
+
+        if(Dashing) {
+            dashTimer.End();
+            EndDash();
+        }
     }
 
     #region Functions for sub-classes
@@ -428,7 +443,7 @@ public abstract class Enemy : MonoBehaviour
     }
 
     // functions for altering the character's walk speed
-    protected void SetSpeed(float speed) {
+    protected void SetNewSpeed(float speed) {
         maxSpeed = speed;
     }
     protected void ResetSpeed() {
@@ -444,34 +459,36 @@ public abstract class Enemy : MonoBehaviour
         GetComponent<SpriteRenderer>().flipX = velocity.x < 0;
 
         sturdy = true;
-        dashing = true;
-        Timer.CreateTimer(duration, false, () => {
+        dashTimer = Timer.CreateTimer(duration, false, () => {
             body.velocity = Vector2.zero;
 
             if(endlag > 0) {
-                Timer.CreateTimer(endlag, false, () => {
-                    sturdy = false;
-                    dashing = false;
-                    currentAnimation = idleAnimation;
-                    currentAnimation.Reset();
-                });
+                dashTimer = Timer.CreateTimer(endlag, false, EndDash);
             } else {
-                sturdy = false;
-                dashing = false;
-                currentAnimation = idleAnimation;
-                currentAnimation.Reset();
+                EndDash();
             }
         });
     }
+
+    private void EndDash() {
+        sturdy = false;
+        dashTimer = null;
+        currentAnimation = idleAnimation;
+        currentAnimation.Reset();
+    }
     #endregion
 
-    public void MakeMiniboss() {
-        statuses.Add(Status.Energy, 3600, false);
-        statuses.Add(Status.Strength, 3600, false);
-        statuses.Add(Status.Speed, 3600, false);
-        statuses.Add(Status.Resistance, 3600, false);
-        startSize *= 1.5f;;
-        transform.localScale = new Vector3(startSize, startSize, 1);
+    public void BecomeMiniboss() {
+        // this function is usually called before Start()
+        Timer.CreateTimer(0.1f, false, () => {
+            statuses = new Statuses(gameObject); 
+            statuses.Add(Status.Energy, 3600, false);
+            statuses.Add(Status.Strength, 3600, false);
+            statuses.Add(Status.Speed, 3600, false);
+            statuses.Add(Status.Resistance, 3600, false);
+            startSize *= 1.5f;;
+            transform.localScale = new Vector3(startSize, startSize, 1);
+        });
     }
 
     private bool UsingAbilityAnimation() { 

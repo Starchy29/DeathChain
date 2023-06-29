@@ -168,3 +168,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 7436e94efc1d4d84089ea50302842970, type: 3}
   - {fileID: 21300000, guid: 4239bddd23df338418baa7afe6fb70d1, type: 3}
   - {fileID: 21300000, guid: 9027996f384656546bb17cfc2493cf36, type: 3}
+  slash1Sprites:
+  - {fileID: 21300000, guid: e91d58782c91b01498b0ce9f937a1ff3, type: 3}
+  - {fileID: 21300000, guid: 4b332964869f787469b22395fba0157c, type: 3}
+  - {fileID: 21300000, guid: 372ef03e417101d4aad018c2ea7359bd, type: 3}
+  slash2Sprites:
+  - {fileID: 21300000, guid: 4e9fbdb054033a747bd6334faad70b6a, type: 3}
+  - {fileID: 21300000, guid: 0bae48a6f77cc0049aa676f57ff684f7, type: 3}
+  - {fileID: 21300000, guid: 3531433cc06916440a508ea19341869c, type: 3}
