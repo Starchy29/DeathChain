@@ -62,7 +62,7 @@ public class ShadowScript : Enemy
             if(direction == Vector2.zero) {
                 direction = controller.GetAimDirection();
             }
-            Dash(20.0f * direction, 0.12f, 0.1f);
+            Dash(20.0f * direction, 0.14f, 0.08f);
             currentAnimation = dashAnimation;
             currentAnimation.Reset();
         }
