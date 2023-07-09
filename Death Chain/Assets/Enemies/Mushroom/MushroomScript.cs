@@ -108,11 +108,11 @@ public class MushroomScript : Enemy
                 if(enemy.GetComponent<Enemy>().IsCorpse && distance > 2.0f && distance < 8.0f) {
                     controller.SetAim(controller.Target.gameObject.transform.position - transform.position); // try to move past attacker
                     controller.QueueAbility(1, 0);
-                    break;
+                    return;
                 }
             }
         }
-        else if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false) ) {
+        if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false)) {
             controller.QueueAbility(0, 0.3f);
         }
     }
