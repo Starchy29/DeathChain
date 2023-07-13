@@ -23,6 +23,8 @@ public class Projectile : Attack
         if(distance >= range) {
             End();
         }
+
+        GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // layer relative to vertical position, sorting layer should be same as enemies
     }
 
     // Must be called each time one is created. Input vector should have length 1 
@@ -56,6 +58,9 @@ public class Projectile : Attack
             GameObject particle = Instantiate(destroyParticle);
             particle.transform.position = transform.position;
             particle.transform.rotation = transform.rotation;
+            SpriteRenderer renderer = particle.GetComponent<SpriteRenderer>();
+            renderer.sortingLayerName = GetComponent<SpriteRenderer>().sortingLayerName;
+            renderer.sortingOrder = GetComponent<SpriteRenderer>().sortingOrder;
         }
 
         Destroy(gameObject);

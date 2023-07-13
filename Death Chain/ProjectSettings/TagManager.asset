@@ -41,6 +41,12 @@ TagManager:
   - name: Background
     uniqueID: 1870816851
     locked: 0
+  - name: FloorElement
+    uniqueID: 4125511563
+    locked: 0
+  - name: Pit
+    uniqueID: 966654301
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

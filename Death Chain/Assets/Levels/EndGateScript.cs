@@ -11,6 +11,9 @@ public class EndGateScript : MonoBehaviour
     void Update()
     {
         // TEMP
+        if(gate == null) {
+            return;
+        }
         foreach(GameObject enemy in EntityTracker.Instance.Enemies) {
             if(enemy.GetComponent<SlimeScript>() != null && enemy.transform.localScale.x == 2.1f && enemy.GetComponent<SlimeScript>().IsCorpse) {
                 gate.SetActive(false);
