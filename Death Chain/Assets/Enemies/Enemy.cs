@@ -22,6 +22,7 @@ public abstract class Enemy : MonoBehaviour
     protected Animation idleAnimation;
     protected Animation walkAnimation;
     protected Animation deathAnimation;
+    protected const float DEATH_DURATION = 0.6f;
 
     private State state = State.Normal;
     private Rigidbody2D body;
@@ -68,6 +69,7 @@ public abstract class Enemy : MonoBehaviour
         maxSpeed = BaseSpeed;
         startSize = transform.localScale.x;
         body = GetComponent<Rigidbody2D>();
+        GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // repeated whenever the character changes position
         EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         
         ChildStart();

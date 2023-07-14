@@ -15,7 +15,7 @@ public class BlightScript : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         walkAnimation = new Animation(walkSprites, AnimationType.Oscillate, 0.4f);
-        deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
+        deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_DURATION);
         attackAnimation = new Animation(attackSprites, AnimationType.Rebound, 0.1f);
     }
 

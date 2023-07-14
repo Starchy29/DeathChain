@@ -19,8 +19,8 @@ public class SpiderScript : Enemy
         controller = new AIController(gameObject, AIMode.Wander, AIMode.Still, 5.5f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.6f);
-        //walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.5f);
-        //deathAnimation = new Animation(deathSprites, AnimationType.Forward, 0.6f);
+        walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.2f);
+        //deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_DURATION);
         //shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
     }
 
