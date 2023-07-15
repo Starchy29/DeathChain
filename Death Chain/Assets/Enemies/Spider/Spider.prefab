@@ -148,6 +148,18 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 22d2d077dadcc19478b4db30bf12fd86, type: 3}
   - {fileID: 21300000, guid: a052a489c0edf0f46a6fe1ec4fc3dc47, type: 3}
   - {fileID: 21300000, guid: e424ecbd9f1c7214aabd0c838e8593dd, type: 3}
-  deathSprites: []
+  deathSprites:
+  - {fileID: 21300000, guid: 542d62e77fda3f949941ee1120df3830, type: 3}
+  - {fileID: 21300000, guid: d8e708f2acf8495469c1cfea6c2ebdee, type: 3}
+  - {fileID: 21300000, guid: d8e708f2acf8495469c1cfea6c2ebdee, type: 3}
+  - {fileID: 21300000, guid: bb9858d21ecad264ca895c62a1a3f643, type: 3}
+  - {fileID: 21300000, guid: bb9858d21ecad264ca895c62a1a3f643, type: 3}
+  - {fileID: 21300000, guid: 9cc2b23f37932474aa597e66b53b8156, type: 3}
+  - {fileID: 21300000, guid: 9cc2b23f37932474aa597e66b53b8156, type: 3}
+  - {fileID: 21300000, guid: bb9858d21ecad264ca895c62a1a3f643, type: 3}
+  - {fileID: 21300000, guid: d8e708f2acf8495469c1cfea6c2ebdee, type: 3}
+  - {fileID: 21300000, guid: 3d327709b9cc70447953fa135677beb5, type: 3}
+  - {fileID: 21300000, guid: 6c432e105310e9941868ab99cf79282c, type: 3}
+  - {fileID: 21300000, guid: d863fd1cf75d0fd459656008c939eaa0, type: 3}
   ShotPrefab: {fileID: 1169042378785172043, guid: ca0118919fe4f5d4ea023474378095d9, type: 3}
   WebPrefab: {fileID: 5896524803816606194, guid: 1a58d879709e3114bbea8aab30e60588, type: 3}
