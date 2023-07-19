@@ -4,13 +4,18 @@ using UnityEngine;
 
 public class SpiderScript : Enemy
 {
+    [SerializeField] private Sprite[] lobSprites;
+    [SerializeField] private Sprite[] pullSprites;
     [SerializeField] private GameObject ShotPrefab;
     [SerializeField] private GameObject WebPrefab;
 
     private const float WEB_CD = 6.0f;
-    private const float CHARGE_RATE = 12.0f;
-    private const float MAX_CHARGE = 16.0f;
+    private const float CHARGE_RATE = 15.0f;
+    private const float MAX_CHARGE = 20.0f;
     private const float CHARGE_WALK_SPEED = 2.0f;
+
+    private Animation lobAnimation;
+    private Animation pullAnimation;
 
     private bool charging;
     private float charge; // speed of the projectile
@@ -21,7 +26,8 @@ public class SpiderScript : Enemy
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.6f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.2f);
         deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_DURATION);
-        //shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
+        lobAnimation = new Animation(lobSprites, AnimationType.Rebound, 0.15f);
+        pullAnimation = new Animation(pullSprites, AnimationType.Forward, MAX_CHARGE / CHARGE_RATE);
     }
 
     protected override void UpdateAbilities() {
@@ -32,11 +38,15 @@ public class SpiderScript : Enemy
                 shot.GetComponent<Projectile>().SetSpeed(charge);
                 shot.GetComponent<Projectile>().ModifyDamage(charge / MAX_CHARGE);
                 charging = false;
-                ResetSpeed();
+                ResetWalkSpeed();
+                currentAnimation = walkAnimation; // end the pull animation in the middle of it
+                currentAnimation.Reset();
             } else {
                 charge += CHARGE_RATE * Time.deltaTime * (statuses.HasStatus(Status.Energy) ? 1.5f : 1f);
                 if(charge > MAX_CHARGE) {
                     charge = MAX_CHARGE;
+                    SetWalkSpeed(0.0f);
+                    currentAnimation = pullAnimation; // don't allow the animation to become the walk animation yet
                 }
             }
             return;
@@ -46,13 +56,15 @@ public class SpiderScript : Enemy
             // start pulling back "bow"
             charging = true;
             charge = 4.0f;
-            SetNewSpeed(CHARGE_WALK_SPEED);
+            SetWalkSpeed(CHARGE_WALK_SPEED);
+            currentAnimation = pullAnimation;
+            currentAnimation.Reset();
         }
         else if(UseAbility(1)) {
             // use lob web zone
             cooldowns[1] = WEB_CD;
-            //currentAnimation = shootAnimation;
-            //shootAnimation.Reset();
+            currentAnimation = lobAnimation;
+            currentAnimation.Reset();
             CreateAttack(WebPrefab);
         }
     }

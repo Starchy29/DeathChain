@@ -58,7 +58,7 @@ public class Attack : MonoBehaviour
     }
 
     public void ModifyDamage(float multiplier) {
-        damage = (int)(multiplier * damage);
+        damage = (int)Mathf.Ceil(multiplier * damage);
     }
 
     protected virtual Vector2 GetPushDirection(GameObject hitEnemy) { return Vector2.zero; } // does not need to be normalized

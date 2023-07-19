@@ -15,11 +15,15 @@ public class Lobber : MonoBehaviour
     private Vector3 pos; // z represents height
     private bool falling; // true: falling in a pit as a visual effect
     private float startSize;
+    private float shadowStartSize;
 
     private void Start()
     {
         pos = transform.position;
         startSize = transform.localScale.x;
+        if(transform.childCount > 0) {
+            shadowStartSize = transform.GetChild(0).transform.localScale.x; // assumes scale is uniform
+        }
     }
 
     // must be called whenever created. Direction should be a unit vector
@@ -82,7 +86,11 @@ public class Lobber : MonoBehaviour
             if(transform.childCount > 0) {
                 Transform shadow = transform.GetChild(0);
                 shadow.gameObject.transform.position = new Vector3(pos.x, pos.y, 0);
-                shadow.localScale = new Vector3(transform.localScale.x / 2 + pos.z, transform.localScale.y / 2 + pos.z, 1);
+                float newScale = shadowStartSize - pos.z / 2;
+                if(newScale < 0) {
+                    newScale = 0;
+                }
+                shadow.localScale = new Vector3(newScale, newScale, 1);
             }
         }
     }

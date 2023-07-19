@@ -73,7 +73,9 @@ public abstract class Enemy : MonoBehaviour
         EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         
         ChildStart();
-        currentAnimation = idleAnimation; // animations are created by child classes
+        if(currentAnimation == null) { // allows children to choose a different start animation
+            currentAnimation = idleAnimation; // animations are created by child classes
+        }
     }
 
     void Update()
@@ -170,12 +172,6 @@ public abstract class Enemy : MonoBehaviour
     }
 
     private void DoMovement() {
-        // assume idle animation unless mid-ability
-        //if(currentAnimation != idleAnimation && idleAnimation != null && !UsingAbilityAnimation()) {
-        //    currentAnimation = idleAnimation;
-        //    currentAnimation.Reset();
-        //}
-
         // apply friction
         const float FRICTION = 20;
         if(body.velocity != Vector2.zero) {
@@ -308,10 +304,6 @@ public abstract class Enemy : MonoBehaviour
 
         knocked = true;
         body.velocity = force;
-        if(idleAnimation != null) {
-            currentAnimation = idleAnimation;
-            currentAnimation.Reset();
-        }
     }
 
     // apply a status effect for some time. If no time parameter is given, it is set to an hour to represent infinite duration
@@ -326,7 +318,7 @@ public abstract class Enemy : MonoBehaviour
     public void Possess(PlayerController player) {
         controller = player;
         health = BaseHealth; // reset health
-        ResetSpeed(); // in case the enemy changed its own speed
+        ResetWalkSpeed(); // in case the enemy changed its own speed
         isAlly = true;
 
         // become non-corpse
@@ -445,10 +437,10 @@ public abstract class Enemy : MonoBehaviour
     }
 
     // functions for altering the character's walk speed
-    protected void SetNewSpeed(float speed) {
+    protected void SetWalkSpeed(float speed) {
         maxSpeed = speed;
     }
-    protected void ResetSpeed() {
+    protected void ResetWalkSpeed() {
         maxSpeed = BaseSpeed;
     }
 

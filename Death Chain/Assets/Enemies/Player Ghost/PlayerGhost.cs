@@ -42,7 +42,7 @@ public class PlayerGhost : Enemy
         if(currentSlash != null) {
             // slash updates on its own
             return;
-        } 
+        }
 
         if(UseAbility(0)) { // slash
             cooldowns[0] = SLASH_CD;
