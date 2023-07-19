@@ -8,4 +8,8 @@ public class ButtonEvents : MonoBehaviour
     public void StartClicked() {
         SceneManager.LoadScene("Custom Level");
     }
+
+    public void QuitClicked() {
+        Application.Quit();
+    }
 }
