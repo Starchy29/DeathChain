@@ -19,14 +19,14 @@ public class StatusZone : MonoBehaviour
         enemiesWithin = new List<Enemy>();
 
         // apply the status effect to all enemies within every interval
-        timer = Timer.CreateTimer(0.2f, true, () => { 
+        timer = Timer.CreateTimer(gameObject, 0.2f, true, () => { 
             foreach(Enemy enemy in enemiesWithin) {
                 enemy.ApplyStatus(effect, TICK_RATE);
             }
         });
 
         // end effect after the duration
-        Timer.CreateTimer(duration, false, () => {
+        Timer.CreateTimer(gameObject, duration, false, () => {
             timer.End();
             Destroy(gameObject);
         });

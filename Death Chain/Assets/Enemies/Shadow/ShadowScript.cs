@@ -46,7 +46,7 @@ public class ShadowScript : Enemy
                 cooldowns[0] = 0.3f;
                 ApplyEndlag(0.3f, 1.0f);
                 firstSlash = false;
-                Timer.CreateTimer(0.6f, false, () => { firstSlash = true; });
+                Timer.CreateTimer(gameObject, 0.6f, false, () => { firstSlash = true; });
             } else {
                 currentAnimation = slash2Animation;
                 currentAnimation.Reset();

@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,8 +8,8 @@ public class Timer
 {
     private static List<Timer> timers = new List<Timer>();
 
-    public static Timer CreateTimer(float durationSecs, bool repeated, Effect tickEffect) {
-        Timer newTimer = new Timer(durationSecs, repeated, tickEffect);
+    public static Timer CreateTimer(GameObject dependency, float durationSecs, bool repeated, Effect tickEffect) {
+        Timer newTimer = new Timer(dependency, durationSecs, repeated, tickEffect);
         timers.Add(newTimer);
         return newTimer;
     }
@@ -16,6 +17,16 @@ public class Timer
     public static void UpdateAll(float deltaTime) { // must be called once per frame and given the delta time, done in EntityTracker.cs
         for(int i = timers.Count - 1; i >= 0; i--) {
             if(timers[i].done) {
+                timers.RemoveAt(i);
+                continue;
+            }
+
+            if(timers[i].isDependent) {
+                Debug.Log(timers[i].dependency);
+            }
+
+            if(timers[i].isDependent && timers[i].dependency == null) {
+                Debug.Log("removed an error timer");
                 timers.RemoveAt(i);
                 continue;
             }
@@ -33,17 +44,23 @@ public class Timer
     private readonly float durationSecs;
     private float secondsLeft;
     private bool done; // tells the list to remove this
+    private bool isDependent;
+    private GameObject dependency;
 
     public delegate void Effect();
     private readonly Effect TickEffect;
 
     public bool Active { get { return secondsLeft > 0; } }
 
-    private Timer(float durationSecs, bool repeated, Effect tickEffect) {
+    private Timer(GameObject dependency, float durationSecs, bool repeated, Effect tickEffect) {
         this.durationSecs = durationSecs;
         this.repeated = repeated;
         this.TickEffect = tickEffect;
         secondsLeft = durationSecs;
+
+        // allow objects to create timers that are automatically cleaned up if the entity is destroyed
+        isDependent = dependency != null;
+        this.dependency = dependency;
     }
 
     private void Update(float deltaTime) {

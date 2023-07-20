@@ -284,7 +284,7 @@ public abstract class Enemy : MonoBehaviour
         //        corpse.transform.position = transform.position;
         //    }
         //});
-        Timer.CreateTimer(0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
+        Timer.CreateTimer(gameObject, 0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
         GetComponent<CircleCollider2D>().enabled = false; // disable collider
 
         // play death animation
@@ -432,7 +432,7 @@ public abstract class Enemy : MonoBehaviour
         if(duration < 0 || tempSpeed < 0) {
             return;
         }
-        endlag = Timer.CreateTimer(duration, false, () => { maxSpeed = BaseSpeed; });
+        endlag = Timer.CreateTimer(gameObject, duration, false, () => { maxSpeed = BaseSpeed; });
         maxSpeed = tempSpeed;
     }
 
@@ -453,11 +453,11 @@ public abstract class Enemy : MonoBehaviour
         GetComponent<SpriteRenderer>().flipX = velocity.x < 0;
 
         sturdy = true;
-        dashTimer = Timer.CreateTimer(duration, false, () => {
+        dashTimer = Timer.CreateTimer(gameObject, duration, false, () => {
             body.velocity = Vector2.zero;
 
             if(endlag > 0) {
-                dashTimer = Timer.CreateTimer(endlag, false, EndDash);
+                dashTimer = Timer.CreateTimer(gameObject, endlag, false, EndDash);
             } else {
                 EndDash();
             }
@@ -474,7 +474,7 @@ public abstract class Enemy : MonoBehaviour
 
     public void BecomeMiniboss() {
         // this function is usually called before Start()
-        Timer.CreateTimer(0.1f, false, () => {
+        Timer.CreateTimer(gameObject, 0.1f, false, () => {
             statuses = new Statuses(gameObject); 
             statuses.Add(Status.Energy, 3600, false);
             statuses.Add(Status.Strength, 3600, false);

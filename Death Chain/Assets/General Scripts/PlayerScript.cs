@@ -114,7 +114,7 @@ public class PlayerScript : MonoBehaviour
                     decayTimer.Restart(); // already possessing, so there is already a decay timer
                 } else {
                     playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
-                    decayTimer = Timer.CreateTimer(DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); }); // start decaying
+                    decayTimer = Timer.CreateTimer(null, DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); }); // start decaying
                 }
 
                 playerCharacter = closestOption;

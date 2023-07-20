@@ -47,10 +47,8 @@ public class Attack : MonoBehaviour
 
                     // prevent retriggering the attack for a fraction of a second
                     recentHits.Add(enemyScript);
-                    Timer.CreateTimer(0.3f, false, () => { 
-                        if(recentHits != null) {
-                            recentHits.Remove(enemyScript);
-                        }
+                    Timer.CreateTimer(gameObject, 0.3f, false, () => { 
+                        recentHits.Remove(enemyScript);
                     });
                 }
                 break;

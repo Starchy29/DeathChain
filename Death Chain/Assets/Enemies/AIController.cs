@@ -70,12 +70,12 @@ public class AIController : Controller
     public void QueueAbility(int ability, float startup = 0, float endlag = 0) {
         if(startup > 0) {
             paused = true;
-            Timer.CreateTimer(startup, false, () => {
+            Timer.CreateTimer(controlled, startup, false, () => {
                 queuedAbility = ability;
                 paused = false;
                 if(endlag > 0) {
                     paused = true;
-                    Timer.CreateTimer(endlag, false, () => {
+                    Timer.CreateTimer(controlled, endlag, false, () => {
                         paused = false;
                     });
                 }
@@ -83,11 +83,11 @@ public class AIController : Controller
         } else {
             queuedAbility = ability;
             if(endlag > 0) {
-                paused = true;
-                Timer.CreateTimer(endlag, false, () => {
+               paused = true;
+                Timer.CreateTimer(controlled, endlag, false, () => {
                     paused = false;
                 });
-            }
+            } 
         }
 
         if(CurrentMode == AIMode.Wander && currentDirection == Vector2.zero) {
