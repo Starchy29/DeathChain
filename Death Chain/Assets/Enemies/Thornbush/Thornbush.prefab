@@ -141,3 +141,5 @@ MonoBehaviour:
   idleSprites: []
   walkSprites: []
   deathSprites: []
+  SpikeCounterPrefab: {fileID: 713477049408224818, guid: c7b1657cb70d9154298819d1fe441da7, type: 3}
+  ThornBulletPrefab: {fileID: 7480363040952164076, guid: 22443ecd9a504074fbdc5e1ba96bfbc0, type: 3}

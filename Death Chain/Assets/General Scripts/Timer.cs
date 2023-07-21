@@ -21,12 +21,7 @@ public class Timer
                 continue;
             }
 
-            if(timers[i].isDependent) {
-                Debug.Log(timers[i].dependency);
-            }
-
             if(timers[i].isDependent && timers[i].dependency == null) {
-                Debug.Log("removed an error timer");
                 timers.RemoveAt(i);
                 continue;
             }

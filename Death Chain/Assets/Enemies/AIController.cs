@@ -7,7 +7,7 @@ public enum AIMode { // the way this character moves
     Wander,
     Chase,
     Flee,
-    //Duel
+    Patrol
 }
 
 // Class that allows AI to control the enemies in the game
@@ -138,6 +138,18 @@ public class AIController : Controller
                 }
                 Vector2 targetPosition = Approach(target.transform.position);
                 return ModifyDirection((targetPosition - (Vector2)controlled.transform.position).normalized);
+
+            case AIMode.Flee:
+                if(controlled.transform.position == target.transform.position) {
+                    return Vector2.zero;
+                }
+
+                Vector2 away = controlled.transform.position - target.transform.position;
+                float distance = away.magnitude;
+                away = (4 / distance) * away.normalized;
+                Vector2 toCenter = (startPosition - (Vector2)controlled.transform.position).normalized;
+                toCenter *= Vector2.Distance(startPosition, controlled.transform.position) / (WANDER_RANGE + 2);
+                return ModifyDirection((away + toCenter).normalized);
         }
 
         return Vector2.zero;
@@ -290,8 +302,6 @@ public class AIController : Controller
                     travelTimer += 0.6f;
                     currentDirection = Vector2.zero;
                 }
-
-                //travelTimer *= 4.0f / controlled.GetComponent<Enemy>().WalkSpeed; // factor in walk speed
             }
         }
     }

@@ -382,7 +382,7 @@ public abstract class Enemy : MonoBehaviour
 
     protected GameObject CreateAttack(GameObject prefab, bool faceAttack = false) {
         GameObject attack = Instantiate(prefab);
-        attack.transform.position = transform.position; // defualt placement is directly on top
+        attack.transform.position = transform.position; // default placement is directly on top
 
         Vector2 aim = Vector2.zero;
         if(controller != null) {
