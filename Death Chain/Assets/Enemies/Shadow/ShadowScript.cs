@@ -24,7 +24,7 @@ public class ShadowScript : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.8f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
-        deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_DURATION);
+        deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_ANIM_DURATION);
         dashAnimation = new Animation(dashSprites, AnimationType.Loop, 0.3f);
         slash1Animation = new Animation(slash1Sprites, AnimationType.Forward, 0.25f);
         slash2Animation = new Animation(slash2Sprites, AnimationType.Forward, 0.25f);

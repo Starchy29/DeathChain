@@ -25,7 +25,7 @@ public class SpiderScript : Enemy
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.6f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.2f);
-        deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_DURATION);
+        deathAnimation = new Animation(deathSprites, AnimationType.Forward, DEATH_ANIM_DURATION);
         lobAnimation = new Animation(lobSprites, AnimationType.Rebound, 0.15f);
         pullAnimation = new Animation(pullSprites, AnimationType.Forward, MAX_CHARGE / CHARGE_RATE);
     }

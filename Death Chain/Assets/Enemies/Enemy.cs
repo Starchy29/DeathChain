@@ -22,7 +22,7 @@ public abstract class Enemy : MonoBehaviour
     protected Animation idleAnimation;
     protected Animation walkAnimation;
     protected Animation deathAnimation;
-    protected const float DEATH_DURATION = 0.6f;
+    protected const float DEATH_ANIM_DURATION = 0.6f;
 
     private State state = State.Normal;
     private Rigidbody2D body;
@@ -195,7 +195,7 @@ public abstract class Enemy : MonoBehaviour
         }
 
         // regular movement
-        Vector2 moveDirection = controller.GetMoveDirection();
+        Vector2 moveDirection = ModifyDirection(controller.GetMoveDirection());
         if(maxSpeed <= 0 || moveDirection == Vector2.zero) {
             if(currentAnimation != idleAnimation && idleAnimation != null && !UsingAbilityAnimation()) {
                 currentAnimation = idleAnimation;
@@ -469,6 +469,11 @@ public abstract class Enemy : MonoBehaviour
         dashTimer = null;
         currentAnimation = idleAnimation;
         currentAnimation.Reset();
+    }
+
+    // allows enemies to have special movement patterns. Recieves the controller's direction and returns a new direction to move in
+    protected virtual Vector2 ModifyDirection(Vector2 direction) {
+        return direction;
     }
     #endregion
 
