@@ -23,6 +23,7 @@ public class AIController : Controller
 
     private Vector2 currentDirection; // optional variable for movement modes that have certain paths
     private float travelTimer; // amount of time to travel in the current direction
+    private bool clockwise; // for patrol mvovement
 
     private Vector2 specialAim; // allows enemies to aim in specific directions
     private int queuedAbility = -1; // the attack to use after startup is done
@@ -129,6 +130,7 @@ public class AIController : Controller
                 }
                 return Vector2.zero;
 
+            case AIMode.Patrol:
             case AIMode.Wander:
                 return ModifyDirection(currentDirection);
 
@@ -189,6 +191,89 @@ public class AIController : Controller
     #endregion
 
     #region Helper functions
+
+    // determine a direction to move for a span of time
+    private void ChooseMovement() {
+        if(CurrentMode == AIMode.Wander) {
+            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed, where 4 is considered average
+
+            if(travelTimer > 0) {
+                return;
+            }
+
+            // alternate between moving in a direction and pausing
+            if(currentDirection == Vector2.zero) {
+                travelTimer += 0.8f;
+
+                // pick a new direction
+                Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
+                random += -currentDirection * 0.5f; // weight it away from the current direction
+                if(!IgnoreStart) {
+                    // weight random direction towards starting position, not normalized to be weighted more when further away
+                    random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
+                }
+
+                currentDirection = random.normalized;
+            } else {
+                // stay still for a bit
+                travelTimer += 0.6f;
+                currentDirection = Vector2.zero;
+            }
+        }
+        else if(CurrentMode == AIMode.Patrol) {
+            if(currentDirection == Vector2.zero) {
+                currentDirection = new Vector2(0, -1);
+            }
+
+            // rotate the current direction
+            const float ROT_PER_SEC = Mathf.PI;
+            float rotationAmount = Time.deltaTime * ROT_PER_SEC * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // turn more frequently if moving faster
+            float newAngle = Mathf.Atan2(currentDirection.y, currentDirection.x) + rotationAmount * (clockwise ? -1 : 1);
+            currentDirection = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle));
+
+            travelTimer -= rotationAmount;
+            if(travelTimer > 0) {
+                return;
+            }
+
+            // in this case the travelTimer represents the amount to turn
+            travelTimer = Random.Range(Mathf.PI / 4, Mathf.PI * 3/2);
+            clockwise = !clockwise;
+            
+            // make sure it turns around if at the edge of the area
+            if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE * 0.5f) {
+                Vector2 towardStart = startPosition - (Vector2)controlled.transform.position;
+                float toStartAngle = Mathf.Atan2(towardStart.y, towardStart.x);
+
+                // shift so the goal is PI. Makes it simpler
+                float shift = Mathf.PI - toStartAngle;
+                float currentAngle = newAngle + shift;
+                if(currentAngle > 2*Mathf.PI) {
+                    currentAngle -= 2*Mathf.PI;
+                }
+                else if(currentAngle < 0) {
+                    currentAngle += 2*Mathf.PI;
+                }
+                float max = Mathf.PI + 70*Mathf.Deg2Rad;
+                float min = Mathf.PI - 70*Mathf.Deg2Rad;
+
+                if(clockwise) {
+                    if(currentAngle < min) {
+                        currentAngle += 2*Mathf.PI;
+                    }
+
+                    travelTimer = Random.Range(Mathf.Max(currentAngle - max, 0), currentAngle - min);
+                } else {
+                    if(currentAngle > max) {
+                        currentAngle -= 2 * Mathf.PI;
+                    }
+
+                    travelTimer = Random.Range(Mathf.Max(min - currentAngle, 0), max - currentAngle);
+                }
+            }
+        }
+    }
+
     private void CheckVision() {
         if(vision <= 0) {
             return;
@@ -276,34 +361,6 @@ public class AIController : Controller
         }
 
         return desiredDirection;
-    }
-
-    // determine a direction to move for a span of time
-    private void ChooseMovement() {
-        if(CurrentMode == AIMode.Wander) {
-            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed, where 4 is considered average
-
-            if(travelTimer <= 0) {
-                // alternate between moving in a direction and pausing
-                if(currentDirection == Vector2.zero) {
-                    travelTimer += 0.8f;
-
-                    // pick a new direction
-                    Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
-                    random += -currentDirection * 0.5f; // weight it away from the current direction
-                    if(!IgnoreStart) {
-                        // weight random direction towards starting position, not normalized to be weighted more when further away
-                        random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
-                    }
-
-                    currentDirection = random.normalized;
-                } else {
-                    // stay still for a bit
-                    travelTimer += 0.6f;
-                    currentDirection = Vector2.zero;
-                }
-            }
-        }
     }
 
     // returns the unit vector towards the target, zero vector if no target

@@ -102,6 +102,7 @@ MonoBehaviour:
   effect: 0
   duration: 5
   enterAmount: 1.5
+  grounded: 1
 --- !u!58 &8241715611614376933
 CircleCollider2D:
   m_ObjectHideFlags: 0

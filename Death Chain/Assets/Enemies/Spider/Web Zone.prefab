@@ -118,6 +118,7 @@ MonoBehaviour:
   effect: 1
   duration: 6
   enterAmount: 0
+  grounded: 1
 --- !u!114 &5113140118900140375
 MonoBehaviour:
   m_ObjectHideFlags: 0

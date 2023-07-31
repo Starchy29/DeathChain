@@ -12,7 +12,7 @@ public class HornetScript : Enemy
     private Vector2 lastMoveDirection;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Wander, AIMode.Wander, 3.0f);
+        controller = new AIController(gameObject, AIMode.Patrol, AIMode.Patrol, 3.0f);
 
         floating = true;
         lastMoveDirection = new Vector2(0, -1);
@@ -27,10 +27,11 @@ public class HornetScript : Enemy
         else if(UseAbility(1)) {
             // speed boost
             cooldowns[1] = SPEED_CD;
-            ApplyStatus(Status.Speed, 2.0f);
+            ApplyStatus(Status.Speed, 3.0f);
         }
     }
 
+    // make the character always move forward
     protected override Vector2 ModifyDirection(Vector2 direction) {
         if(direction != Vector2.zero) {
             lastMoveDirection = direction;
