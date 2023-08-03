@@ -138,6 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BaseHealth: 9
   BaseSpeed: 6
+  difficulty: 2
   idleSprites:
   - {fileID: 21300000, guid: 542d62e77fda3f949941ee1120df3830, type: 3}
   - {fileID: 21300000, guid: 10fcabb80b0c00e44996ea18896350a4, type: 3}

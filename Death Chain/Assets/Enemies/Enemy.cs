@@ -14,6 +14,7 @@ public abstract class Enemy : MonoBehaviour
 
     [SerializeField] private int BaseHealth;
     [SerializeField] private int BaseSpeed;
+    [SerializeField] private int difficulty;
     [SerializeField] protected Sprite[] idleSprites;
     [SerializeField] protected Sprite[] walkSprites;
     [SerializeField] protected Sprite[] deathSprites;
@@ -45,13 +46,14 @@ public abstract class Enemy : MonoBehaviour
     protected float[] cooldowns = new float[3];
     protected bool Dashing { get { return dashTimer != null; } }
 
-    public int Health { get { return health; } }
     public float WalkSpeed { get { 
         return maxSpeed
             * (statuses.HasStatus(Status.Speed) ? 1.5f : 1)
             * (statuses.HasStatus(Status.Slow) ? 0.5f : 1)
             * (statuses.HasStatus(Status.Freeze) ? 0 : 1);
     }}
+    public int Health { get { return health; } }
+    public int Difficulty { get { return difficulty; } }
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public float[] Cooldowns { get { return cooldowns; } }
     public bool IsAlly { get { return isAlly; } }
@@ -275,15 +277,17 @@ public abstract class Enemy : MonoBehaviour
             return;
         }
 
+        PlayerScript.Instance.AddSouls(difficulty);
+
         // become a corpse that can be possessed
         state = State.Corpse;
-        //Timer.CreateTimer(5.0f, false, () => { // despawn corpse after some time
-        //    if(state == State.Corpse) { // don't delete if resurrected
-        //        DeleteThis = true;
-        //        GameObject corpse = Instantiate(corpseParticle);
-        //        corpse.transform.position = transform.position;
-        //    }
-        //});
+        Timer.CreateTimer(gameObject, 10.0f, false, () => { // despawn corpse after some time
+            if(state == State.Corpse) { // don't delete if resurrected
+                DeleteThis = true;
+                GameObject corpse = Instantiate(EntityTracker.Instance.CorpseParticle);
+                corpse.transform.position = transform.position;
+            }
+        });
         Timer.CreateTimer(gameObject, 0.6f, false, OnDeath); // use optional death effect after 0.6 seconds of dying
         GetComponent<CircleCollider2D>().enabled = false; // disable collider
 

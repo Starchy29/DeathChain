@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -17,12 +18,12 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField] private GameObject soulHealthBar;
     [SerializeField] private GameObject corpseHealthBar;
+    [SerializeField] private GameObject soulBar;
     [SerializeField] private GameObject[] abilityButtons;
 
+    private int souls = 1;
     private int playerHealth;
-    private Timer decayTimer;
 
-    private const float DECAY_FREQ = 5.0f; // number of seconds for each damage dealt
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
     private const float ABILITY_ALPHA = 0.5f; 
     private float healthBarHeight; // used to represent the width of each health point
@@ -39,6 +40,7 @@ public class PlayerScript : MonoBehaviour
         healthBarHeight = soulHealthBar.transform.localScale.y;
         healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
         corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
+        soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
         SetAbilityIcons();
     }
 
@@ -73,7 +75,7 @@ public class PlayerScript : MonoBehaviour
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
                 if(enemyScript.IsCorpse) {
                     float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
-                    if(distance < POSSESS_RANGE && distance < closestDistance) {
+                    if(distance < closestDistance && souls >= CalcCost(enemyScript)) {
                         closestDistance = distance;
                         closestOption = enemy;
 
@@ -101,9 +103,11 @@ public class PlayerScript : MonoBehaviour
                 }
             }
             else if(PossessReleased()) {
-                if(playerHealth > 1) playerHealth -= 1; // deal damage for possessing?
-
                 // possess
+                souls -= CalcCost(closestOption.GetComponent<Enemy>());
+                soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
+                Debug.Log(CalcCost(closestOption.GetComponent<Enemy>()));
+
                 GameObject animation = Instantiate(possessParticlePrefab);
                 animation.transform.position = playerCharacter.transform.position;
                 animation.GetComponent<PossessMovement>().Target = closestOption;
@@ -111,10 +115,8 @@ public class PlayerScript : MonoBehaviour
                 if(ghostScript == null) {
                     // leave corpse animation
                     playerCharacter.GetComponent<Enemy>().Unpossess();
-                    decayTimer.Restart(); // already possessing, so there is already a decay timer
                 } else {
                     playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
-                    decayTimer = Timer.CreateTimer(null, DECAY_FREQ, true, () => { playerCharacter.GetComponent<Enemy>().TakeDamage(1, true); }); // start decaying
                 }
 
                 playerCharacter = closestOption;
@@ -186,15 +188,20 @@ public class PlayerScript : MonoBehaviour
     }
 
     private void Unpossess() {
-        decayTimer.End();
-        decayTimer = null;
-
         GameObject playerGhost = Instantiate(playerPrefab);
         playerGhost.transform.position = playerCharacter.transform.position;
         playerCharacter.GetComponent<Enemy>().Unpossess();
         playerCharacter = playerGhost;
         playerCharacter.GetComponent<PlayerGhost>().Setup(playerHealth);
         SetAbilityIcons();
+    }
+
+    private int CalcCost(Enemy enemyType) {
+        int cost = (int)Mathf.Pow(2, enemyType.Difficulty);
+        if(playerCharacter.GetComponent<PlayerGhost>() == null) { // if possessing
+            cost--; // give a small soul refund if possessing from a body
+        }
+        return cost;
     }
 
     private void SetAbilityIcons() {
@@ -208,5 +215,10 @@ public class PlayerScript : MonoBehaviour
                 abilityButtons[i].transform.GetChild(0).gameObject.SetActive(true);
             }
         }
+    }
+
+    public void AddSouls(int amount) {
+        souls += amount;
+        soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
     }
 }
