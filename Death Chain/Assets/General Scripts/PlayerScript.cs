@@ -21,7 +21,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private GameObject soulBar;
     [SerializeField] private GameObject[] abilityButtons;
 
-    private int souls = 1;
+    private int souls = 4;
     private int playerHealth;
 
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
@@ -106,7 +106,6 @@ public class PlayerScript : MonoBehaviour
                 // possess
                 souls -= CalcCost(closestOption.GetComponent<Enemy>());
                 soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
-                Debug.Log(CalcCost(closestOption.GetComponent<Enemy>()));
 
                 GameObject animation = Instantiate(possessParticlePrefab);
                 animation.transform.position = playerCharacter.transform.position;
@@ -197,11 +196,7 @@ public class PlayerScript : MonoBehaviour
     }
 
     private int CalcCost(Enemy enemyType) {
-        int cost = (int)Mathf.Pow(2, enemyType.Difficulty);
-        if(playerCharacter.GetComponent<PlayerGhost>() == null) { // if possessing
-            cost--; // give a small soul refund if possessing from a body
-        }
-        return cost;
+        return enemyType.Difficulty * 2;
     }
 
     private void SetAbilityIcons() {

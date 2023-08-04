@@ -425,7 +425,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5845115521941679702, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5845115521941679704, guid: 1355e4aafc69a2d49aae4200a9fd5a57, type: 3}
       propertyPath: m_RootOrder
@@ -1174,6 +1174,11 @@ Transform:
   m_Father: {fileID: 1831789909}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1105343519 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1245040760150419010, guid: 18b08d16f2698404c833a76fbe2ef0ca, type: 3}
+  m_PrefabInstance: {fileID: 5887746927051218680}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1207185356
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1528,7 +1533,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 110443106730395125, guid: 85baca6bf5f9cd640aef0df0068cbbc4, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 110443106730395131, guid: 85baca6bf5f9cd640aef0df0068cbbc4, type: 3}
       propertyPath: m_RootOrder
@@ -1617,6 +1622,7 @@ MonoBehaviour:
   possessParticlePrefab: {fileID: 5672638404814821097, guid: edc7fb2c8b4b40a40a474448bc6be001, type: 3}
   soulHealthBar: {fileID: 292148569}
   corpseHealthBar: {fileID: 1807785246}
+  soulBar: {fileID: 1105343519}
   abilityButtons:
   - {fileID: 1209593815}
   - {fileID: 394539875}

@@ -13,7 +13,7 @@ public abstract class Enemy : MonoBehaviour
     }
 
     [SerializeField] private int BaseHealth;
-    [SerializeField] private int BaseSpeed;
+    [SerializeField] private float BaseSpeed;
     [SerializeField] private int difficulty;
     [SerializeField] protected Sprite[] idleSprites;
     [SerializeField] protected Sprite[] walkSprites;
@@ -277,7 +277,7 @@ public abstract class Enemy : MonoBehaviour
             return;
         }
 
-        PlayerScript.Instance.AddSouls(difficulty);
+        PlayerScript.Instance.AddSouls(1);
 
         // become a corpse that can be possessed
         state = State.Corpse;

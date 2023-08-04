@@ -114,9 +114,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36673fd5ab50b17489f18df129c8e231, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
+  damage: 2
   knockback: 8
   effect: 0
-  effectDuration: 3
+  effectDuration: 0
   colliderDuration: 0.2
   particlePrefab: {fileID: 2286335285166474582, guid: 1a9ed2fb0b4fd5745a86f70b65f8dbe9, type: 3}

@@ -28,8 +28,8 @@ public class AIController : Controller
     private Vector2 specialAim; // allows enemies to aim in specific directions
     private int queuedAbility = -1; // the attack to use after startup is done
     private bool paused; // temporarily stops this character's movements, i.e. startup or endlag from an attack
-   
-    public int ReleaseAbility { get; set; } // specific enemies need to manually control their release mechanics 
+    private bool[] releasedAbilities; // specific enemies need to manually control their release mechanics 
+    
     public GameObject Target { get { return target; } }
     public bool IgnoreStart { get; set; } // allows an enemy to ignore their start location and travel freely
     public float CurrentVision { get { 
@@ -56,6 +56,7 @@ public class AIController : Controller
         this.targetlessMovement = targetlessMovement;
         this.vision = visionRange;
         startPosition = controlTarget.transform.position;
+        releasedAbilities = new bool[3];
     }
 
     public override void Update() {
@@ -95,6 +96,10 @@ public class AIController : Controller
             // allow movement again right after endlag
             travelTimer = 0.0f;
         }
+    }
+
+    public void SetAbilityReleased(int ability, bool released) {
+        releasedAbilities[ability] = released;
     }
 
     // override the automatic aim towards the target for something else
@@ -166,8 +171,8 @@ public class AIController : Controller
         return false;
     }
 
-    public override int GetReleasedAbility() {
-        return ReleaseAbility;
+    public override bool IsAbilityReleased(int ability) {
+        return releasedAbilities[ability];
     }
 
     public override Vector2 GetAimDirection() {

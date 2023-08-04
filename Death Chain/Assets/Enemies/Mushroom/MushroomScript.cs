@@ -17,7 +17,7 @@ public class MushroomScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Still, AIMode.Still, 7.0f);
-        ((AIController)controller).ReleaseAbility = 1; // ai always instantly uses teleport
+        ((AIController)controller).SetAbilityReleased(1, true); // ai always instantly uses teleport
         ((AIController)controller).IgnoreStart = true; // don't allow teleporting to affect vision
         sturdy = true;
 
@@ -53,7 +53,7 @@ public class MushroomScript : Enemy
             selector.transform.position = selectPos;
 
             // teleport on release
-            if(controller.GetReleasedAbility() == 1) {
+            if(controller.IsAbilityReleased(1)) {
                 cooldowns[1] = WARP_CD;
                 if(selectPos == transform.position) {
                     cooldowns[1] = 0.5f; // shorter cooldown if no actual teleport

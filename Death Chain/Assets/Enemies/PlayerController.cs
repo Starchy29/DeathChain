@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : Controller
 {
     private const float DEAD_RADIUS = 0.2f;
-    private const float BUFFER_DURATION = 0.35f;
+    private const float BUFFER_DURATION = 0.4f;
     private int? controllerIndex;
     private bool usingKeyboard;
 
@@ -127,37 +127,39 @@ public class PlayerController : Controller
         return -1; // no ability used
     }
 
-    public override int GetReleasedAbility() {
+    public override bool IsAbilityReleased(int ability) {
         if(controllerIndex.HasValue && controllerIndex < Gamepad.all.Count) {
             // check gamepad
             Gamepad controller = Gamepad.all[controllerIndex.Value];
-            if(controller.xButton.wasReleasedThisFrame || controller.rightTrigger.wasReleasedThisFrame) {
-                return 0;
-            }
-            if(controller.aButton.wasReleasedThisFrame || controller.leftTrigger.wasReleasedThisFrame) {
-                return 1;
-            }
-            if(controller.bButton.wasReleasedThisFrame || controller.leftShoulder.wasReleasedThisFrame) {
-                return 2;
+            switch(ability) {
+                case 0:
+                    return controller.xButton.wasReleasedThisFrame || controller.rightTrigger.wasReleasedThisFrame;
+
+                case 1:
+                    return controller.aButton.wasReleasedThisFrame || controller.leftTrigger.wasReleasedThisFrame;
+
+                case 2:
+                    return controller.bButton.wasReleasedThisFrame || controller.leftShoulder.wasReleasedThisFrame;
             }
 
-            return -1; // prevent keyboard input when gampad is plugged in
+            return false; // prevent keyboard input when gampad is plugged in
         }
 
         if(usingKeyboard) {
             // check keyboard
-            if(Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame) {
-                return 0;
-            }
-            if(Mouse.current != null && Mouse.current.rightButton.wasReleasedThisFrame) {
-                return 1;
-            }
-            if(Keyboard.current != null && Keyboard.current.spaceKey.wasReleasedThisFrame) {
-                return 2;
+            switch(ability) {
+                case 0:
+                    return Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame;
+
+                case 1:
+                    return Mouse.current != null && Mouse.current.rightButton.wasReleasedThisFrame;
+
+                case 2:
+                    return Keyboard.current != null && Keyboard.current.spaceKey.wasReleasedThisFrame;
             }
         }
 
-        return -1; // no ability used
+        return false; // no ability used
     }
 
     private Vector2 DetermineAim() {

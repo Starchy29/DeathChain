@@ -24,6 +24,6 @@ public abstract class Controller
     // 0,1,2 are ability slots (ability 3 is reserved for possession). -1 (or any negative) is no ability
     public abstract bool AbilityUsed(int ability);
 
-    // some abilities use hold and release, 
-    public abstract int GetReleasedAbility();
+    // some abilities use hold and release, returns true when an ability button is let go
+    public abstract bool IsAbilityReleased(int ability);
 }

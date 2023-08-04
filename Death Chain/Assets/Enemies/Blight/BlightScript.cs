@@ -6,7 +6,7 @@ public class BlightScript : Enemy
 {
     [SerializeField] private Sprite[] attackSprites;
     [SerializeField] private GameObject BlastPrefab;
-    private const float BLAST_CD = 1.2f;
+    private const float BLAST_CD = 1.0f;
 
     private Animation attackAnimation;
 
