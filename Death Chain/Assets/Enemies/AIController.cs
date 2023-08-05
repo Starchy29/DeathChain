@@ -24,6 +24,7 @@ public class AIController : Controller
     private Vector2 currentDirection; // optional variable for movement modes that have certain paths
     private float travelTimer; // amount of time to travel in the current direction
     private bool clockwise; // for patrol mvovement
+    private float projectileAlertTime; // time when this has a target after being shot at
 
     private Vector2 specialAim; // allows enemies to aim in specific directions
     private int queuedAbility = -1; // the attack to use after startup is done
@@ -60,13 +61,270 @@ public class AIController : Controller
     }
 
     public override void Update() {
-        CheckVision();
+        CheckTarget();
 
         if(!paused && queuedAbility < 0) {
             controlled.GetComponent<Enemy>().AIUpdate(this);
             ChooseMovement();
         }
+
+        if(projectileAlertTime > 0) {
+            projectileAlertTime -= Time.deltaTime;
+        }
     }
+
+    #region Helper functions
+    // either looks for a new target or checks if the current target is lost
+    private void CheckTarget() {
+        if(vision <= 0) {
+            return;
+        }
+
+        if(target == null) {
+            // check for a target
+            List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
+            Enemy controlledScript = controlled.GetComponent<Enemy>();
+            foreach(GameObject enemy in enemies) {
+                Enemy enemyScript = enemy.GetComponent<Enemy>();
+                if(enemyScript.IsAlly != controlledScript.IsAlly && !enemyScript.IsCorpse 
+                    && Vector3.Distance(controlled.transform.position, enemy.transform.position) <= CurrentVision
+                ) {
+                    target = enemy;
+                    projectileAlertTime = 0;
+                    return;
+                }
+            }
+
+            // check for an enemy projectile flying close
+            const float MAX_PROJ_DISTANCE = 3.0f;
+            GameObject[] projectiles = GameObject.FindGameObjectsWithTag("Projectile");
+            foreach(GameObject projectile in projectiles) {
+                Attack attackScript = projectile.GetComponent<Attack>();
+                if(attackScript.User != null && attackScript.User.GetComponent<Enemy>().IsAlly != controlled.GetComponent<Enemy>().IsAlly &&
+                    Vector2.Distance(projectile.transform.position, controlled.transform.position) <= MAX_PROJ_DISTANCE
+                ) {
+                    target = attackScript.User;
+                    projectileAlertTime = 5.0f;
+                    return;
+                }
+            }
+        } 
+        else {
+            // check if target is lost
+            if(!target.activeInHierarchy || target.GetComponent<Enemy>().IsCorpse || (projectileAlertTime <= 0 && GetTargetDistance() > CurrentVision)) {
+                if(paused) {
+                    specialAim = CalcTargetDirection(); // if the player leaves the character's range when an attack is queued, attack at their last seen location
+                }
+                target = null;
+            }
+        }
+    }
+
+    // determine a direction to move for a span of time
+    private void ChooseMovement() {
+        if(CurrentMode == AIMode.Wander) {
+            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed, where 4 is considered average
+
+            if(travelTimer > 0) {
+                return;
+            }
+
+            // alternate between moving in a direction and pausing
+            if(currentDirection == Vector2.zero) {
+                travelTimer += 0.8f;
+
+                // pick a new direction
+                Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
+                random += -currentDirection * 0.5f; // weight it away from the current direction
+                if(!IgnoreStart) {
+                    // weight random direction towards starting position, not normalized to be weighted more when further away
+                    random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
+                }
+
+                currentDirection = random.normalized;
+            } else {
+                // stay still for a bit
+                travelTimer += 0.6f;
+                currentDirection = Vector2.zero;
+            }
+        }
+        else if(CurrentMode == AIMode.Patrol) {
+            if(currentDirection == Vector2.zero) {
+                currentDirection = new Vector2(0, -1);
+            }
+
+            // rotate the current direction
+            const float ROT_PER_SEC = Mathf.PI;
+            float rotationAmount = Time.deltaTime * ROT_PER_SEC * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // turn more frequently if moving faster
+            float newAngle = Mathf.Atan2(currentDirection.y, currentDirection.x) + rotationAmount * (clockwise ? -1 : 1);
+            currentDirection = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle));
+
+            travelTimer -= rotationAmount;
+            if(travelTimer > 0) {
+                return;
+            }
+
+            // in this case the travelTimer represents the amount to turn
+            travelTimer = Random.Range(Mathf.PI / 4, Mathf.PI * 3/2);
+            clockwise = !clockwise;
+            
+            // make sure it turns around if at the edge of the area
+            if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE * 0.5f) {
+                Vector2 towardStart = startPosition - (Vector2)controlled.transform.position;
+                float toStartAngle = Mathf.Atan2(towardStart.y, towardStart.x);
+
+                // shift so the goal is PI. Makes it simpler
+                float shift = Mathf.PI - toStartAngle;
+                float currentAngle = newAngle + shift;
+                if(currentAngle > 2*Mathf.PI) {
+                    currentAngle -= 2*Mathf.PI;
+                }
+                else if(currentAngle < 0) {
+                    currentAngle += 2*Mathf.PI;
+                }
+                float max = Mathf.PI + 70*Mathf.Deg2Rad;
+                float min = Mathf.PI - 70*Mathf.Deg2Rad;
+
+                if(clockwise) {
+                    if(currentAngle < min) {
+                        currentAngle += 2*Mathf.PI;
+                    }
+
+                    travelTimer = Random.Range(Mathf.Max(currentAngle - max, 0), currentAngle - min);
+                } else {
+                    if(currentAngle > max) {
+                        currentAngle -= 2 * Mathf.PI;
+                    }
+
+                    travelTimer = Random.Range(Mathf.Max(min - currentAngle, 0), max - currentAngle);
+                }
+            }
+        }
+    }
+
+    // takes the character's desired direction and modifies it to avoid walls and pits. Works best when trying to move in one direction for a while
+    private Vector2 ModifyDirection(Vector2 desiredDirection) {
+        if(desiredDirection == Vector2.zero) {
+            return desiredDirection;
+        }
+
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        float checkDistance = radius * controlled.GetComponent<Enemy>().WalkSpeed / 4;
+        Vector2 futureSpot = (Vector2)controlled.transform.position + checkDistance * desiredDirection.normalized;
+        Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
+        
+        List<Rect> overlaps = new List<Rect>();
+        foreach(Rect wall in EntityTracker.Instance.RegularWallAreas) {
+            if(wall.Overlaps(futureArea)) {
+                overlaps.Add(wall);
+            }
+        }
+
+        if(!controlled.GetComponent<Enemy>().Floating) {
+            foreach(Rect pit in EntityTracker.Instance.PitAreas) {
+                if(pit.Overlaps(futureArea)) {
+                    overlaps.Add(pit);
+                }
+            }
+        }
+
+        if(overlaps.Count <= 0) {
+            return desiredDirection;
+        }
+
+        bool horiBlocked = false;
+        bool vertBlocked = false;
+        Vector2 horiMid = (Vector2)controlled.transform.position + radius * new Vector2(desiredDirection.x, 0).normalized;
+        Vector2 vertMid = (Vector2)controlled.transform.position + radius * new Vector2(0, desiredDirection.y).normalized;
+        Rect horiCheck = new Rect(horiMid.x - radius, horiMid.y - radius, 2 * radius, 2 * radius);
+        Rect vertCheck = new Rect(vertMid.x - radius, vertMid.y - radius, 2 * radius, 2 * radius);
+        foreach(Rect area in overlaps) {
+            if(area.Overlaps(horiCheck)) {
+                horiBlocked = true;
+            }
+            if(area.Overlaps(vertCheck)) {
+                vertBlocked = true;
+            }
+        }
+
+        if(horiBlocked && vertBlocked) {
+            // if walking into a corner, go backwards
+            return -desiredDirection;
+        }
+        else if(horiBlocked) {
+            desiredDirection.x = 0;
+            return desiredDirection.normalized;
+        }
+        else if(vertBlocked) {
+            desiredDirection.y = 0;
+            return desiredDirection.normalized;
+        }
+
+        return desiredDirection;
+    }
+
+    // returns the unit vector towards the target, zero vector if no target
+    private Vector2 CalcTargetDirection() {
+        if(target == null) {
+            return Vector2.zero;
+        }
+
+        return (target.transform.position - controlled.transform.position).normalized;
+    }
+
+    // finds the closest obstacle that blocks a straight path to the target, if any
+    private Rect? FindBlocker(Vector2 targetLocation, bool checkPits) {
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
+        if(checkPits) {
+            obstacles.AddRange(EntityTracker.Instance.PitAreas);
+        }
+
+        Vector2 currentPosition = controlled.transform.position;
+        Vector2 idealMovement = targetLocation - currentPosition;
+        Vector2 idealDirection = idealMovement.normalized;
+
+        // find closest wall/pit that blocks the ideal movement
+        float closestDistance = idealMovement.magnitude;
+        Rect? closestBlock = null;
+        foreach(Rect obstacle in obstacles) {
+            // find if the path intersects this rectangle
+            Vector2? edgePosition = null;
+            float distance = 0;
+            if(idealDirection.x != 0) {
+                // check left or right side
+                float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
+                distance = (targetX - currentPosition.x) / idealDirection.x;
+                float y = currentPosition.y + idealDirection.y * distance;
+
+                if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
+                    edgePosition = new Vector2(targetX, y);
+                }
+            }
+            if(idealDirection.y != 0) {
+                // check left or right side
+                float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
+                float newDistance = (targetY - currentPosition.y) / idealDirection.y;
+                float x = currentPosition.x + idealDirection.x * newDistance;
+                
+                if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
+                    if(!edgePosition.HasValue || newDistance > distance) {
+                        edgePosition = new Vector2(x, targetY);
+                        distance = newDistance;
+                    }
+                }
+            }
+
+            // determine if this collision is closest
+            if(edgePosition.HasValue && distance < closestDistance) {
+                closestDistance = distance;
+                closestBlock = obstacle;
+            }
+        }
+
+        return closestBlock;
+    }
+    #endregion
 
     #region Functions for Enemy class
     public void QueueAbility(int ability, float startup = 0, float endlag = 0) {
@@ -194,241 +452,6 @@ public class AIController : Controller
         return Vector2.down;
     }
     #endregion
-
-    #region Helper functions
-
-    // determine a direction to move for a span of time
-    private void ChooseMovement() {
-        if(CurrentMode == AIMode.Wander) {
-            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed, where 4 is considered average
-
-            if(travelTimer > 0) {
-                return;
-            }
-
-            // alternate between moving in a direction and pausing
-            if(currentDirection == Vector2.zero) {
-                travelTimer += 0.8f;
-
-                // pick a new direction
-                Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
-                random += -currentDirection * 0.5f; // weight it away from the current direction
-                if(!IgnoreStart) {
-                    // weight random direction towards starting position, not normalized to be weighted more when further away
-                    random += startPosition - new Vector2(controlled.transform.position.x, controlled.transform.position.y);
-                }
-
-                currentDirection = random.normalized;
-            } else {
-                // stay still for a bit
-                travelTimer += 0.6f;
-                currentDirection = Vector2.zero;
-            }
-        }
-        else if(CurrentMode == AIMode.Patrol) {
-            if(currentDirection == Vector2.zero) {
-                currentDirection = new Vector2(0, -1);
-            }
-
-            // rotate the current direction
-            const float ROT_PER_SEC = Mathf.PI;
-            float rotationAmount = Time.deltaTime * ROT_PER_SEC * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // turn more frequently if moving faster
-            float newAngle = Mathf.Atan2(currentDirection.y, currentDirection.x) + rotationAmount * (clockwise ? -1 : 1);
-            currentDirection = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle));
-
-            travelTimer -= rotationAmount;
-            if(travelTimer > 0) {
-                return;
-            }
-
-            // in this case the travelTimer represents the amount to turn
-            travelTimer = Random.Range(Mathf.PI / 4, Mathf.PI * 3/2);
-            clockwise = !clockwise;
-            
-            // make sure it turns around if at the edge of the area
-            if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE * 0.5f) {
-                Vector2 towardStart = startPosition - (Vector2)controlled.transform.position;
-                float toStartAngle = Mathf.Atan2(towardStart.y, towardStart.x);
-
-                // shift so the goal is PI. Makes it simpler
-                float shift = Mathf.PI - toStartAngle;
-                float currentAngle = newAngle + shift;
-                if(currentAngle > 2*Mathf.PI) {
-                    currentAngle -= 2*Mathf.PI;
-                }
-                else if(currentAngle < 0) {
-                    currentAngle += 2*Mathf.PI;
-                }
-                float max = Mathf.PI + 70*Mathf.Deg2Rad;
-                float min = Mathf.PI - 70*Mathf.Deg2Rad;
-
-                if(clockwise) {
-                    if(currentAngle < min) {
-                        currentAngle += 2*Mathf.PI;
-                    }
-
-                    travelTimer = Random.Range(Mathf.Max(currentAngle - max, 0), currentAngle - min);
-                } else {
-                    if(currentAngle > max) {
-                        currentAngle -= 2 * Mathf.PI;
-                    }
-
-                    travelTimer = Random.Range(Mathf.Max(min - currentAngle, 0), max - currentAngle);
-                }
-            }
-        }
-    }
-
-    private void CheckVision() {
-        if(vision <= 0) {
-            return;
-        }
-
-        if(target == null) {
-            // check for a target
-            List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
-            Enemy controlledScript = controlled.GetComponent<Enemy>();
-            foreach(GameObject enemy in enemies) {
-                Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if(enemyScript.IsAlly != controlledScript.IsAlly && !enemyScript.IsCorpse) {
-                    if(Vector3.Distance(controlled.transform.position, enemy.transform.position) <= CurrentVision) {
-                        target = enemy;
-                        break;
-                    }
-                }
-            }
-        } 
-        // check if target is lost
-        else if(!target.activeInHierarchy || target.GetComponent<Enemy>().IsCorpse || GetTargetDistance() > CurrentVision) {
-            if(paused) {
-                specialAim = CalcTargetDirection(); // if the player leaves the character's range when an attack is queued, attack at their last seen location
-            }
-            target = null;
-        }
-    }
-
-    // takes the character's desired direction and modifies it to avoid walls and pits. Works best when trying to move in one direction for a while
-    private Vector2 ModifyDirection(Vector2 desiredDirection) {
-        if(desiredDirection == Vector2.zero) {
-            return desiredDirection;
-        }
-
-        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        float checkDistance = radius * controlled.GetComponent<Enemy>().WalkSpeed / 4;
-        Vector2 futureSpot = (Vector2)controlled.transform.position + checkDistance * desiredDirection.normalized;
-        Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
-        
-        List<Rect> overlaps = new List<Rect>();
-        foreach(Rect wall in EntityTracker.Instance.RegularWallAreas) {
-            if(wall.Overlaps(futureArea)) {
-                overlaps.Add(wall);
-            }
-        }
-
-        if(!controlled.GetComponent<Enemy>().Floating) {
-            foreach(Rect pit in EntityTracker.Instance.PitAreas) {
-                if(pit.Overlaps(futureArea)) {
-                    overlaps.Add(pit);
-                }
-            }
-        }
-
-        if(overlaps.Count <= 0) {
-            return desiredDirection;
-        }
-
-        bool horiBlocked = false;
-        bool vertBlocked = false;
-        Vector2 horiMid = (Vector2)controlled.transform.position + radius * new Vector2(desiredDirection.x, 0).normalized;
-        Vector2 vertMid = (Vector2)controlled.transform.position + radius * new Vector2(0, desiredDirection.y).normalized;
-        Rect horiCheck = new Rect(horiMid.x - radius, horiMid.y - radius, 2 * radius, 2 * radius);
-        Rect vertCheck = new Rect(vertMid.x - radius, vertMid.y - radius, 2 * radius, 2 * radius);
-        foreach(Rect area in overlaps) {
-            if(area.Overlaps(horiCheck)) {
-                horiBlocked = true;
-            }
-            if(area.Overlaps(vertCheck)) {
-                vertBlocked = true;
-            }
-        }
-
-        if(horiBlocked && vertBlocked) {
-            // if walking into a corner, go backwards
-            return -desiredDirection;
-        }
-        else if(horiBlocked) {
-            desiredDirection.x = 0;
-            return desiredDirection.normalized;
-        }
-        else if(vertBlocked) {
-            desiredDirection.y = 0;
-            return desiredDirection.normalized;
-        }
-
-        return desiredDirection;
-    }
-
-    // returns the unit vector towards the target, zero vector if no target
-    private Vector2 CalcTargetDirection() {
-        if(target == null) {
-            return Vector2.zero;
-        }
-
-        return (target.transform.position - controlled.transform.position).normalized;
-    }
-
-    // finds the closest obstacle that blocks a straight path to the target, if any
-    private Rect? FindBlocker(Vector2 targetLocation, bool checkPits) {
-        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
-        if(checkPits) {
-            obstacles.AddRange(EntityTracker.Instance.PitAreas);
-        }
-
-        Vector2 currentPosition = controlled.transform.position;
-        Vector2 idealMovement = targetLocation - currentPosition;
-        Vector2 idealDirection = idealMovement.normalized;
-
-        // find closest wall/pit that blocks the ideal movement
-        float closestDistance = idealMovement.magnitude;
-        Rect? closestBlock = null;
-        foreach(Rect obstacle in obstacles) {
-            // find if the path intersects this rectangle
-            Vector2? edgePosition = null;
-            float distance = 0;
-            if(idealDirection.x != 0) {
-                // check left or right side
-                float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
-                distance = (targetX - currentPosition.x) / idealDirection.x;
-                float y = currentPosition.y + idealDirection.y * distance;
-
-                if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
-                    edgePosition = new Vector2(targetX, y);
-                }
-            }
-            if(idealDirection.y != 0) {
-                // check left or right side
-                float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
-                float newDistance = (targetY - currentPosition.y) / idealDirection.y;
-                float x = currentPosition.x + idealDirection.x * newDistance;
-                
-                if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
-                    if(!edgePosition.HasValue || newDistance > distance) {
-                        edgePosition = new Vector2(x, targetY);
-                        distance = newDistance;
-                    }
-                }
-            }
-
-            // determine if this collision is closest
-            if(edgePosition.HasValue && distance < closestDistance) {
-                closestDistance = distance;
-                closestBlock = obstacle;
-            }
-        }
-
-        return closestBlock;
-    }
 
     // returns a position to move towards, navigating around obstacles as necessary
     private Vector2 Approach(Vector2 targetLocation) {
@@ -729,5 +752,4 @@ public class AIController : Controller
             return targetCorner;
         }
     }
-    #endregion
 }

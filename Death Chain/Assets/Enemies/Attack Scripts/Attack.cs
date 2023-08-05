@@ -13,8 +13,8 @@ public class Attack : MonoBehaviour
     private List<Enemy> recentHits = new List<Enemy>();
 
     private GameObject user;
-    public GameObject User { get { return user; }
-        set { // must be set by the attack user on creation, remember that the user might die when the attack is still going
+    public GameObject User { get { return user; } // although this is gettable, it may be null if the user dies
+        set { // must be set by the attack user on creation
             user = value;
             damage = (int)(damage * value.GetComponent<Enemy>().DamageMultiplier);
             isAlly = value.GetComponent<Enemy>().IsAlly;

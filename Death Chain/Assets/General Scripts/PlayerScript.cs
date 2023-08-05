@@ -21,7 +21,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private GameObject soulBar;
     [SerializeField] private GameObject[] abilityButtons;
 
-    private int souls = 4;
+    private int souls = 2;
     private int playerHealth;
 
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
@@ -196,7 +196,7 @@ public class PlayerScript : MonoBehaviour
     }
 
     private int CalcCost(Enemy enemyType) {
-        return enemyType.Difficulty * 2;
+        return enemyType.Difficulty + 1;
     }
 
     private void SetAbilityIcons() {
