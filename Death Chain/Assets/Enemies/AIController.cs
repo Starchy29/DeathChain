@@ -38,9 +38,10 @@ public class AIController : Controller
         float distFromStart = Vector2.Distance(controlled.transform.position, startPosition);
         if(!IgnoreStart && distFromStart > WANDER_RANGE) {
             result *= (2 * WANDER_RANGE - distFromStart) / WANDER_RANGE; // decreased vision when outside the starting area
+            result = Mathf.Max(0, result);
         } 
         if(target != null) {
-            result += 2; // extra vision when tracking a target
+            result += 3; // extra vision when tracking a target
         }
         return result;
     } }
@@ -71,7 +72,7 @@ public class AIController : Controller
         if(projectileAlertTime > 0) {
             float timeMultiplier = 1;
             if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
-                timeMultiplier = 2.0f; // roam outside the wander range for less time
+                timeMultiplier = 2.0f; // roam outside the wander range for less time when outside the wander radius
             }
             projectileAlertTime -= Time.deltaTime * timeMultiplier;
         }
