@@ -50,6 +50,7 @@ public class EntityTracker : MonoBehaviour
         if(wall.layer == LayerMask.NameToLayer("Border")) {
             BorderAreas.Add(wall.GetComponent<WallScript>().Area);
         }
+        // non-borders are added every frame in Update() because they can change
     }
 
     void Update()

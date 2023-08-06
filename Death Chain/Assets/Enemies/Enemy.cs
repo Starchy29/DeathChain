@@ -341,6 +341,9 @@ public abstract class Enemy : MonoBehaviour
 
         GetComponent<CircleCollider2D>().enabled = true;
         GetComponent<Rigidbody2D>().mass = 0.000001f; // prevent walking through other enemies
+        if(sturdy) {
+            GetComponent<Rigidbody2D>().mass = 100f; // enemies that cannot move should instead have a big mass so enemies cannot move through the player
+        }
     }
 
     public void Unpossess() {

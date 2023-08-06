@@ -69,7 +69,11 @@ public class AIController : Controller
         }
 
         if(projectileAlertTime > 0) {
-            projectileAlertTime -= Time.deltaTime;
+            float timeMultiplier = 1;
+            if(!IgnoreStart && Vector2.Distance(controlled.transform.position, startPosition) > WANDER_RANGE) {
+                timeMultiplier = 2.0f; // roam outside the wander range for less time
+            }
+            projectileAlertTime -= Time.deltaTime * timeMultiplier;
         }
     }
 
@@ -568,8 +572,21 @@ public class AIController : Controller
         // find which ways around the obstacle would be blocked by a border
         List<Vector2> borderSpots = new List<Vector2>();
         foreach(Rect border in EntityTracker.Instance.BorderAreas) {
-            if(border.MakeExpanded(2 * radius).Overlaps(obstacleSurrounder)) {
-                borderSpots.Add(FindEdgeSpot(border.center).Value);
+            Rect expandedBorder = border.MakeExpanded(2 * radius);
+            if(expandedBorder.Overlaps(obstacleSurrounder)) {
+                // find where the overlap exists by checking individual pieces of the obstacle
+                foreach(Rect obstacle in fullObstacle) {
+                    if(expandedBorder.Overlaps(obstacle)) {
+                        // find the overlap area and use the middle to determine where this border blocks the obstacle
+                        float top = Mathf.Min(obstacle.yMax, expandedBorder.yMax);
+                        float bottom = Mathf.Max(obstacle.yMin, expandedBorder.yMin);
+                        float left = Mathf.Max(obstacle.xMin, expandedBorder.xMin);
+                        float right = Mathf.Min(obstacle.xMax, expandedBorder.xMax);
+                        Rect overlapArea = new Rect(left, bottom, right - left, top - bottom);
+                        borderSpots.Add(FindEdgeSpot(overlapArea.center).Value);
+                        break;
+                    }
+                }
             }
         }
 
