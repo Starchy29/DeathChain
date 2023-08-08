@@ -50,8 +50,6 @@ public class PlayerScript : MonoBehaviour
 
         // -- manage health --
         if(ghostScript == null) { // if possessing
-            // timer handles decay damage automatically
-
             if(playerCharacter.GetComponent<Enemy>().Health <= 0) {
                 // die when possessing: lose body
                 Unpossess();
@@ -215,5 +213,10 @@ public class PlayerScript : MonoBehaviour
     public void AddSouls(int amount) {
         souls += amount;
         soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
+    }
+
+    // trying out having the player take permanent damage when possessing
+    public void TestTakeDamage(int damage) {
+        playerHealth -= damage;
     }
 }

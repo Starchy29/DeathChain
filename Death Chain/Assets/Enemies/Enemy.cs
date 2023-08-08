@@ -255,6 +255,12 @@ public abstract class Enemy : MonoBehaviour
             hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
         }
 
+        // TESTING
+        if(IsPlayer) {
+            PlayerScript.Instance.TestTakeDamage(amount);
+        }
+        // END
+
         if(health > 0) {
             return;
         }
