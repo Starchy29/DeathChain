@@ -37,10 +37,6 @@ public class Projectile : Attack
         velocity = speed * velocity.normalized;
     }
 
-    public void SetDamage(float amount, Enemy user) {
-        damage = (int)(amount * user.DamageMultiplier);
-    }
-
     protected override Vector2 GetPushDirection(GameObject hitEnemy) {
         return velocity;
     }

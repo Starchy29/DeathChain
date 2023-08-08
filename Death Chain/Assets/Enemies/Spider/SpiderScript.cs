@@ -13,6 +13,7 @@ public class SpiderScript : Enemy
     private const float CHARGE_RATE = 15.0f;
     private const float MAX_CHARGE = 20.0f;
     private const float CHARGE_WALK_SPEED = 2.0f;
+    private const int MAX_SHOT_DAMAGE = 3;
 
     private Animation lobAnimation;
     private Animation pullAnimation;
@@ -36,7 +37,7 @@ public class SpiderScript : Enemy
                 cooldowns[0] = 1.0f;
                 GameObject shot = CreateAttack(ShotPrefab);
                 shot.GetComponent<Projectile>().SetSpeed(charge);
-                shot.GetComponent<Projectile>().ModifyDamage(charge / MAX_CHARGE);
+                shot.GetComponent<Attack>().Damage = Mathf.RoundToInt(MAX_SHOT_DAMAGE * charge / MAX_CHARGE);
                 charging = false;
                 ResetWalkSpeed();
                 currentAnimation = walkAnimation; // end the pull animation in the middle of it

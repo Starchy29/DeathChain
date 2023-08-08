@@ -19,7 +19,11 @@ public class Attack : MonoBehaviour
             damage = (int)(damage * value.GetComponent<Enemy>().DamageMultiplier);
             isAlly = value.GetComponent<Enemy>().IsAlly;
         }
-    } 
+    }
+    public int Damage { 
+        get { return damage; }
+        set { damage = (int)(damage * (user == null ? 1 : user.GetComponent<Enemy>().DamageMultiplier)); } // allow changing damage after creation
+    }
 
     protected bool isAlly;
 
@@ -53,10 +57,6 @@ public class Attack : MonoBehaviour
                 }
                 break;
         }
-    }
-
-    public void ModifyDamage(float multiplier) {
-        damage = (int)Mathf.Ceil(multiplier * damage);
     }
 
     protected virtual Vector2 GetPushDirection(GameObject hitEnemy) { return Vector2.zero; } // does not need to be normalized

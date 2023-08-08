@@ -28,6 +28,7 @@ public class PlayerScript : MonoBehaviour
     private const float ABILITY_ALPHA = 0.5f; 
     private float healthBarHeight; // used to represent the width of each health point
     private Vector3 healthBarStart;
+    private GameObject possessTarget;
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
     public bool Possessing { get { return playerCharacter != null && playerCharacter.GetComponent<PlayerGhost>() == null; } }
@@ -42,23 +43,21 @@ public class PlayerScript : MonoBehaviour
         healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
         corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
         soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
+        possessIndicator.SetActive(false);
         SetAbilityIcons();
     }
 
     void Update()
     {
-        PlayerGhost ghostScript = playerCharacter.GetComponent<PlayerGhost>(); // null if posssessing an enemy
-
         // -- manage health --
-        if(ghostScript == null) { // if possessing
+        if(Possessing) {
+            // check if the player's possessed body dies
             if(playerCharacter.GetComponent<Enemy>().Health <= 0) {
-                // die when possessing: lose body
                 playerHealth--; // punish for losing body by dealing some damage, must be before Unpossess()
                 Unpossess();
             }
-        }
-        else {
-            playerHealth = ghostScript.Health;
+        } else {
+            playerHealth = playerCharacter.GetComponent<Enemy>().Health;
             if(playerHealth <= 0) {
                 // lose game
                 SceneManager.LoadScene("Main Menu");
@@ -66,69 +65,51 @@ public class PlayerScript : MonoBehaviour
         }
 
         // -- manage possession --
-        if(PossessPressed() || PossessReleased()) {
-            // find closest possess target
+        if(PossessPressed()) {
+            // find closest corpse within range to be the possess target
             List<GameObject> enemies = EntityTracker.Instance.Enemies;
             GameObject closestOption = null;
             float closestDistance = POSSESS_RANGE;
             foreach(GameObject enemy in enemies) {
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
-                if(enemyScript.IsCorpse) {
-                    float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
-                    if(distance < closestDistance && souls >= CalcCost(enemyScript)) {
-                        closestDistance = distance;
-                        closestOption = enemy;
+                if(!enemyScript.IsCorpse) {
+                    continue;
+                }
 
-                        // show indicator
-                        possessIndicator.transform.position = enemy.transform.position + new Vector3(0, 0.4f, 0);
-                        possessIndicator.SetActive(true);
-                        possessIndicator.transform.GetChild(0).gameObject.SetActive(false);
-                    }
+                float distance = Vector3.Distance(playerCharacter.transform.position, enemy.transform.position);
+                if(distance < closestDistance) {
+                    closestDistance = distance;
+                    closestOption = enemy;
                 }
             }
 
-            if(closestOption == null) {
-                if(ghostScript == null) { // if possessing
-                    // create unpossess indicator over player
-                    possessIndicator.transform.position = playerCharacter.transform.position + new Vector3(0, 1, 0);
-                    possessIndicator.SetActive(true);
-                    possessIndicator.transform.GetChild(0).gameObject.SetActive(true);
-                
-                    // unpossess
-                    if(PossessReleased()) {
-                        Unpossess();
-                    }
-                } else {
-                    possessIndicator.SetActive(false);
-                }
+            possessTarget = closestOption;
+            if(possessTarget != null) {
+                // place the possesion indicator over the possess target
+                PlacePossessIndicator(possessTarget.transform.position + new Vector3(0, 0.4f, 0), souls < CalcCost(possessTarget.GetComponent<Enemy>()));
             }
-            else if(PossessReleased()) {
-                // possess
-                souls -= CalcCost(closestOption.GetComponent<Enemy>());
-                soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
-
-                GameObject animation = Instantiate(possessParticlePrefab);
-                animation.transform.position = playerCharacter.transform.position;
-                animation.GetComponent<PossessMovement>().Target = closestOption;
-
-                if(ghostScript == null) {
-                    // leave corpse animation
-                    playerCharacter.GetComponent<Enemy>().Unpossess();
-                } else {
-                    playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
-                }
-
-                playerCharacter = closestOption;
-                playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
-                SetAbilityIcons();
+            else if(Possessing) {
+                // create unpossess indicator over player
+                PlacePossessIndicator(playerCharacter.transform.position + new Vector3(0, 1, 0), true);
+            }
+            else {
+                // no options: hide indicator
+                possessIndicator.SetActive(false);
             }
         }
-        else { // possess not pressed
+        else if(PossessReleased()) {
+            if(possessTarget != null && souls >= CalcCost(possessTarget.GetComponent<Enemy>())) {
+                Possess(possessTarget);
+            } 
+            else if(Possessing && possessTarget == null) {
+                Unpossess();
+            }
+
             possessIndicator.SetActive(false);
         }
 
         // -- update UI --
-        if(ghostScript == null) {
+        if(Possessing) {
             // update corpse health
             corpseHealthBar.SetActive(true);
 
@@ -161,6 +142,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    #region input
     // checks for release of the possess button
     private bool PossessReleased() {
         if(Gamepad.current != null && (Gamepad.current.yButton.wasReleasedThisFrame || Gamepad.current.rightShoulder.wasReleasedThisFrame)) {
@@ -185,6 +167,27 @@ public class PlayerScript : MonoBehaviour
 
         return false;
     }
+    #endregion
+    
+    private void Possess(GameObject corpse) {
+        souls -= CalcCost(corpse.GetComponent<Enemy>());
+        soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
+
+        GameObject animation = Instantiate(possessParticlePrefab);
+        animation.transform.position = playerCharacter.transform.position;
+        animation.GetComponent<PossessMovement>().Target = corpse;
+
+        if(Possessing) {
+            // leave corpse animation
+            playerCharacter.GetComponent<Enemy>().Unpossess();
+        } else {
+            playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
+        }
+
+        playerCharacter = corpse;
+        playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
+        SetAbilityIcons();
+    }
 
     private void Unpossess() {
         GameObject playerGhost = Instantiate(playerPrefab);
@@ -199,6 +202,13 @@ public class PlayerScript : MonoBehaviour
         return enemyType.Difficulty + 1;
     }
 
+    private void PlacePossessIndicator(Vector2 position, bool showCross) {
+        possessIndicator.transform.position = position;
+        possessIndicator.SetActive(true);
+        possessIndicator.transform.GetChild(0).gameObject.SetActive(showCross);
+    }
+
+    // updates the abilities UI to match the current possessed form
     private void SetAbilityIcons() {
         Sprite[] icons = AbilityIcons.Instance.GetIcons(playerCharacter.GetComponent<Enemy>());
         for(int i = 0; i < 3; i++) {
@@ -212,6 +222,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    // allows Enemy.cs to grant souls when an enemy dies
     public void AddSouls(int amount) {
         souls += amount;
         soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
