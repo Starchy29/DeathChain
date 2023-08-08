@@ -75,7 +75,7 @@ public class SpiderScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(controller.Target == null || charge >= Mathf.Min(MAX_CHARGE * controller.GetTargetDistance() / 5.0f, MAX_CHARGE) && !controller.IsTargetBlocked(false)) {
+        if(controller.Target == null || charge >= Mathf.Min(MAX_CHARGE * controller.GetTargetDistance() / 5.0f, MAX_CHARGE)) {
             // draw bow an amount proportional to how far the target is, but also release when the target is lost
             controller.SetAbilityReleased(0, true);
         } else {

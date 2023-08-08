@@ -30,6 +30,7 @@ public class PlayerScript : MonoBehaviour
     private Vector3 healthBarStart;
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
+    public bool Possessing { get { return playerCharacter != null && playerCharacter.GetComponent<PlayerGhost>() == null; } }
 
     void Awake() {
         instance = this;
@@ -52,6 +53,7 @@ public class PlayerScript : MonoBehaviour
         if(ghostScript == null) { // if possessing
             if(playerCharacter.GetComponent<Enemy>().Health <= 0) {
                 // die when possessing: lose body
+                playerHealth--; // punish for losing body by dealing some damage, must be before Unpossess()
                 Unpossess();
             }
         }
@@ -213,10 +215,5 @@ public class PlayerScript : MonoBehaviour
     public void AddSouls(int amount) {
         souls += amount;
         soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
-    }
-
-    // trying out having the player take permanent damage when possessing
-    public void TestTakeDamage(int damage) {
-        playerHealth -= damage;
     }
 }

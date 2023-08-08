@@ -43,14 +43,14 @@ public class ShadowScript : Enemy
             if(firstSlash) {
                 currentAnimation = slash1Animation;
                 currentAnimation.Reset();
-                cooldowns[0] = 0.2f;
+                cooldowns[0] = 0.2f; // cooldown between 2-slash combo
                 ApplyEndlag(0.2f, 2.0f);
                 firstSlash = false;
                 Timer.CreateTimer(gameObject, 0.4f, false, () => { firstSlash = true; });
             } else {
                 currentAnimation = slash2Animation;
                 currentAnimation.Reset();
-                cooldowns[0] = 0.6f;
+                cooldowns[0] = 0.5f; // cooldown after slashing twice
                 ApplyEndlag(0.1f, 2.0f);
                 firstSlash = true;
                 currentSlash.GetComponent<Melee>().ReverseDirection();
