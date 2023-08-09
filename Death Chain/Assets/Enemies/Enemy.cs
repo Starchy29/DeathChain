@@ -38,6 +38,7 @@ public abstract class Enemy : MonoBehaviour
 
     protected int health;
     protected Statuses statuses; // conveniently track all status effects
+    protected bool showAimer = false;
     protected bool isAlly = false; // whether or not this is fighting for the player
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected bool floating = false; // floating enemies can walk over pits
@@ -124,6 +125,16 @@ public abstract class Enemy : MonoBehaviour
                         if(cooldowns[i] < 0) {
                             cooldowns[i] = 0;
                         }
+                    }
+                }
+
+                // place aimer if this is a player
+                if(IsPlayer) {
+                    if(showAimer) {
+                        PlayerScript.Instance.Aimer.SetActive(true);
+                        PlayerScript.Instance.Aimer.transform.position = transform.position + 1.5f * (Vector3)controller.GetAimDirection();
+                    } else {
+                        PlayerScript.Instance.Aimer.SetActive(false);
                     }
                 }
                 break;

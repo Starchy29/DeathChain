@@ -11,6 +11,7 @@ public class PlayerScript : MonoBehaviour
     private static PlayerScript instance;
     public static PlayerScript Instance { get { return instance; } }
 
+    [SerializeField] public GameObject Aimer;
     [SerializeField] private GameObject possessIndicator;
     [SerializeField] private GameObject playerCharacter; // the entity the player is currently playing as, manually set to ghost at first
     [SerializeField] private GameObject playerPrefab;

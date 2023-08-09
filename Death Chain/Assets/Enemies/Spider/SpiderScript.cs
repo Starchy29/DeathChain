@@ -42,6 +42,7 @@ public class SpiderScript : Enemy
                 ResetWalkSpeed();
                 currentAnimation = walkAnimation; // end the pull animation in the middle of it
                 currentAnimation.Reset();
+                showAimer = false;
             } else {
                 charge += CHARGE_RATE * Time.deltaTime * (statuses.HasStatus(Status.Energy) ? 1.5f : 1f);
                 if(charge > MAX_CHARGE) {
@@ -60,6 +61,7 @@ public class SpiderScript : Enemy
             SetWalkSpeed(CHARGE_WALK_SPEED);
             currentAnimation = pullAnimation;
             currentAnimation.Reset();
+            showAimer = true;
         }
         else if(UseAbility(1)) {
             // use lob web zone

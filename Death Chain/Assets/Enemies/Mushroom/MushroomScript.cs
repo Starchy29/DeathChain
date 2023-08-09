@@ -20,6 +20,7 @@ public class MushroomScript : Enemy
         ((AIController)controller).SetAbilityReleased(1, true); // ai always instantly uses teleport
         ((AIController)controller).IgnoreStart = true; // don't allow teleporting to affect vision
         sturdy = true;
+        showAimer = true;
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.4f);
         shootAnimation = new Animation(shootSprites, AnimationType.Rebound, 0.2f);
