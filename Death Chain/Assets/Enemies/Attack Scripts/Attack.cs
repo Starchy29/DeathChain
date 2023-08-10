@@ -22,7 +22,7 @@ public class Attack : MonoBehaviour
     }
     public int Damage { 
         get { return damage; }
-        set { damage = (int)(damage * (user == null ? 1 : user.GetComponent<Enemy>().DamageMultiplier)); } // allow changing damage after creation
+        set { damage = (int)(value * (user == null ? 1 : user.GetComponent<Enemy>().DamageMultiplier)); } // allow changing damage after creation
     }
 
     protected bool isAlly;

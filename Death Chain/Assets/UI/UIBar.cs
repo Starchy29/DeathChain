@@ -5,7 +5,7 @@ public class UIBar : MonoBehaviour
 {
     private float height;
 
-    void Start()
+    void Awake()
     {
         height = transform.localScale.y;
     }
