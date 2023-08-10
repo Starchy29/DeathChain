@@ -1501,7 +1501,7 @@ MonoBehaviour:
   possessParticlePrefab: {fileID: 5672638404814821097, guid: edc7fb2c8b4b40a40a474448bc6be001, type: 3}
   soulHealthBar: {fileID: 429350979}
   corpseHealthBar: {fileID: 429350978}
-  soulBar: {fileID: 2030775444}
+  soulBar: {fileID: 963488472}
   abilityButtons:
   - {fileID: 429350977}
   - {fileID: 429350976}
@@ -2261,7 +2261,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5353949509718061721, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: BaseHealth
-      value: 16
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061723, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_IsTrigger
@@ -4082,6 +4082,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 477197cdbf63cb14b8098d0c0d736677, type: 3}
+--- !u!1 &963488472 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8437907738918313437, guid: 18b08d16f2698404c833a76fbe2ef0ca, type: 3}
+  m_PrefabInstance: {fileID: 429350973}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &981775943
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7482,11 +7487,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4a9dd536acf09b4195971e3d9e11039, type: 3}
---- !u!1 &2030775444 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1245040760150419010, guid: 18b08d16f2698404c833a76fbe2ef0ca, type: 3}
-  m_PrefabInstance: {fileID: 429350973}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2031248123
 PrefabInstance:
   m_ObjectHideFlags: 0

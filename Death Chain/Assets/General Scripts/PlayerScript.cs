@@ -26,9 +26,7 @@ public class PlayerScript : MonoBehaviour
     private int playerHealth;
 
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
-    private const float ABILITY_ALPHA = 0.5f; 
-    private float healthBarHeight; // used to represent the width of each health point
-    private Vector3 healthBarStart;
+    private const float ABILITY_ALPHA = 0.7f;
     private GameObject possessTarget;
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
@@ -40,11 +38,10 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
-        healthBarHeight = soulHealthBar.transform.localScale.y;
-        healthBarStart = soulHealthBar.transform.localPosition - new Vector3(soulHealthBar.transform.localScale.x / 2, 0, 0);
-        corpseHealthBar.transform.localScale = new Vector3(1, healthBarHeight, 1);
-        soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
         possessIndicator.SetActive(false);
+        corpseHealthBar.SetActive(false);
+        soulHealthBar.GetComponent<UIBar>().SetValue(playerHealth);
+        soulBar.GetComponent<UIBar>().SetValue(souls);
         SetAbilityIcons();
     }
 
@@ -112,34 +109,16 @@ public class PlayerScript : MonoBehaviour
         // -- update UI --
         if(Possessing) {
             // update corpse health
-            corpseHealthBar.SetActive(true);
-
-            float startX = healthBarStart.x + playerHealth * healthBarHeight;
-            float barWidth = playerCharacter.GetComponent<Enemy>().Health * healthBarHeight;
-            corpseHealthBar.transform.localScale = new Vector3(barWidth, healthBarHeight, 1);
-            corpseHealthBar.transform.localPosition = new Vector3(startX + barWidth / 2, healthBarStart.y, 1);
+            corpseHealthBar.GetComponent<UIBar>().SetValue(playerCharacter.GetComponent<Enemy>().Health);
         } else {
             // update soul health
-            corpseHealthBar.SetActive(false);
-
-            soulHealthBar.transform.localScale = new Vector3(playerHealth * healthBarHeight, healthBarHeight, 1);
-            soulHealthBar.transform.localPosition = healthBarStart + new Vector3(playerHealth * healthBarHeight / 2, 0, 0);
+            soulHealthBar.GetComponent<UIBar>().SetValue(playerHealth);
         }
 
         float[] cooldowns = playerCharacter.GetComponent<Enemy>().Cooldowns;
         for(int i = 0; i < 3; i++) {
-            Color color = Color.white;
-            if(cooldowns[i] > 2) {
-                color = new Color(0.5f, 0.0f, 0.0f);
-            }
-            else if(cooldowns[i] > 1) {
-                color = Color.red;
-            }
-            else if(cooldowns[i] > 0) {
-                color = new Color(1.0f, 0.5f, 0.0f);
-            }
-            color.a = ABILITY_ALPHA;
-            abilityButtons[i].GetComponent<SpriteRenderer>().color = color;
+            float brightness = 1 - 0.4f * Mathf.Min(Mathf.Ceil(cooldowns[i]), 2);
+            abilityButtons[i].GetComponent<SpriteRenderer>().color = new Color(cooldowns[i] > 0 ? 0 : 0.7f, cooldowns[i] > 1 ? 0 : 0.7f, 0.7f, ABILITY_ALPHA);
         }
     }
 
@@ -172,7 +151,7 @@ public class PlayerScript : MonoBehaviour
     
     private void Possess(GameObject corpse) {
         souls -= CalcCost(corpse.GetComponent<Enemy>());
-        soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
+        soulBar.GetComponent<UIBar>().SetValue(souls);
 
         GameObject animation = Instantiate(possessParticlePrefab);
         animation.transform.position = playerCharacter.transform.position;
@@ -188,6 +167,14 @@ public class PlayerScript : MonoBehaviour
         playerCharacter = corpse;
         playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
         SetAbilityIcons();
+
+        // place corpse bar to the right of the soul health bar
+        corpseHealthBar.SetActive(true);
+        corpseHealthBar.transform.position = new Vector3(
+            soulHealthBar.transform.position.x + soulHealthBar.transform.localScale.x / 2 + corpseHealthBar.transform.localScale.x / 2,
+            corpseHealthBar.transform.position.y,
+            corpseHealthBar.transform.position.z
+        );
     }
 
     private void Unpossess() {
@@ -197,6 +184,7 @@ public class PlayerScript : MonoBehaviour
         playerCharacter = playerGhost;
         playerCharacter.GetComponent<PlayerGhost>().Setup(playerHealth);
         SetAbilityIcons();
+        corpseHealthBar.SetActive(false);
     }
 
     private int CalcCost(Enemy enemyType) {
@@ -226,6 +214,6 @@ public class PlayerScript : MonoBehaviour
     // allows Enemy.cs to grant souls when an enemy dies
     public void AddSouls(int amount) {
         souls += amount;
-        soulBar.GetComponent<TMPro.TextMeshPro>().text = "" + souls;
+        soulBar.GetComponent<UIBar>().SetValue(souls);
     }
 }
