@@ -288,7 +288,7 @@ public abstract class Enemy : MonoBehaviour
             return;
         }
 
-        PlayerScript.Instance.AddSouls(1);
+        PlayerScript.Instance.AddResources(difficulty);
 
         // become a corpse that can be possessed
         state = State.Corpse;

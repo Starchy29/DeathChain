@@ -11,18 +11,20 @@ public class PlayerScript : MonoBehaviour
     private static PlayerScript instance;
     public static PlayerScript Instance { get { return instance; } }
 
-    [SerializeField] public GameObject Aimer;
-    [SerializeField] private GameObject possessIndicator;
     [SerializeField] private GameObject playerCharacter; // the entity the player is currently playing as, manually set to ghost at first
+
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject possessParticlePrefab;
 
+    [SerializeField] public GameObject Aimer;
+    [SerializeField] private GameObject possessIndicator;
     [SerializeField] private GameObject soulHealthBar;
     [SerializeField] private GameObject corpseHealthBar;
-    [SerializeField] private GameObject soulBar;
+    [SerializeField] private GameObject spiritBar;
+    [SerializeField] private TMPro.TextMeshPro soulDisplay;
     [SerializeField] private GameObject[] abilityButtons;
 
-    private int souls = 2;
+    private int spirit = 2; // resource used to possess enemies
     private int playerHealth;
 
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
@@ -30,6 +32,7 @@ public class PlayerScript : MonoBehaviour
     private GameObject possessTarget;
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
+    public int Souls { get; set; } // currency used to open the end gate and buy upgrades
     public bool Possessing { get { return playerCharacter != null && playerCharacter.GetComponent<PlayerGhost>() == null; } }
 
     void Awake() {
@@ -38,10 +41,11 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        soulDisplay.text = "" + Souls;
         possessIndicator.SetActive(false);
         corpseHealthBar.SetActive(false);
         soulHealthBar.GetComponent<UIBar>().SetValue(playerHealth);
-        soulBar.GetComponent<UIBar>().SetValue(souls);
+        spiritBar.GetComponent<UIBar>().SetValue(spirit);
         SetAbilityIcons();
     }
 
@@ -84,7 +88,7 @@ public class PlayerScript : MonoBehaviour
             possessTarget = closestOption;
             if(possessTarget != null) {
                 // place the possesion indicator over the possess target
-                PlacePossessIndicator(possessTarget.transform.position + new Vector3(0, 0.4f, 0), souls < CalcCost(possessTarget.GetComponent<Enemy>()));
+                PlacePossessIndicator(possessTarget.transform.position + new Vector3(0, 0.4f, 0), spirit < CalcCost(possessTarget.GetComponent<Enemy>()));
             }
             else if(Possessing) {
                 // create unpossess indicator over player
@@ -96,7 +100,7 @@ public class PlayerScript : MonoBehaviour
             }
         }
         else if(PossessReleased()) {
-            if(possessTarget != null && souls >= CalcCost(possessTarget.GetComponent<Enemy>())) {
+            if(possessTarget != null && spirit >= CalcCost(possessTarget.GetComponent<Enemy>())) {
                 Possess(possessTarget);
             } 
             else if(Possessing && possessTarget == null) {
@@ -150,8 +154,8 @@ public class PlayerScript : MonoBehaviour
     #endregion
     
     private void Possess(GameObject corpse) {
-        souls -= CalcCost(corpse.GetComponent<Enemy>());
-        soulBar.GetComponent<UIBar>().SetValue(souls);
+        spirit -= CalcCost(corpse.GetComponent<Enemy>());
+        spiritBar.GetComponent<UIBar>().SetValue(spirit);
 
         GameObject animation = Instantiate(possessParticlePrefab);
         animation.transform.position = playerCharacter.transform.position;
@@ -211,9 +215,14 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    // allows Enemy.cs to grant souls when an enemy dies
-    public void AddSouls(int amount) {
-        souls += amount;
-        soulBar.GetComponent<UIBar>().SetValue(souls);
+    // allows Enemy.cs to grant souls and spirit meter when an enemy dies
+    public void AddResources(int enemyDifficulty) {
+        // gain 1 spirit per kill
+        spirit += 1;
+        spiritBar.GetComponent<UIBar>().SetValue(spirit);
+
+        // gain currency equal to the enemy's power level
+        Souls += enemyDifficulty;
+        soulDisplay.text = "" + Souls;
     }
 }
