@@ -32,6 +32,12 @@ public class Attack : MonoBehaviour
             case 6: // wall
             case 12: // border wall
                 OnWallCollision(collision.gameObject);
+                
+                // damage it if it's breakable
+                BreakableWallScript breakableWall = collision.gameObject.GetComponent<BreakableWallScript>();
+                if(breakableWall != null) {
+                    breakableWall.TakeDamage(damage);
+                }
                 break;
 
             case 9: // ground enemies
