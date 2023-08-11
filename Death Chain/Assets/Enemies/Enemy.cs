@@ -394,6 +394,11 @@ public abstract class Enemy : MonoBehaviour
     // called by an AI controller, allows the enemy script to describe how its AI should work (queue attacks or choose movement modes)
     public virtual void AIUpdate(AIController controller) { }
 
+    protected void StartAnimation(Animation newAnimation) {
+        currentAnimation = newAnimation;
+        currentAnimation.Reset();
+    }
+
     protected bool UseAbility(int ability) {
         return (endlag == null || !endlag.Active) && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
     }

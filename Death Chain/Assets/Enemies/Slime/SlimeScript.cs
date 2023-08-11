@@ -26,8 +26,7 @@ public class SlimeScript : Enemy
             // use quad shot ability
             cooldowns[0] = SHOOT_CD;
 
-            currentAnimation = shootAnimation;
-            shootAnimation.Reset();
+            StartAnimation(shootAnimation);
 
             List<Vector2> fireDirections;
 
@@ -52,8 +51,7 @@ public class SlimeScript : Enemy
         else if(UseAbility(1)) {
             // use lob puddle ability
             cooldowns[1] = PUDDLE_CD;
-            currentAnimation = shootAnimation;
-            shootAnimation.Reset();
+            StartAnimation(shootAnimation);
             CreateAttack(PuddlePrefab);
         }
     }

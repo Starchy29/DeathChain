@@ -63,8 +63,7 @@ public class MushroomScript : Enemy
                 } else {
                     teleportAnimation.ChangeType(AnimationType.Forward);
                     teleportAnimation.OnComplete = Teleport;
-                    currentAnimation = teleportAnimation;
-                    currentAnimation.Reset();
+                    StartAnimation(teleportAnimation);
                 }
             }
             return;
@@ -74,8 +73,7 @@ public class MushroomScript : Enemy
             // fire spore
             cooldowns[0] = SHOOT_CD;
             CreateAttack(sporePrefab);
-            currentAnimation = shootAnimation;
-            shootAnimation.Reset();
+            StartAnimation(shootAnimation);
         }
         else if(UseAbility(1)) {
             // teleport

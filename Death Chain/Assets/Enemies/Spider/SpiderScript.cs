@@ -40,8 +40,7 @@ public class SpiderScript : Enemy
                 shot.GetComponent<Attack>().Damage = Mathf.RoundToInt(MAX_SHOT_DAMAGE * charge / MAX_CHARGE);
                 charging = false;
                 ResetWalkSpeed();
-                currentAnimation = walkAnimation; // end the pull animation in the middle of it
-                currentAnimation.Reset();
+                StartAnimation(walkAnimation); // end the pull animation in the middle of it
                 showAimer = false;
             } else {
                 charge += CHARGE_RATE * Time.deltaTime * (statuses.HasStatus(Status.Energy) ? 1.5f : 1f);
@@ -59,15 +58,17 @@ public class SpiderScript : Enemy
             charging = true;
             charge = 4.0f;
             SetWalkSpeed(CHARGE_WALK_SPEED);
-            currentAnimation = pullAnimation;
-            currentAnimation.Reset();
+            StartAnimation(pullAnimation);
             showAimer = true;
+
+            if(statuses.HasStatus(Status.Energy)) {
+                currentAnimation.PlayWithSpeedMultiplier(1.5f);
+            }
         }
         else if(UseAbility(1)) {
             // use lob web zone
             cooldowns[1] = WEB_CD;
-            currentAnimation = lobAnimation;
-            currentAnimation.Reset();
+            StartAnimation(lobAnimation);
             CreateAttack(WebPrefab);
         }
     }

@@ -24,6 +24,7 @@ public class Animation
     private int frame; // the current frame of the animation, an index of the sprites array
     private bool reverse; // false: moving forwards
     private float pauseTime;
+    private float speedMultiplier;
 
     public bool Done { get; private set; } // tells other classes when this animation has finished
     public Event OnComplete { get; set; }
@@ -45,6 +46,7 @@ public class Animation
         frame = -1;
         Done = false;
         pauseTime = 0;
+        speedMultiplier = 1;
 
         reverse = false;
 
@@ -67,7 +69,7 @@ public class Animation
             return;
         }
 
-        timer -= Time.deltaTime;
+        timer -= Time.deltaTime * speedMultiplier;
         if(timer <= 0) {
             timer += frameTime;
 
@@ -81,6 +83,7 @@ public class Animation
                         case AnimationType.Rebound:
                             frame = 0; // stay on first frame
                             Done = true;
+                            speedMultiplier = 1;
                             if(OnComplete != null) {
                                 OnComplete();
                             }
@@ -100,6 +103,7 @@ public class Animation
                         case AnimationType.Forward:
                             frame = sprites.Length - 1; // stay on last frame
                             Done = true;
+                            speedMultiplier = 1;
                             if(OnComplete != null) {
                                 OnComplete();
                             }
@@ -128,5 +132,10 @@ public class Animation
 
     public void AddPause(float duration) {
         pauseTime = duration;
+    }
+
+    // makes the animation play at a different speed the next time it is run. Automatically resets when/if the animation resets
+    public void PlayWithSpeedMultiplier(float speedMultiplier) {
+        this.speedMultiplier = speedMultiplier;
     }
 }

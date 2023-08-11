@@ -23,8 +23,7 @@ public class BlightScript : Enemy
         if(UseAbility(0)) {
             // use blast ability
             cooldowns[0] = BLAST_CD;
-            currentAnimation = attackAnimation;
-            attackAnimation.Reset();
+            StartAnimation(attackAnimation);
             CreateAttack(BlastPrefab);
             ApplyEndlag(0.3f, 4.0f);
         }

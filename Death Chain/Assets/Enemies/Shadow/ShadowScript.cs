@@ -41,15 +41,13 @@ public class ShadowScript : Enemy
             currentSlash = CreateAttack(SlashPrefab);
 
             if(firstSlash) {
-                currentAnimation = slash1Animation;
-                currentAnimation.Reset();
+                StartAnimation(slash1Animation);
                 cooldowns[0] = 0.2f; // cooldown between 2-slash combo
                 ApplyEndlag(0.2f, 2.0f);
                 firstSlash = false;
                 Timer.CreateTimer(gameObject, 0.4f, false, () => { firstSlash = true; });
             } else {
-                currentAnimation = slash2Animation;
-                currentAnimation.Reset();
+                StartAnimation(slash2Animation);
                 cooldowns[0] = 0.5f; // cooldown after slashing twice
                 ApplyEndlag(0.1f, 2.0f);
                 firstSlash = true;
@@ -64,8 +62,7 @@ public class ShadowScript : Enemy
                 direction = controller.GetAimDirection();
             }
             Dash(20.0f * direction, 0.14f, 0.08f);
-            currentAnimation = dashAnimation;
-            currentAnimation.Reset();
+            StartAnimation(dashAnimation);
         }
     }
 

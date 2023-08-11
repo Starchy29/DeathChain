@@ -48,16 +48,13 @@ public class PlayerGhost : Enemy
             cooldowns[0] = SLASH_CD;
             currentSlash = CreateAttack(SlashPrefab, true);
             ApplyEndlag(0.3f, 2.0f);
-            currentAnimation = slashAnimation;
-            slashAnimation.Reset();
+            StartAnimation(slashAnimation);
         }
         else if(UseAbility(1)) { // shoot
             cooldowns[1] = SHOOT_CD;
             ApplyEndlag(0.3f, 2.0f);
             CreateAttack(ShotPrefab, true).transform.position += new Vector3(0, 0.3f, 0);
-
-            currentAnimation = shootAnimation;
-            currentAnimation.Reset();
+            StartAnimation(shootAnimation);
         }
     }
 
