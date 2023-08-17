@@ -13,7 +13,7 @@ public class StatusZone : MonoBehaviour
     private Timer timer;
     private List<Enemy> enemiesWithin;
 
-    public bool IsAlly { get; set; } // must be set by creator
+    public bool? IsAlly { get; set; } // must be set by creator, null means it affects all characters
 
     void Start()
     {
@@ -26,16 +26,18 @@ public class StatusZone : MonoBehaviour
             }
         });
 
-        // end effect after the duration
-        Timer.CreateTimer(gameObject, duration, false, () => {
-            timer.End();
-            Destroy(gameObject);
-        });
+        // end effect after the duration, or infinite if an invalid duration
+        if(duration > 0) {
+            Timer.CreateTimer(gameObject, duration, false, () => {
+                timer.End();
+                Destroy(gameObject);
+            });
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision) {
         Enemy script = collision.gameObject.GetComponent<Enemy>();
-        if(script != null && script.IsAlly != IsAlly && !(grounded && script.Floating)) {
+        if(script != null && IsTarget(script) && !(grounded && script.Floating)) {
             enemiesWithin.Add(script);
             script.ApplyStatus(effect, enterAmount);
         }
@@ -46,5 +48,9 @@ public class StatusZone : MonoBehaviour
         if(enemiesWithin.Contains(script)) {
             enemiesWithin.Remove(script);
         }
+    }
+
+    private bool IsTarget(Enemy enemyScript) {
+        return !IsAlly.HasValue || IsAlly != enemyScript.IsAlly;
     }
 }
