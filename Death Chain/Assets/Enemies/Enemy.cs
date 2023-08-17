@@ -83,6 +83,10 @@ public abstract class Enemy : MonoBehaviour
 
     void Update()
     {
+        if(PauseMenuScript.Instance.Paused) {
+            return;
+        }
+
         if(currentAnimation != null) {
             currentAnimation.Update(GetComponent<SpriteRenderer>());
 

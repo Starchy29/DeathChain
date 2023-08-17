@@ -51,6 +51,10 @@ public class PlayerScript : MonoBehaviour
 
     void Update()
     {
+        if(PauseMenuScript.Instance.Paused) {
+            return;
+        }
+
         // -- manage health --
         if(Possessing) {
             // check if the player's possessed body dies

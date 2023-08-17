@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DamagingWallScript : WallScript
 {
-    private const int DAMAGE = 2;
+    private const int DAMAGE = 1;
     private const float PUSH_FORCE = 8.0f;
 
     private void OnCollisionEnter2D(Collision2D collision)
