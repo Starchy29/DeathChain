@@ -6,8 +6,10 @@ public class CameraScript : MonoBehaviour
     private readonly Vector2 SIZE = new Vector2(21.33f, 12); // values found through observation
     private List<Vector2> cameraPoints = new List<Vector2>(); // points that connetc to form the camera's movable area
     private List<Rect> cameraZones = new List<Rect>(); // areas that the middle of the camera must not leave, determined from cameraZones
+    
     private static CameraScript instance;
     public static CameraScript Instance { get { return instance; } }
+    public Rect VisibleArea { get { return new Rect((Vector2)transform.position - SIZE / 2, SIZE); } }
 
     void Awake() {
         instance = this;

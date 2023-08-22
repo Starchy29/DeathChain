@@ -12,6 +12,7 @@ public class EntityTracker : MonoBehaviour
     private static EntityTracker instance;
     public static EntityTracker Instance { get { return instance; } }
 
+    private List<GameObject> backstageEnemies; // enemies that are inactive until they become on screen
     private List<GameObject> enemies;
     public List<GameObject> Enemies { get { return enemies; } } // other classes should not modify this list
 
@@ -28,6 +29,7 @@ public class EntityTracker : MonoBehaviour
     // needs to happen before Enemy.cs Start() and WallScript.cs Start() is called
     void Awake()
     {
+        backstageEnemies = new List<GameObject>();
         enemies = new List<GameObject>();
         walls = new List<GameObject>();
         pits = new List<PitScript>();
@@ -41,7 +43,8 @@ public class EntityTracker : MonoBehaviour
     }
 
     public void AddEnemy(GameObject enemy) {
-        enemies.Add(enemy);
+        backstageEnemies.Add(enemy);
+        enemy.SetActive(false);
     }
 
     public void AddWall(GameObject wall) {
@@ -56,6 +59,21 @@ public class EntityTracker : MonoBehaviour
     void Update()
     {
         Timer.UpdateAll(Time.deltaTime);
+
+        // check for inactive enemies coming on screen
+        Rect cameraArea = CameraScript.Instance.VisibleArea;
+        for(int i = 0; i < backstageEnemies.Count; i++) {
+            float radius = backstageEnemies[i].GetComponent<Enemy>().CollisionRadius;
+            Vector2 size = new Vector2(2*radius, 2*radius);
+            Rect collisionArea = new Rect((Vector2)backstageEnemies[i].transform.position - size/2, size);
+            
+            if(cameraArea.Overlaps(collisionArea)) {
+                backstageEnemies[i].SetActive(true);
+                enemies.Add(backstageEnemies[i]);
+                backstageEnemies.RemoveAt(i);
+                i--;
+            }
+        }
 
         // check for deleted enemies
         for(int i = 0; i < enemies.Count; i++) {

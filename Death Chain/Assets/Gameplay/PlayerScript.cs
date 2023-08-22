@@ -59,7 +59,6 @@ public class PlayerScript : MonoBehaviour
         if(Possessing) {
             // check if the player's possessed body dies
             if(playerCharacter.GetComponent<Enemy>().Health <= 0) {
-                playerHealth--; // punish for losing body by dealing some damage, must be before Unpossess()
                 Unpossess();
             }
         } else {

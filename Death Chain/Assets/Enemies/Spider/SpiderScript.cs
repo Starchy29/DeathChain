@@ -76,6 +76,7 @@ public class SpiderScript : Enemy
     protected override void ResetAndClear()
     {
         charging = false;
+        showAimer = false;
     }
 
     public override void AIUpdate(AIController controller) {
