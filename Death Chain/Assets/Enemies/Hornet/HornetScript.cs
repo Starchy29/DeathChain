@@ -22,7 +22,7 @@ public class HornetScript : Enemy
         if(UseAbility(0)) {
             // contact damage attack
             cooldowns[0] = ATTACK_CD;
-            CreateAttack(AttackPrefab).transform.parent = transform;//.transform.localPosition = new Vector3(0, 0, 0);
+            CreateAttack(AttackPrefab).transform.parent = transform;
         }
         else if(UseAbility(1)) {
             // speed boost

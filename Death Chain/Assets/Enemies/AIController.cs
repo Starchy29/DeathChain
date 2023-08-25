@@ -128,7 +128,7 @@ public class AIController : Controller
     // determine a direction to move for a span of time
     private void ChooseMovement() {
         if(CurrentMode == AIMode.Wander) {
-            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed, where 4 is considered average
+            travelTimer -= Time.deltaTime * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // factor in walk speed
 
             if(travelTimer > 0) {
                 return;
@@ -136,7 +136,7 @@ public class AIController : Controller
 
             // alternate between moving in a direction and pausing
             if(currentDirection == Vector2.zero) {
-                travelTimer += 0.8f;
+                travelTimer += 0.75f;
 
                 // pick a new direction
                 Vector2 random = Random.insideUnitCircle.normalized * WANDER_RANGE / 2;
@@ -149,7 +149,7 @@ public class AIController : Controller
                 currentDirection = random.normalized;
             } else {
                 // stay still for a bit
-                travelTimer += 0.6f;
+                travelTimer += 1.1f;
                 currentDirection = Vector2.zero;
             }
         }

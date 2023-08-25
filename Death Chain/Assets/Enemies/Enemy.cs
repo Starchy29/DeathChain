@@ -92,8 +92,7 @@ public abstract class Enemy : MonoBehaviour
 
             // check for an ability animation finishing
             if(UsingAbilityAnimation() && currentAnimation.Done) {
-                currentAnimation = idleAnimation;
-                currentAnimation.Reset();
+                StartAnimation(idleAnimation);
                 faceLocked = false;
             }
         }
@@ -215,8 +214,7 @@ public abstract class Enemy : MonoBehaviour
         Vector2 moveDirection = ModifyDirection(controller.GetMoveDirection());
         if(maxSpeed <= 0 || moveDirection == Vector2.zero) {
             if(currentAnimation != idleAnimation && idleAnimation != null && !UsingAbilityAnimation()) {
-                currentAnimation = idleAnimation;
-                currentAnimation.Reset();
+                StartAnimation(idleAnimation);
             }
             return;
         }
@@ -242,8 +240,7 @@ public abstract class Enemy : MonoBehaviour
 
         // use walk animation unless mid-ability
         if(currentAnimation != walkAnimation && walkAnimation != null && !UsingAbilityAnimation()) {
-            currentAnimation = walkAnimation;
-            currentAnimation.Reset();
+            StartAnimation(walkAnimation);
         }
         
         GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // draw lower characters in front
@@ -280,11 +277,6 @@ public abstract class Enemy : MonoBehaviour
         ResetAndClear();
         for (int i = 0; i < 3; i++) {
             cooldowns[i] = 0;
-        }
-
-        if(Dashing) {
-            dashTimer.End();
-            EndDash();
         }
 
         if(IsPlayer) {
@@ -382,11 +374,7 @@ public abstract class Enemy : MonoBehaviour
         GetComponent<CircleCollider2D>().enabled = false;
         body.velocity = Vector3.zero;
         this.positionAfterFall = positionAfterFall;
-
-        if(Dashing) {
-            dashTimer.End();
-            EndDash();
-        }
+        EndDash();
     }
 
     #region Functions for sub-classes
@@ -399,6 +387,10 @@ public abstract class Enemy : MonoBehaviour
     public virtual void AIUpdate(AIController controller) { }
 
     protected void StartAnimation(Animation newAnimation) {
+        if(newAnimation == null) {
+            return;
+        }
+
         currentAnimation = newAnimation;
         currentAnimation.Reset();
     }
@@ -491,11 +483,16 @@ public abstract class Enemy : MonoBehaviour
         });
     }
 
-    private void EndDash() {
+    // ends the current dash. Does nothing if the enemy is not dashing
+    protected void EndDash() {
+        if(!Dashing) {
+            return;
+        }
+
         sturdy = false;
+        dashTimer.End();
         dashTimer = null;
-        currentAnimation = idleAnimation;
-        currentAnimation.Reset();
+        StartAnimation(idleAnimation);
     }
 
     // allows enemies to have special movement patterns. Recieves the controller's direction and returns a new direction to move in

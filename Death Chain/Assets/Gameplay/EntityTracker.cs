@@ -61,13 +61,13 @@ public class EntityTracker : MonoBehaviour
         Timer.UpdateAll(Time.deltaTime);
 
         // check for inactive enemies coming on screen
-        Rect cameraArea = CameraScript.Instance.VisibleArea;
+        Rect? cameraArea = CameraScript.Instance == null ? null : CameraScript.Instance.VisibleArea;
         for(int i = 0; i < backstageEnemies.Count; i++) {
             float radius = backstageEnemies[i].GetComponent<Enemy>().CollisionRadius;
             Vector2 size = new Vector2(2*radius, 2*radius);
             Rect collisionArea = new Rect((Vector2)backstageEnemies[i].transform.position - size/2, size);
             
-            if(cameraArea.Overlaps(collisionArea)) {
+            if(!cameraArea.HasValue || cameraArea.Value.Overlaps(collisionArea)) {
                 backstageEnemies[i].SetActive(true);
                 enemies.Add(backstageEnemies[i]);
                 backstageEnemies.RemoveAt(i);

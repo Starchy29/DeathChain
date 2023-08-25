@@ -62,7 +62,7 @@ public class SlimeScript : Enemy
             if(controller.Target == null) {
                 controller.SetAim(new Vector2(Random.value - 0.5f, Random.value - 0.5f));
             }
-            controller.QueueAbility(1, 1, 0.6f);
+            controller.QueueAbility(1, 0.6f, 0.6f);
         }
         else if(cooldowns[0] <= 0 && controller.GetMoveDirection() == Vector2.zero) {
             aiToggle = !aiToggle;
