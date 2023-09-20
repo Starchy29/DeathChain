@@ -14,7 +14,7 @@ public abstract class Enemy : MonoBehaviour
 
     [SerializeField] private int BaseHealth;
     [SerializeField] private float BaseSpeed;
-    [SerializeField] private int difficulty;
+    [SerializeField] private int difficulty; // 1-3
     [SerializeField] protected Sprite[] idleSprites;
     [SerializeField] protected Sprite[] walkSprites;
     [SerializeField] protected Sprite[] deathSprites;

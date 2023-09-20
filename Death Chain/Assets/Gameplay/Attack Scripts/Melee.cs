@@ -9,16 +9,23 @@ public class Melee : Attack
     [SerializeField] private float meleeDuration;
     private Vector3 direction;
 
-    void Update()
+    void Start()
     {
         transform.position = User.transform.position + range * direction;
+
         float rotation = Mathf.Atan2(direction.y, direction.x) * 180 / Mathf.PI;
-        if(direction.x < 0) {
+        if (direction.x < 0)
+        {
             GetComponent<SpriteRenderer>().flipX = true;
             rotation += 180;
         }
         transform.rotation = Quaternion.Euler(0, 0, rotation);
-        
+    }
+
+    void Update()
+    {
+        transform.position = User.transform.position + range * direction;
+
         meleeDuration -= Time.deltaTime;
         if(meleeDuration <= 0) {
             Destroy(gameObject);
