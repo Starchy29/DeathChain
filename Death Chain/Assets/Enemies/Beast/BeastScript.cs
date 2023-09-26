@@ -70,7 +70,7 @@ public class BeastScript : Enemy
             controller.IgnoreStart = false;
             return;
         }
-        controller.IgnoreStart = true;
+        //controller.IgnoreStart = true;
 
         float targetDistance = controller.GetTargetDistance();
 
@@ -82,7 +82,7 @@ public class BeastScript : Enemy
         }
 
         if(cooldowns[0] <= 0 && targetDistance <= 2.5f) {
-            controller.QueueAbility(0, 0, 0.4f);
+            controller.QueueAbility(0);
         }
         else if(cooldowns[1] <= 0 && rangeTimer >= 1.0f) {
             controller.QueueAbility(1);

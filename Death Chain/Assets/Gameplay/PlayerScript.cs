@@ -24,7 +24,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private TMPro.TextMeshPro soulDisplay;
     [SerializeField] private GameObject[] abilityButtons;
 
-    private int spirit = 3; // resource used to possess enemies
+    private int spirit = 4; // resource used to possess enemies
     private int playerHealth;
 
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
