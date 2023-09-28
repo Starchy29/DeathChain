@@ -123,7 +123,11 @@ MonoBehaviour:
   BaseHealth: 12
   BaseSpeed: 5
   difficulty: 3
-  idleSprites: []
+  idleSprites:
+  - {fileID: 21300000, guid: 08fbd09a7ccc45f42a595084a1a673cd, type: 3}
+  - {fileID: 21300000, guid: e48805373bd72a442b8f5e6402837699, type: 3}
+  - {fileID: 21300000, guid: 1978a8abc1d49b4409acfed18a840f34, type: 3}
+  - {fileID: 21300000, guid: 429b1d17dbe52174d96bc7d63261c372, type: 3}
   walkSprites: []
   deathSprites: []
   SlashPrefab: {fileID: 221603433999579084, guid: b0bbc154fb2df8342b4b7aae89833f5b, type: 3}

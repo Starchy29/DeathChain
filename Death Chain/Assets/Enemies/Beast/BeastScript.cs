@@ -16,6 +16,8 @@ public class BeastScript : Enemy
 
     protected override void ChildStart() {
         controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
+
+        idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
     }
 
     protected override void UpdateAbilities() {
