@@ -83,12 +83,4 @@ public class LevelGeneration : MonoBehaviour
     private GameObject MakeRandomChunk() {
         return Instantiate(levelChuckPrefabs[Random.Range(0, levelChuckPrefabs.Count)]);
     }
-
-    // check for player reaching end goal
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.gameObject == PlayerScript.Instance.PlayerEntity) {
-            SceneManager.LoadScene("Main Menu");
-        }
-    }
 }

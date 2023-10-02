@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 // base class for all attacks. Must have an attached trigger collider on the attack layer
 public class Attack : MonoBehaviour
@@ -30,14 +31,13 @@ public class Attack : MonoBehaviour
     public void OnTriggerEnter2D(Collider2D collision) {
         switch(collision.gameObject.layer) {
             case 6: // wall
-            case 12: // border wall
                 OnWallCollision(collision.gameObject);
-                
-                // damage it if it's breakable
-                BreakableWallScript breakableWall = collision.gameObject.GetComponent<BreakableWallScript>();
-                if(breakableWall != null) {
-                    breakableWall.TakeDamage(damage);
-                }
+
+                // damage breakable walls
+                Vector2 collisionPoint = LevelManager.Instance.WallGrid.GetComponent<TilemapCollider2D>().ClosestPoint(transform.position);
+                collisionPoint += 0.1f * (collisionPoint - (Vector2)transform.position).normalized; // move off the edge of the collider and into the grid cell
+                Vector3Int gridPos = LevelManager.Instance.WallGrid.WorldToCell(collisionPoint);
+                LevelManager.Instance.DamageWall(gridPos, damage); // checks for non-breakable walls automatically
                 break;
 
             case 9: // ground enemies
