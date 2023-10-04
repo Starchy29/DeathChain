@@ -10,10 +10,17 @@ public class WallGridScript : MonoBehaviour
     private const float PUSH_FORCE = 8.0f;
     public const int BREAKABLE_START_HEALTH = 6;
 
+    private Tilemap tiles;
+
+    private void Start()
+    {
+        tiles = GetComponent<Tilemap>();
+    }
+
     // triggers when any wall is collided with
     private void OnCollisionEnter2D(Collision2D collision) {
-        Vector3Int gridPos = GetComponent<Tilemap>().WorldToCell(collision.GetContact(0).point);
-        WallTile wall = GetComponent<Tilemap>().GetTile<WallTile>(gridPos);
+        Vector3Int gridPos = tiles.WorldToCell(collision.GetContact(0).point);
+        WallTile wall = tiles.GetTile<WallTile>(gridPos);
         if(wall == null) {
             return;
         }

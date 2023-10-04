@@ -45,9 +45,7 @@ public class StatusZone : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision) {
         Enemy script = collision.gameObject.GetComponent<Enemy>();
-        if(enemiesWithin.Contains(script)) {
-            enemiesWithin.Remove(script);
-        }
+        enemiesWithin.Remove(script);
     }
 
     private bool IsTarget(Enemy enemyScript) {

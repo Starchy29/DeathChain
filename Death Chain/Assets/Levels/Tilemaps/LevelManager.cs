@@ -5,12 +5,16 @@ using UnityEngine.Tilemaps;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] private WallTile lightCracks;
+    [SerializeField] private WallTile heavyCracks;
+
     private Tilemap wallGrid;
     private Tilemap floorGrid;
     private GridInformation gridData;
 
     public Tilemap WallGrid { get { return wallGrid; } }
     public Tilemap FloorGrid { get { return floorGrid; } }
+    public float TileWidth { get { return GetComponent<Grid>().cellSize.x; } }
     public static LevelManager Instance { get; private set; }
 
     void Awake() {
@@ -41,10 +45,19 @@ public class LevelManager : MonoBehaviour
 
         int health = gridData.GetPositionProperty(position, "health", 0);
         health -= damage;
+        gridData.SetPositionProperty(position, "health", health);
         if(health <= 0) {
             wallGrid.SetTile(position, null);
-        } else {
-            gridData.SetPositionProperty(position, "health", health);
+        }
+        else if(health <= WallGridScript.BREAKABLE_START_HEALTH / 3) {
+            if(attackedWall.sprite != heavyCracks.sprite) {
+                wallGrid.SetTile(position, heavyCracks);
+            }
+        }
+        else if(health <= WallGridScript.BREAKABLE_START_HEALTH * 2/3) {
+            if(attackedWall.sprite != lightCracks.sprite) {
+                wallGrid.SetTile(position, lightCracks);
+            }
         }
     }
 }
