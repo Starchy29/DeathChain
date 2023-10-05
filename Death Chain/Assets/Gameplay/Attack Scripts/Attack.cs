@@ -34,10 +34,28 @@ public class Attack : MonoBehaviour
                 OnWallCollision(collision.gameObject);
 
                 // damage breakable walls
-                Vector2 collisionPoint = LevelManager.Instance.WallGrid.GetComponent<TilemapCollider2D>().ClosestPoint(transform.position);
-                collisionPoint += 0.1f * (collisionPoint - (Vector2)transform.position).normalized; // move off the edge of the collider and into the grid cell
-                Vector3Int gridPos = LevelManager.Instance.WallGrid.WorldToCell(collisionPoint);
-                LevelManager.Instance.DamageWall(gridPos, damage); // checks for non-breakable walls automatically
+                Vector3Int centerTile = LevelManager.Instance.WallGrid.WorldToCell(transform.position);
+                float radius = GetComponent<CircleCollider2D>().radius * transform.localScale.x;
+                int cellRange = (int)Mathf.Ceil(radius / LevelManager.Instance.WallGrid.cellSize.x);
+                for(int x = -cellRange; x <= cellRange; x++) {
+                    for(int y = -cellRange; y <= cellRange; y++) {
+                        Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
+
+                        // check for a breakable wall
+                        WallTile wall = LevelManager.Instance.WallGrid.GetTile<WallTile>(testPos);
+                        if(wall == null || wall.Type != WallType.Breakable) {
+                            continue;
+                        }
+
+                        // check if the wall is within range
+                        Vector2 tileCenter = LevelManager.Instance.WallGrid.GetCellCenterWorld(testPos);
+                        Vector2 toTile = tileCenter - (Vector2)transform.position;
+                        Vector2 closestPoint = (Vector2)transform.position + radius * toTile.normalized;
+                        if(toTile.magnitude < radius || LevelManager.Instance.WallGrid.WorldToCell(closestPoint) == testPos) {
+                            LevelManager.Instance.DamageWall(testPos, damage);
+                        }
+                    }
+                }
                 break;
 
             case 9: // ground enemies

@@ -39,9 +39,6 @@ public class LevelManager : MonoBehaviour
     // handles individual tile health changes
     public void DamageWall(Vector3Int position, int damage) {
         WallTile attackedWall = wallGrid.GetTile<WallTile>(position);
-        if(attackedWall == null || attackedWall.Type != WallType.Breakable) {
-            return;
-        }
 
         int health = gridData.GetPositionProperty(position, "health", 0);
         health -= damage;

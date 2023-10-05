@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 // attached to the tilemap that contains all of the level's walls
-public class WallGridScript : MonoBehaviour
-{
+public class WallGridScript : MonoBehaviour {
     private const int WALL_DAMAGE = 1;
     private const float PUSH_FORCE = 8.0f;
     public const int BREAKABLE_START_HEALTH = 6;

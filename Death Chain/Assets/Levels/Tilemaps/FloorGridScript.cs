@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class FloorGridScript : MonoBehaviour
-{
+public class FloorGridScript : MonoBehaviour {
     private List<Enemy> enemiesWithin;
     private Tilemap tiles;
 
@@ -14,8 +13,7 @@ public class FloorGridScript : MonoBehaviour
         tiles = GetComponent<Tilemap>();
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         for(int i = 0; i < enemiesWithin.Count; i++) {
             Enemy enemy = enemiesWithin[i];
 
@@ -26,7 +24,7 @@ public class FloorGridScript : MonoBehaviour
             List<FloorType> overlappedTiles = new List<FloorType>();
             for(int x = -1; x <= 1; x++) {
                 for(int y = -1; y <= 1; y++) {
-                    Vector3 colliderReach = enemy.transform.position + new Vector3(x * radius, y * radius, 0);
+                    Vector3 colliderReach = enemy.transform.position + radius * new Vector3(x, y, 0).normalized;
                     Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
                     if(tiles.WorldToCell(colliderReach) == testPos) {
                         FloorTile tile = tiles.GetTile<FloorTile>(testPos);
