@@ -31,11 +31,10 @@ public class Attack : MonoBehaviour
     public void OnTriggerEnter2D(Collider2D collision) {
         switch(collision.gameObject.layer) {
             case 6: // wall
-                OnWallCollision(collision.gameObject);
-
-                // damage breakable walls
+                // find which wall tiles were hit
+                List<Vector3Int> hitTiles = new List<Vector3Int>();
                 Vector3Int centerTile = LevelManager.Instance.WallGrid.WorldToCell(transform.position);
-                float radius = GetComponent<CircleCollider2D>().radius * transform.localScale.x;
+                float radius = GetComponent<CircleCollider2D>().radius * transform.localScale.x + 0.1f; // add a little because floats are bad
                 int cellRange = (int)Mathf.Ceil(radius / LevelManager.Instance.WallGrid.cellSize.x);
                 for(int x = -cellRange; x <= cellRange; x++) {
                     for(int y = -cellRange; y <= cellRange; y++) {
@@ -43,7 +42,7 @@ public class Attack : MonoBehaviour
 
                         // check for a breakable wall
                         WallTile wall = LevelManager.Instance.WallGrid.GetTile<WallTile>(testPos);
-                        if(wall == null || wall.Type != WallType.Breakable) {
+                        if(wall == null) {
                             continue;
                         }
 
@@ -52,10 +51,20 @@ public class Attack : MonoBehaviour
                         Vector2 toTile = tileCenter - (Vector2)transform.position;
                         Vector2 closestPoint = (Vector2)transform.position + radius * toTile.normalized;
                         if(toTile.magnitude < radius || LevelManager.Instance.WallGrid.WorldToCell(closestPoint) == testPos) {
-                            LevelManager.Instance.DamageWall(testPos, damage);
+                            hitTiles.Add(testPos);
                         }
                     }
                 }
+
+                // damage breakable walls
+                foreach(Vector3Int hitTile in hitTiles) {
+                    WallTile wall = LevelManager.Instance.WallGrid.GetTile<WallTile>(hitTile);
+                    if(wall.Type == WallType.Breakable) {
+                        LevelManager.Instance.DamageWall(hitTile, damage);
+                    }
+                }
+
+                OnWallCollision(hitTiles);
                 break;
 
             case 9: // ground enemies
@@ -85,5 +94,5 @@ public class Attack : MonoBehaviour
 
     protected virtual Vector2 GetPushDirection(GameObject hitEnemy) { return Vector2.zero; } // does not need to be normalized
     protected virtual void OnEnemyCollision(Enemy hitEnemy) { }
-    protected virtual void OnWallCollision(GameObject hitWall) { }
+    protected virtual void OnWallCollision(List<Vector3Int> hitTiles) { }
 }

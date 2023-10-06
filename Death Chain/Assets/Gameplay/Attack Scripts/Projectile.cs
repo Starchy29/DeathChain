@@ -21,7 +21,7 @@ public class Projectile : Attack
 
         distance += displacement.magnitude;
         if(distance >= range) {
-            End();
+            EndAttack();
         }
 
         GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // layer relative to vertical position, sorting layer should be same as enemies
@@ -42,14 +42,14 @@ public class Projectile : Attack
     }
 
     protected override void OnEnemyCollision(Enemy hitEnemy) {
-        End();
+        EndAttack();
     }
 
-    protected override void OnWallCollision(GameObject hitWall) {
-        End();
+    protected override void OnWallCollision(List<Vector3Int> hitTiles) {
+        EndAttack();
     }
 
-    protected void End() {
+    protected void EndAttack() {
         if(destroyParticle) {
             GameObject particle = Instantiate(destroyParticle);
             particle.transform.position = transform.position;
