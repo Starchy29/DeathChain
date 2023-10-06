@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-// base class for all attacks
+// an ability type that does one hit of damage at a time. Can use a trigger or a rigidbody for collision
 public class Attack : Ability
 {
     [SerializeField] protected int damage;
@@ -26,6 +26,10 @@ public class Attack : Ability
     }
 
     public void OnTriggerEnter2D(Collider2D collision) {
+        OnCollision(collision.gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision) {
         OnCollision(collision.gameObject);
     }
 

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7598715826189304340}
   - component: {fileID: 7598715826189304343}
   - component: {fileID: 7038681694595930492}
-  m_Layer: 9
+  m_Layer: 8
   m_Name: Thornbush
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -138,6 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BaseHealth: 8
   BaseSpeed: 5
+  difficulty: 0
   idleSprites: []
   walkSprites: []
   deathSprites: []

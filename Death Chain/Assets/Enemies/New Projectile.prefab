@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5288715754975570787}
   - component: {fileID: 8901824108773584981}
   - component: {fileID: 1379506989928501496}
+  - component: {fileID: 3368555931293733343}
   m_Layer: 0
   m_Name: New Projectile
   m_TagString: Projectile
@@ -121,3 +122,24 @@ MonoBehaviour:
   speed: 0
   range: 0
   destroyParticle: {fileID: 0}
+--- !u!50 &3368555931293733343
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437016467970604415}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4

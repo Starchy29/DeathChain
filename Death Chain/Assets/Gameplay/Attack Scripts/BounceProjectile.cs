@@ -12,9 +12,8 @@ public class BounceProjectile : Projectile
         if(bounces <= 0) {
             EndAttack();
         } else {
-            Vector3 toTarget = hitEnemy.gameObject.transform.position - transform.position;
-            Vector3 component = Vector3.Project(velocity, toTarget);
-            velocity += -2 * component;
+            Vector3 fromTarget = transform.position - hitEnemy.gameObject.transform.position;
+            physicsBody.velocity = Vector2.Reflect(physicsBody.velocity, fromTarget.normalized);
         }
     }
 
@@ -37,8 +36,8 @@ public class BounceProjectile : Projectile
             // check if hitting a corner
             foreach(Vector3Int hitTile in hitTiles) {
                 if(hitTile.x != closestTile.x && hitTile.y != closestTile.y) {
-                    velocity = Vector2.Reflect(velocity, Vector2.up);
-                    velocity = Vector2.Reflect(velocity, Vector2.right);
+                    physicsBody.velocity = Vector2.Reflect(physicsBody.velocity, Vector2.up);
+                    physicsBody.velocity = Vector2.Reflect(physicsBody.velocity, Vector2.right);
                     return;
                 }
             }
@@ -49,11 +48,7 @@ public class BounceProjectile : Projectile
             } else {
                 fromTileCenter.x = 0;
             }
-            velocity = Vector2.Reflect(velocity, fromTileCenter.normalized);
+            physicsBody.velocity = Vector2.Reflect(physicsBody.velocity, fromTileCenter.normalized);
         }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision) {
-        
     }
 }

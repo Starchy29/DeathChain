@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 830317313837729633}
   - component: {fileID: 7386862567509513609}
   - component: {fileID: -1608385281448739836}
+  - component: {fileID: 4550282548095771643}
   m_Layer: 0
   m_Name: Spore
   m_TagString: Projectile
@@ -143,3 +144,24 @@ MonoBehaviour:
   type: 3
   duration: 0.2
   destroyWhenDone: 0
+--- !u!50 &4550282548095771643
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5737476528895241311}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
