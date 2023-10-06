@@ -35,7 +35,7 @@ public class SpiderScript : Enemy
         if(charging) {
             if(controller.IsAbilityReleased(0)) {
                 cooldowns[0] = 1.0f;
-                GameObject shot = CreateAttack(ShotPrefab);
+                GameObject shot = CreateAbility(ShotPrefab);
                 shot.GetComponent<Projectile>().SetSpeed(charge);
                 shot.GetComponent<Attack>().Damage = Mathf.RoundToInt(MAX_SHOT_DAMAGE * charge / MAX_CHARGE);
                 charging = false;
@@ -69,7 +69,7 @@ public class SpiderScript : Enemy
             // use lob web zone
             cooldowns[1] = WEB_CD;
             StartAnimation(lobAnimation);
-            CreateAttack(WebPrefab);
+            CreateAbility(WebPrefab);
         }
     }
 

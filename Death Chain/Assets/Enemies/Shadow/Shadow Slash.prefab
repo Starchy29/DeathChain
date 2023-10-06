@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5419157273776416849}
   - component: {fileID: 8269024974959549454}
   - component: {fileID: 6624044014973880999}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Shadow Slash
   m_TagString: Untagged
   m_Icon: {fileID: 0}

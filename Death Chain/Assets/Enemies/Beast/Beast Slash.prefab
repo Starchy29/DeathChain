@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 221603433999579085}
   - component: {fileID: 4244228774988333970}
   - component: {fileID: 1426138176870012219}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Beast Slash
   m_TagString: Untagged
   m_Icon: {fileID: 0}

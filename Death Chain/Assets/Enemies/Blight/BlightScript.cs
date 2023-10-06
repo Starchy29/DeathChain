@@ -24,7 +24,7 @@ public class BlightScript : Enemy
             // use blast ability
             cooldowns[0] = BLAST_CD;
             StartAnimation(attackAnimation);
-            CreateAttack(BlastPrefab);
+            CreateAbility(BlastPrefab);
             ApplyEndlag(0.3f, 4.0f);
         }
     }
@@ -37,6 +37,6 @@ public class BlightScript : Enemy
 
     protected override void OnDeath() {
         // poison blast on death
-        CreateAttack(BlastPrefab);
+        CreateAbility(BlastPrefab);
     }
 }

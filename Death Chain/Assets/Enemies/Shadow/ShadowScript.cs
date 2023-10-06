@@ -38,7 +38,7 @@ public class ShadowScript : Enemy
         }
 
         if(UseAbility(0)) { // slash
-            currentSlash = CreateAttack(SlashPrefab);
+            currentSlash = CreateAbility(SlashPrefab);
 
             if(firstSlash) {
                 StartAnimation(slash1Animation);

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6530541629414147795}
   - component: {fileID: 3568163640670134923}
   - component: {fileID: 5180244890877227348}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Contact Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}

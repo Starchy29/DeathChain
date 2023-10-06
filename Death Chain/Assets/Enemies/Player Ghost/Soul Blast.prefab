@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3471360665674548916}
   - component: {fileID: 3471360665674548919}
   - component: {fileID: 3310698106766437731}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Soul Blast
   m_TagString: Projectile
   m_Icon: {fileID: 0}

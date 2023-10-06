@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 830317313837729633}
   - component: {fileID: 7386862567509513609}
   - component: {fileID: -1608385281448739836}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Spore
   m_TagString: Projectile
   m_Icon: {fileID: 0}

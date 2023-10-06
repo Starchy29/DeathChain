@@ -33,7 +33,7 @@ public class Melee : Attack
     }
 
     // must be called whenever this is created to set the aim direction
-    public void SetAim(Vector2 direction) {
+    public override void SetDirection(Vector2 direction) {
         this.direction = (Vector3)direction;
     }
 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // a projectile that arcs, then does something when it lands on the ground
-public class Lobber : MonoBehaviour
+public class Lobber : Ability
 {
     [SerializeField] private float speed;
     [SerializeField] private float gravity = 5.0f;
     [SerializeField] private float upVelocity;
-    [SerializeField] private GameObject LandEffect; // spawned when hitting the ground
+    [SerializeField] private GameObject LandEffect; // the attack that occurs when this hits the ground
     private GameObject storedLandEffect;
 
     private Vector3 velocity;
@@ -16,6 +16,21 @@ public class Lobber : MonoBehaviour
     private bool falling; // true: falling in a pit as a visual effect
     private float startSize;
     private float shadowStartSize;
+
+    public override Enemy User { 
+        get => base.User; 
+        set {
+            base.User = value;
+
+            // create the landing attack now in case the user dies before this lands
+            if(storedLandEffect != null) {
+                Destroy(storedLandEffect);
+            }
+            storedLandEffect = Instantiate(LandEffect);
+            storedLandEffect.SetActive(false);
+            storedLandEffect.GetComponent<Ability>().User = User;
+        }
+    }
 
     private void Start()
     {
@@ -27,19 +42,8 @@ public class Lobber : MonoBehaviour
     }
 
     // must be called whenever created. Direction should be a unit vector
-    public void Setup(Vector2 direction, GameObject user) {
+    public override void SetDirection(Vector2 direction) {
         this.velocity = new Vector3(speed * direction.x, speed * direction.y, upVelocity);
-
-        // create the attack now in case the user dies before this lands
-        storedLandEffect = Instantiate(LandEffect);
-        storedLandEffect.SetActive(false);
-
-        StatusZone zoneScript = storedLandEffect.GetComponent<StatusZone>();
-        if(zoneScript != null) {
-            zoneScript.IsAlly = user.GetComponent<Enemy>().IsAlly;
-        } else {
-            storedLandEffect.GetComponent<Attack>().User = user;
-        }
     }
 
     // Update is called once per frame

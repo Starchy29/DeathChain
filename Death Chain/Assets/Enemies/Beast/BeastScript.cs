@@ -33,7 +33,7 @@ public class BeastScript : Enemy
             startupTimer = Timer.CreateTimer(gameObject, SLASH_STARTUP, false, () => {
                 preparingAttack = false;
                 ResetWalkSpeed();
-                CreateAttack(SlashPrefab, true);
+                CreateAbility(SlashPrefab, true);
                 ApplyEndlag(0.2f, 0.0f);
             });
         }

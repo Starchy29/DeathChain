@@ -44,7 +44,7 @@ public class SlimeScript : Enemy
             }
 
             foreach(Vector2 direction in fireDirections) {
-                GameObject shot = CreateAttack(DropPrefab);
+                GameObject shot = CreateAbility(DropPrefab);
                 shot.GetComponent<Projectile>().SetDirection(direction);
             }
         }
@@ -52,7 +52,7 @@ public class SlimeScript : Enemy
             // use lob puddle ability
             cooldowns[1] = PUDDLE_CD;
             StartAnimation(shootAnimation);
-            CreateAttack(PuddlePrefab);
+            CreateAbility(PuddlePrefab);
         }
     }
 

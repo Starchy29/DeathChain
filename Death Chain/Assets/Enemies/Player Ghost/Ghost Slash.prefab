@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3459951391140047292}
   - component: {fileID: 716630644542905827}
   - component: {fileID: 7415637956254655325}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Ghost Slash
   m_TagString: Untagged
   m_Icon: {fileID: 0}

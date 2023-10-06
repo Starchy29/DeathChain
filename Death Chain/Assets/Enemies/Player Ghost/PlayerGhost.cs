@@ -46,14 +46,14 @@ public class PlayerGhost : Enemy
 
         if(UseAbility(0)) { // slash
             cooldowns[0] = SLASH_CD;
-            currentSlash = CreateAttack(SlashPrefab, true);
+            currentSlash = CreateAbility(SlashPrefab, true);
             ApplyEndlag(0.3f, 2.0f);
             StartAnimation(slashAnimation);
         }
         else if(UseAbility(1)) { // shoot
             cooldowns[1] = SHOOT_CD;
             ApplyEndlag(0.3f, 2.0f);
-            CreateAttack(ShotPrefab, true).transform.position += new Vector3(0, 0.3f, 0);
+            CreateAbility(ShotPrefab, true).transform.position += new Vector3(0, 0.3f, 0);
             StartAnimation(shootAnimation);
         }
     }

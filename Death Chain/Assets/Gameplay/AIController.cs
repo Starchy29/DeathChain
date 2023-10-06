@@ -108,7 +108,7 @@ public class AIController : Controller
                 if(attackScript.User != null && attackScript.User.GetComponent<Enemy>().IsAlly != controlled.GetComponent<Enemy>().IsAlly &&
                     Vector2.Distance(projectile.transform.position, controlled.transform.position) <= MAX_PROJ_DISTANCE
                 ) {
-                    target = attackScript.User;
+                    target = attackScript.User.gameObject;
                     projectileAlertTime = 5.0f;
                     return;
                 }

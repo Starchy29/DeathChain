@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3210773263146579859}
   - component: {fileID: 3210773263146579856}
   - component: {fileID: -2222548074597628128}
-  m_Layer: 9
+  m_Layer: 8
   m_Name: ShadowEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}

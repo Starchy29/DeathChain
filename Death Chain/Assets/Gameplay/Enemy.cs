@@ -39,7 +39,7 @@ public abstract class Enemy : MonoBehaviour
     protected int health;
     protected Statuses statuses; // conveniently track all status effects
     protected bool showAimer = false;
-    protected bool isAlly = false; // whether or not this is fighting for the player
+    protected bool isAlly = false; // whether or not this is fighting for the player, only change with IsAlly property
     protected bool sturdy = false; // true means this enemy cannot receive knockback
     protected bool floating = false; // floating enemies can walk over pits
     protected bool invincible; // some abilities need temporary invincibility
@@ -57,7 +57,13 @@ public abstract class Enemy : MonoBehaviour
     public int Difficulty { get { return difficulty; } }
     public float DamageMultiplier { get { return 1 + (statuses.HasStatus(Status.Strength) ? 0.5f : 0) - (statuses.HasStatus(Status.Weakness) ? 0.5f : 0); } }
     public float[] Cooldowns { get { return cooldowns; } }
-    public bool IsAlly { get { return isAlly; } }
+    public bool IsAlly {
+        get { return isAlly; } 
+        private set { 
+            isAlly = value; 
+            gameObject.layer = LayerMask.NameToLayer((isAlly ? "PlayerAlly" : "Enemy")); 
+        } 
+    }
     public bool IsPlayer { get { return controller is PlayerController; } }
     public bool Floating { get { return floating; } }
     public State CurrentState { get { return state; } }
@@ -79,6 +85,8 @@ public abstract class Enemy : MonoBehaviour
         if(currentAnimation == null) { // allows children to choose a different start animation
             currentAnimation = idleAnimation; // animations are created by child classes
         }
+
+        gameObject.layer = LayerMask.NameToLayer((controller is PlayerController ? "PlayerAlly" : "Enemy"));
     }
 
     void Update()
@@ -330,7 +338,7 @@ public abstract class Enemy : MonoBehaviour
         controller = player;
         health = BaseHealth; // reset health
         ResetWalkSpeed(); // in case the enemy changed its own speed
-        isAlly = true;
+        IsAlly = true;
 
         // become non-corpse
         state = State.Resurrect;
@@ -399,18 +407,22 @@ public abstract class Enemy : MonoBehaviour
         return (endlag == null || !endlag.Active) && cooldowns[ability] <= 0 && controller.AbilityUsed(ability);
     }
 
-    protected GameObject CreateAttack(GameObject prefab, bool faceAttack = false) {
-        GameObject attack = Instantiate(prefab);
-        attack.transform.position = transform.position; // default placement is directly on top
+    protected GameObject CreateAbility(GameObject prefab, bool faceAttack = false) {
+        GameObject ability = Instantiate(prefab);
+        ability.transform.position = transform.position; // default placement is directly on top
 
         Vector2 aim = Vector2.zero;
         if(controller != null) {
             aim = controller.GetAimDirection();
         }
 
-        if(faceAttack) {
+        Ability abilityScript = ability.GetComponent<Ability>();
+        abilityScript.User = this;
+        abilityScript.SetDirection(aim); // default aim to the character's current aim
+
+        if (faceAttack) {
             faceLocked = true;
-            if (aim.x > 0) {
+            if(aim.x > 0) {
                 GetComponent<SpriteRenderer>().flipX = false;
             }
             else if(aim.x < 0) {
@@ -418,32 +430,7 @@ public abstract class Enemy : MonoBehaviour
             }
         }
 
-        // set up defaults for each ability type
-        Lobber lobberScript = attack.GetComponent<Lobber>();
-        if(lobberScript != null) {
-            lobberScript.Setup(aim, gameObject);
-            return attack;
-        }
-
-        StatusZone zoneScript = attack.GetComponent<StatusZone>();
-        if(zoneScript != null) {
-            zoneScript.IsAlly = isAlly;
-            return attack;
-        }
-        
-        Attack script = attack.GetComponent<Attack>();
-        script.User = gameObject;
-
-        if(script is Projectile projectileScript) {
-            // for projectiles, default aim to the controller's aim
-            projectileScript.SetDirection(aim);
-        }
-        else if(script is Melee meleeScript) {
-            // melee attacks should be aimed in the character's aim direction
-            meleeScript.SetAim(aim);
-        }
-
-        return attack;
+        return ability;
     }
 
     // create a time period after using an attack where the character moves slower

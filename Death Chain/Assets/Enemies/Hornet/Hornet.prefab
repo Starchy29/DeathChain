@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1150565551807606167}
   - component: {fileID: 1150565551807606164}
   - component: {fileID: -4208713449232363305}
-  m_Layer: 9
+  m_Layer: 8
   m_Name: Hornet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -138,6 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BaseHealth: 8
   BaseSpeed: 5
+  difficulty: 0
   idleSprites: []
   walkSprites: []
   deathSprites: []

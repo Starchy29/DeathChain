@@ -28,7 +28,7 @@ public class Projectile : Attack
     }
 
     // Must be called each time one is created. Input vector should have length 1 
-    public void SetDirection(Vector2 direction) {
+    public override void SetDirection(Vector2 direction) {
         velocity = direction * speed; // auto cast to vec3
     }
 

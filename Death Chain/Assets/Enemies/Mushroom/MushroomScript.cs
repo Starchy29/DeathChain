@@ -72,7 +72,7 @@ public class MushroomScript : Enemy
         if(UseAbility(0)) {
             // fire spore
             cooldowns[0] = SHOOT_CD;
-            CreateAttack(sporePrefab);
+            CreateAbility(sporePrefab);
             StartAnimation(shootAnimation);
         }
         else if(UseAbility(1)) {

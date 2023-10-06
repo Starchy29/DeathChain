@@ -35,7 +35,7 @@ public class ThornbushScript : Enemy
             };
 
             foreach(Vector2 direction in directions) {
-                Projectile projectile = CreateAttack(ThornBulletPrefab, true).GetComponent<Projectile>();
+                Projectile projectile = CreateAbility(ThornBulletPrefab, true).GetComponent<Projectile>();
                 projectile.SetDirection(direction);
             }
         }
@@ -62,7 +62,7 @@ public class ThornbushScript : Enemy
             if(trapTimer != null) {
                 trapTimer.End();
             }
-            CreateAttack(SpikeCounterPrefab);
+            CreateAbility(SpikeCounterPrefab);
             Timer.CreateTimer(gameObject, 0.3f, false, () => {
                 counterAttacking = false;
                 ResetWalkSpeed();
