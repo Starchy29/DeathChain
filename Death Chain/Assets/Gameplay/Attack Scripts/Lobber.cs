@@ -70,13 +70,10 @@ public class Lobber : Ability
 
         if(pos.z < 0) {
             // don't do anything if landing in a pit
-            foreach(PitScript pit in EntityTracker.Instance.Pits) {
-                foreach(Rect area in pit.Zones) {
-                    if(area.Contains(transform.position)) {
-                        falling = true;
-                        return;
-                    }
-                }
+            FloorTile floorSpot = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(LevelManager.Instance.FloorGrid.WorldToCell(transform.position));
+            if(floorSpot != null && floorSpot.Type == FloorType.Pit) {
+                falling = true;
+                return;
             }
 
             // create effect when landing
