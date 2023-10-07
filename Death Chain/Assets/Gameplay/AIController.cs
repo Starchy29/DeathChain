@@ -213,59 +213,56 @@ public class AIController : Controller
             return desiredDirection;
         }
 
-        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        float checkDistance = 2 * radius;
-        Vector2 futureSpot = (Vector2)controlled.transform.position + checkDistance * desiredDirection.normalized;
-        Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
-        
-        List<Rect> overlaps = new List<Rect>();
-        //foreach(Rect wall in EntityTracker.Instance.RegularWallAreas) {
-        //    if(wall.Overlaps(futureArea)) {
-        //        overlaps.Add(wall);
-        //    }
-        //}
-
-        if(!controlled.GetComponent<Enemy>().Floating) {
-            //foreach(Rect pit in EntityTracker.Instance.PitAreas) {
-            //    if(pit.Overlaps(futureArea)) {
-            //        overlaps.Add(pit);
-            //    }
-            //}
+        // if hanging over a pit, move away from it by averaging the pit and land tile centers
+        List<Vector3Int> overlappedTiles = LevelManager.Instance.GetOverlappedTiles(controlled);
+        Vector3 pitCenterTotal = Vector3.zero;
+        Vector3 landCenterTotal = Vector3.zero;
+        float pitCount = 0f;
+        float landCount = 0f;
+        foreach(Vector3Int overlappedTile in overlappedTiles) {
+            FloorTile floor = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(overlappedTile);
+            if(floor != null && floor.Type == FloorType.Pit) {
+                pitCenterTotal += LevelManager.Instance.FloorGrid.GetCellCenterWorld(overlappedTile);
+                pitCount++;
+            } else {
+                landCenterTotal += LevelManager.Instance.FloorGrid.GetCellCenterWorld(overlappedTile);
+                landCount++;
+            }
         }
 
-        if(overlaps.Count <= 0) {
+        if(pitCount > 0) {
+            return (landCenterTotal / landCount - pitCenterTotal / pitCount).normalized;
+        }
+
+        // look ahead of the current movement to see if there is an upcoming obstacle
+        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        float checkDistance = 2 * radius;
+        Circle futureArea = new Circle(controlled.transform.position + checkDistance * (Vector3)desiredDirection.normalized, radius);
+        overlappedTiles = LevelManager.Instance.GetOverlappedTiles(futureArea);
+        List<Vector3Int> overlappedObstacles = new List<Vector3Int>();
+        foreach(Vector3Int overlappedTile in overlappedTiles) {
+            WallTile wall = LevelManager.Instance.WallGrid.GetTile<WallTile>(overlappedTile);
+            FloorTile floor = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(overlappedTile);
+            if(wall != null || (!controlled.GetComponent<Enemy>().Floating && floor != null && floor.Type == FloorType.Pit)) {
+                overlappedObstacles.Add(overlappedTile);
+            }
+        }
+
+        if(overlappedObstacles.Count <= 0) {
             return desiredDirection;
         }
 
-        bool horiBlocked = false;
-        bool vertBlocked = false;
-        Vector2 horiMid = (Vector2)controlled.transform.position + radius * new Vector2(desiredDirection.x, 0).normalized;
-        Vector2 vertMid = (Vector2)controlled.transform.position + radius * new Vector2(0, desiredDirection.y).normalized;
-        Rect horiCheck = new Rect(horiMid.x - radius, horiMid.y - radius, 2 * radius, 2 * radius);
-        Rect vertCheck = new Rect(vertMid.x - radius, vertMid.y - radius, 2 * radius, 2 * radius);
-        foreach(Rect area in overlaps) {
-            if(area.Overlaps(horiCheck)) {
-                horiBlocked = true;
-            }
-            if(area.Overlaps(vertCheck)) {
-                vertBlocked = true;
+        // don't walk directly into an upcoming obstacle
+        foreach(Vector3Int overlappedObstacle in overlappedObstacles) {
+            Vector3 toTileCenter = LevelManager.Instance.WallGrid.GetCellCenterWorld(overlappedObstacle) - controlled.transform.position;
+            if(Mathf.Abs(toTileCenter.x) > Mathf.Abs(toTileCenter.y)) {
+                desiredDirection.x = 0;
+            } else {
+                desiredDirection.y = 0;
             }
         }
 
-        if(horiBlocked && vertBlocked) {
-            // if walking into a corner, go backwards
-            return -desiredDirection;
-        }
-        else if(horiBlocked) {
-            desiredDirection.x = 0;
-            return desiredDirection.normalized;
-        }
-        else if(vertBlocked) {
-            desiredDirection.y = 0;
-            return desiredDirection.normalized;
-        }
-
-        return desiredDirection;
+        return desiredDirection.normalized;
     }
 
     // returns the unit vector towards the target, zero vector if no target
