@@ -79,7 +79,6 @@ public abstract class Enemy : MonoBehaviour
         startSize = transform.localScale.x;
         body = GetComponent<Rigidbody2D>();
         GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 10); // repeated whenever the character changes position
-        EntityTracker.Instance.GetComponent<EntityTracker>().AddEnemy(gameObject); // auto add this to the tracker
         
         ChildStart();
         if(currentAnimation == null) { // allows children to choose a different start animation
@@ -188,7 +187,7 @@ public abstract class Enemy : MonoBehaviour
                     DeleteThis = true;
                     OnDeath();
 
-                    GameObject corpse = Instantiate(EntityTracker.Instance.CorpseParticle);
+                    GameObject corpse = Instantiate(IconsAndEffects.Instance.CorpseParticle);
                     corpse.transform.position = transform.position;
                 }
                 break;
@@ -270,7 +269,7 @@ public abstract class Enemy : MonoBehaviour
 
         health -= amount;
         if(!ignoreStatus) {
-            GameObject hitEffect = Instantiate(EntityTracker.Instance.HitParticle, transform);
+            GameObject hitEffect = Instantiate(IconsAndEffects.Instance.HitParticle, transform);
             hitEffect.transform.localScale = new Vector3(1.25f / transform.localScale.x, 1.25f / transform.localScale.y, 1);
             hitEffect.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
         }
@@ -299,7 +298,7 @@ public abstract class Enemy : MonoBehaviour
         Timer.CreateTimer(gameObject, 10.0f, false, () => { // despawn corpse after some time
             if(state == State.Corpse) { // don't delete if resurrected
                 DeleteThis = true;
-                GameObject corpse = Instantiate(EntityTracker.Instance.CorpseParticle);
+                GameObject corpse = Instantiate(IconsAndEffects.Instance.CorpseParticle);
                 corpse.transform.position = transform.position;
             }
         });

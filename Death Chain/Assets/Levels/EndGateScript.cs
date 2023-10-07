@@ -33,7 +33,7 @@ public class EndGateScript : MonoBehaviour
         PlayerScript player = PlayerScript.Instance;
         if(collision.gameObject == player.PlayerEntity && player.Souls >= soulCost) {
             player.Souls -= soulCost;
-            EntityTracker.Instance.Walls.Remove(gameObject);
+            //EntityTracker.Instance.Walls.Remove(gameObject);
             Destroy(gameObject);
         }
     }

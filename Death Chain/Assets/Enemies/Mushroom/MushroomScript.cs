@@ -39,7 +39,7 @@ public class MushroomScript : Enemy
             if(aim != Vector2.zero) {
                 // find corpse closest to aim direction
                 float bestDot = -1;
-                List<GameObject> enemies = EntityTracker.Instance.Enemies;
+                GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
                 foreach(GameObject enemy in enemies) {
                     if(enemy.GetComponent<Enemy>().IsCorpse && Vector2.Distance(enemy.transform.position, transform.position) < 12) {
                         float dot = Vector2.Dot(aim, (enemy.transform.position - transform.position).normalized);
@@ -101,7 +101,7 @@ public class MushroomScript : Enemy
     public override void AIUpdate(AIController controller) {
         if(cooldowns[1] <= 0 && controller.Target != null && controller.GetTargetDistance() <= 2.0f) {
             // check for a potential warp target
-            List<GameObject> enemies = EntityTracker.Instance.Enemies;
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             foreach(GameObject enemy in enemies) {
                 float distance = Vector2.Distance(transform.position, enemy.transform.position);
                 if(enemy.GetComponent<Enemy>().IsCorpse && distance > 2.0f && distance < 8.0f) {

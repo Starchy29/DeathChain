@@ -47,8 +47,8 @@ public class Statuses
         int index = (int)effect;
         durations[index] += duration;
 
-        if(addParticle && particles[index] == null && index < EntityTracker.Instance.statusParticlePrefabs.Length) {
-            particles[index] = MonoBehaviour.Instantiate(EntityTracker.Instance.statusParticlePrefabs[index]);
+        if(addParticle && particles[index] == null && index < IconsAndEffects.Instance.statusParticlePrefabs.Length) {
+            particles[index] = MonoBehaviour.Instantiate(IconsAndEffects.Instance.statusParticlePrefabs[index]);
             particles[index].transform.SetParent(user.transform);
             particles[index].transform.localPosition = Vector3.zero;
         }

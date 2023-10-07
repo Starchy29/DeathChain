@@ -2,8 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AbilityIcons : MonoBehaviour
+public class IconsAndEffects : MonoBehaviour
 {
+    [SerializeField] public GameObject CorpseParticle;
+    [SerializeField] public GameObject HitParticle;
+    [SerializeField] public GameObject[] statusParticlePrefabs; // order should match enum order
+
     [SerializeField] public Sprite PossessIcon;
     [SerializeField] private Sprite SlashIcon;
     [SerializeField] private Sprite ShootIcon;
@@ -13,8 +17,8 @@ public class AbilityIcons : MonoBehaviour
     [SerializeField] private Sprite PuddleIcon;
     [SerializeField] private Sprite WebIcon;
 
-    private static AbilityIcons instance;
-    public static AbilityIcons Instance { get { return instance; } }
+    private static IconsAndEffects instance;
+    public static IconsAndEffects Instance { get { return instance; } }
 
     void Awake()
     {

@@ -87,7 +87,7 @@ public class AIController : Controller
 
         if(target == null) {
             // check for a target
-            List<GameObject> enemies = EntityTracker.Instance.GetComponent<EntityTracker>().Enemies;
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             Enemy controlledScript = controlled.GetComponent<Enemy>();
             foreach(GameObject enemy in enemies) {
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
@@ -219,18 +219,18 @@ public class AIController : Controller
         Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
         
         List<Rect> overlaps = new List<Rect>();
-        foreach(Rect wall in EntityTracker.Instance.RegularWallAreas) {
-            if(wall.Overlaps(futureArea)) {
-                overlaps.Add(wall);
-            }
-        }
+        //foreach(Rect wall in EntityTracker.Instance.RegularWallAreas) {
+        //    if(wall.Overlaps(futureArea)) {
+        //        overlaps.Add(wall);
+        //    }
+        //}
 
         if(!controlled.GetComponent<Enemy>().Floating) {
-            foreach(Rect pit in EntityTracker.Instance.PitAreas) {
-                if(pit.Overlaps(futureArea)) {
-                    overlaps.Add(pit);
-                }
-            }
+            //foreach(Rect pit in EntityTracker.Instance.PitAreas) {
+            //    if(pit.Overlaps(futureArea)) {
+            //        overlaps.Add(pit);
+            //    }
+            //}
         }
 
         if(overlaps.Count <= 0) {
@@ -279,55 +279,56 @@ public class AIController : Controller
 
     // finds the closest obstacle that blocks a straight path to the target, if any
     private Rect? FindBlocker(Vector2 targetLocation, bool checkPits) {
-        float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
-        if(checkPits) {
-            obstacles.AddRange(EntityTracker.Instance.PitAreas);
-        }
+        return null;
+        //float radius = controlled.GetComponent<Enemy>().CollisionRadius;
+        //List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
+        //if(checkPits) {
+        //    obstacles.AddRange(EntityTracker.Instance.PitAreas);
+        //}
 
-        Vector2 currentPosition = controlled.transform.position;
-        Vector2 idealMovement = targetLocation - currentPosition;
-        Vector2 idealDirection = idealMovement.normalized;
+        //Vector2 currentPosition = controlled.transform.position;
+        //Vector2 idealMovement = targetLocation - currentPosition;
+        //Vector2 idealDirection = idealMovement.normalized;
 
-        // find closest wall/pit that blocks the ideal movement
-        float closestDistance = idealMovement.magnitude;
-        Rect? closestBlock = null;
-        foreach(Rect obstacle in obstacles) {
-            // find if the path intersects this rectangle
-            Vector2? edgePosition = null;
-            float distance = 0;
-            if(idealDirection.x != 0) {
-                // check left or right side
-                float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
-                distance = (targetX - currentPosition.x) / idealDirection.x;
-                float y = currentPosition.y + idealDirection.y * distance;
+        //// find closest wall/pit that blocks the ideal movement
+        //float closestDistance = idealMovement.magnitude;
+        //Rect? closestBlock = null;
+        //foreach(Rect obstacle in obstacles) {
+        //    // find if the path intersects this rectangle
+        //    Vector2? edgePosition = null;
+        //    float distance = 0;
+        //    if(idealDirection.x != 0) {
+        //        // check left or right side
+        //        float targetX = idealDirection.x < 0 ? obstacle.xMax : obstacle.xMin;
+        //        distance = (targetX - currentPosition.x) / idealDirection.x;
+        //        float y = currentPosition.y + idealDirection.y * distance;
 
-                if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
-                    edgePosition = new Vector2(targetX, y);
-                }
-            }
-            if(idealDirection.y != 0) {
-                // check left or right side
-                float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
-                float newDistance = (targetY - currentPosition.y) / idealDirection.y;
-                float x = currentPosition.x + idealDirection.x * newDistance;
+        //        if(distance > 0 && y >= obstacle.yMin - radius && y <= obstacle.yMax + radius) {
+        //            edgePosition = new Vector2(targetX, y);
+        //        }
+        //    }
+        //    if(idealDirection.y != 0) {
+        //        // check left or right side
+        //        float targetY = idealDirection.y < 0 ? obstacle.yMax : obstacle.yMin;
+        //        float newDistance = (targetY - currentPosition.y) / idealDirection.y;
+        //        float x = currentPosition.x + idealDirection.x * newDistance;
                 
-                if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
-                    if(!edgePosition.HasValue || newDistance > distance) {
-                        edgePosition = new Vector2(x, targetY);
-                        distance = newDistance;
-                    }
-                }
-            }
+        //        if(newDistance > 0 && x >= obstacle.xMin - radius && x <= obstacle.xMax + radius) {
+        //            if(!edgePosition.HasValue || newDistance > distance) {
+        //                edgePosition = new Vector2(x, targetY);
+        //                distance = newDistance;
+        //            }
+        //        }
+        //    }
 
-            // determine if this collision is closest
-            if(edgePosition.HasValue && distance < closestDistance) {
-                closestDistance = distance;
-                closestBlock = obstacle;
-            }
-        }
+        //    // determine if this collision is closest
+        //    if(edgePosition.HasValue && distance < closestDistance) {
+        //        closestDistance = distance;
+        //        closestBlock = obstacle;
+        //    }
+        //}
 
-        return closestBlock;
+        //return closestBlock;
     }
     #endregion
 
@@ -462,10 +463,10 @@ public class AIController : Controller
     private Vector2 Approach(Vector2 targetLocation) {
         // compile all rectangles that can block movement, expanded by the radius
         float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
-        if(!controlled.GetComponent<Enemy>().Floating) {
-            obstacles.AddRange(EntityTracker.Instance.PitAreas);
-        }
+        //List<Rect> obstacles = EntityTracker.Instance.RegularWallAreas;
+        //if(!controlled.GetComponent<Enemy>().Floating) {
+        //    obstacles.AddRange(EntityTracker.Instance.PitAreas);
+        //}
 
         Vector2 currentPosition = controlled.transform.position;
         Rect? closestBlock = FindBlocker(targetLocation, !controlled.GetComponent<Enemy>().Floating);
@@ -484,11 +485,11 @@ public class AIController : Controller
             fullObstacle.Add(addition);
 
             // find all adjacent blocks
-            foreach(Rect obstacle in obstacles) {
-                if(!addedBlocks.Contains(obstacle) && !fullObstacle.Contains(obstacle) && obstacle.MakeExpanded(radius).Overlaps(addition.MakeExpanded(radius))) {
-                    addedBlocks.Enqueue(obstacle);
-                }
-            }
+            //foreach(Rect obstacle in obstacles) {
+            //    if(!addedBlocks.Contains(obstacle) && !fullObstacle.Contains(obstacle) && obstacle.MakeExpanded(radius).Overlaps(addition.MakeExpanded(radius))) {
+            //        addedBlocks.Enqueue(obstacle);
+            //    }
+            //}
         }
 
         Rect obstacleSurrounder = closestBlock.Value;
@@ -572,24 +573,24 @@ public class AIController : Controller
 
         // find which ways around the obstacle would be blocked by a border
         List<Vector2> borderSpots = new List<Vector2>();
-        foreach(Rect border in EntityTracker.Instance.BorderAreas) {
-            Rect expandedBorder = border.MakeExpanded(2 * radius);
-            if(expandedBorder.Overlaps(obstacleSurrounder)) {
-                // find where the overlap exists by checking individual pieces of the obstacle
-                foreach(Rect obstacle in fullObstacle) {
-                    if(expandedBorder.Overlaps(obstacle)) {
-                        // find the overlap area and use the middle to determine where this border blocks the obstacle
-                        float top = Mathf.Min(obstacle.yMax, expandedBorder.yMax);
-                        float bottom = Mathf.Max(obstacle.yMin, expandedBorder.yMin);
-                        float left = Mathf.Max(obstacle.xMin, expandedBorder.xMin);
-                        float right = Mathf.Min(obstacle.xMax, expandedBorder.xMax);
-                        Rect overlapArea = new Rect(left, bottom, right - left, top - bottom);
-                        borderSpots.Add(FindEdgeSpot(overlapArea.center).Value);
-                        break;
-                    }
-                }
-            }
-        }
+        //foreach(Rect border in EntityTracker.Instance.BorderAreas) {
+        //    Rect expandedBorder = border.MakeExpanded(2 * radius);
+        //    if(expandedBorder.Overlaps(obstacleSurrounder)) {
+        //        // find where the overlap exists by checking individual pieces of the obstacle
+        //        foreach(Rect obstacle in fullObstacle) {
+        //            if(expandedBorder.Overlaps(obstacle)) {
+        //                // find the overlap area and use the middle to determine where this border blocks the obstacle
+        //                float top = Mathf.Min(obstacle.yMax, expandedBorder.yMax);
+        //                float bottom = Mathf.Max(obstacle.yMin, expandedBorder.yMin);
+        //                float left = Mathf.Max(obstacle.xMin, expandedBorder.xMin);
+        //                float right = Mathf.Min(obstacle.xMax, expandedBorder.xMax);
+        //                Rect overlapArea = new Rect(left, bottom, right - left, top - bottom);
+        //                borderSpots.Add(FindEdgeSpot(overlapArea.center).Value);
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
 
         if(borderSpots.Count > 1) {
             // test if both directions are blocked

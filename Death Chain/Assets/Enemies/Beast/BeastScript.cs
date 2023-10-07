@@ -108,11 +108,5 @@ public class BeastScript : Enemy
             hitEnemy.Push(18.0f * pushDir);
             return;
         }
-
-        // destroy breakable walls
-        BreakableWallScript hitWall = collision.gameObject.GetComponent<BreakableWallScript>();
-        if(hitWall != null) {
-            hitWall.TakeDamage(100);
-        }
     }
 }

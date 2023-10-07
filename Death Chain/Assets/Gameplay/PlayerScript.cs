@@ -72,7 +72,7 @@ public class PlayerScript : MonoBehaviour
         // -- manage possession --
         if(PossessPressed()) {
             // find closest corpse within range to be the possess target
-            List<GameObject> enemies = EntityTracker.Instance.Enemies;
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             GameObject closestOption = null;
             float closestDistance = POSSESS_RANGE;
             foreach(GameObject enemy in enemies) {
@@ -206,7 +206,7 @@ public class PlayerScript : MonoBehaviour
 
     // updates the abilities UI to match the current possessed form
     private void SetAbilityIcons() {
-        Sprite[] icons = AbilityIcons.Instance.GetIcons(playerCharacter.GetComponent<Enemy>());
+        Sprite[] icons = IconsAndEffects.Instance.GetIcons(playerCharacter.GetComponent<Enemy>());
         for(int i = 0; i < 3; i++) {
             Sprite sprite = icons[i];
             if(sprite == null) {
