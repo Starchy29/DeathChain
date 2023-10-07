@@ -88,8 +88,7 @@ public abstract class Enemy : MonoBehaviour
         gameObject.layer = LayerMask.NameToLayer((controller is PlayerController ? "PlayerAlly" : "Enemy"));
     }
 
-    void Update()
-    {
+    void Update() {
         if(PauseMenuScript.Instance.Paused) {
             return;
         }

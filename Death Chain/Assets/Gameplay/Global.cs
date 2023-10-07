@@ -11,6 +11,16 @@ public enum Direction {
     Right
 }
 
+public struct Circle {
+    public Vector3 Center;
+    public float Radius;
+
+    public Circle(Vector3 center, float radius) {
+        Center = center;
+        Radius = radius;
+    }
+}
+
 // a class for utility code that belongs nowhere else
 public static class Global
 {

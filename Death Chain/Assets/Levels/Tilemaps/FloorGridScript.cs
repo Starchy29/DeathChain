@@ -18,39 +18,43 @@ public class FloorGridScript : MonoBehaviour {
             Enemy enemy = enemiesWithin[i];
 
             // find which floor tiles this enemy is stepping on
-            float radius = enemy.GetComponent<CircleCollider2D>().bounds.extents.x;
-            Vector3Int centerTile = tiles.WorldToCell(enemy.transform.position);
+            //float radius = enemy.GetComponent<CircleCollider2D>().bounds.extents.x;
+            //Vector3Int centerTile = tiles.WorldToCell(enemy.transform.position);
 
-            List<FloorType> overlappedTiles = new List<FloorType>();
-            for(int x = -1; x <= 1; x++) {
-                for(int y = -1; y <= 1; y++) {
-                    Vector3 colliderReach = enemy.transform.position + radius * new Vector3(x, y, 0).normalized;
-                    Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
-                    if(tiles.WorldToCell(colliderReach) == testPos) {
-                        FloorTile tile = tiles.GetTile<FloorTile>(testPos);
-                        if(tile == null) {
-                            overlappedTiles.Add(FloorType.Normal);
-                        } else {
-                            overlappedTiles.Add(tiles.GetTile<FloorTile>(testPos).Type);
-                        }
-                    }
-                }
-            }
+            //List<FloorType> overlappedTiles = new List<FloorType>();
+            //for(int x = -1; x <= 1; x++) {
+            //    for(int y = -1; y <= 1; y++) {
+            //        Vector3 colliderReach = enemy.transform.position + radius * new Vector3(x, y, 0).normalized;
+            //        Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
+            //        if(tiles.WorldToCell(colliderReach) == testPos) {
+            //            FloorTile tile = tiles.GetTile<FloorTile>(testPos);
+            //            if(tile == null) {
+            //                overlappedTiles.Add(FloorType.Normal);
+            //            } else {
+            //                overlappedTiles.Add(tiles.GetTile<FloorTile>(testPos).Type);
+            //            }
+            //        }
+            //    }
+            //}
+
+
 
             // provide effects depending on which tiles are stepped on
+            List<Vector3Int> overlappedFloors = LevelManager.Instance.GetOverlappedTiles(enemy.gameObject);
             bool onSticky = false;
-            bool inPit = overlappedTiles.Count > 0;
-            foreach(FloorType floor in overlappedTiles) {
-                if(floor != FloorType.Pit) {
+            bool inPit = overlappedFloors.Count > 0;
+            foreach(Vector3Int overlappedFloor in overlappedFloors) {
+                FloorTile floor = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(overlappedFloor);
+                if(floor == null || floor.Type != FloorType.Pit) {
                     inPit = false;
                 }
-                if(floor == FloorType.Sticky) {
+                if(floor != null && floor.Type == FloorType.Sticky) {
                     onSticky = true;
                 }
             }
 
             if(onSticky) {
-                enemy.ApplyStatus(Status.Slow, Time.deltaTime); // extend a slight amount so the status stays active
+                enemy.ApplyStatus(Status.Slow, Time.deltaTime);
             }
 
             if(inPit) {

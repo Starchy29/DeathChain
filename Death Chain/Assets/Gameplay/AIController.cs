@@ -214,7 +214,7 @@ public class AIController : Controller
         }
 
         float radius = controlled.GetComponent<Enemy>().CollisionRadius;
-        float checkDistance = radius * controlled.GetComponent<Enemy>().WalkSpeed / 4;
+        float checkDistance = 2 * radius;
         Vector2 futureSpot = (Vector2)controlled.transform.position + checkDistance * desiredDirection.normalized;
         Rect futureArea = new Rect(futureSpot.x - radius, futureSpot.y - radius, 2 * radius, 2 * radius);
         

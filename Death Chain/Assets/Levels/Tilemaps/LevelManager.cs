@@ -51,7 +51,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void Update() {
+    void Update() {
         Timer.UpdateAll(Time.deltaTime);
 
         // check for inactive enemies coming on screen
@@ -89,5 +89,34 @@ public class LevelManager : MonoBehaviour
                 wallGrid.SetTile(position, lightCracks);
             }
         }
+    }
+
+    // returns all tile positions that the input circle overlaps, regardless of if there is a tile there or not
+    public List<Vector3Int> GetOverlappedTiles(Circle circle) {
+        // determine which tiles could possibly be overlapped based on the position and radius
+        List<Vector3Int> overlappedTiles = new List<Vector3Int>();
+        Vector3Int centerTile = wallGrid.WorldToCell(circle.Center);
+        int cellRange = (int)Mathf.Ceil(circle.Radius / wallGrid.cellSize.x);
+
+        // check which tiles are within range
+        for (int x = -cellRange; x <= cellRange; x++) {
+            for(int y = -cellRange; y <= cellRange; y++) {
+                Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
+                Vector3 tileCenter = wallGrid.GetCellCenterWorld(testPos);
+                Vector3 toTile = tileCenter - circle.Center;
+                Vector3 closestPoint = circle.Center + circle.Radius * toTile.normalized;
+                if(toTile.magnitude < circle.Radius || wallGrid.WorldToCell(closestPoint) == testPos) {
+                    overlappedTiles.Add(testPos);
+                }
+            }
+        }
+
+        return overlappedTiles;
+    }
+
+    // overload for entites that have a circle collider, uses the collider as the test circle 
+    public List<Vector3Int> GetOverlappedTiles(GameObject circularEntity) {
+        Circle circle = new Circle(circularEntity.transform.position, circularEntity.GetComponent<CircleCollider2D>().radius * circularEntity.transform.localScale.x + 0.1f); // add a little to the radius for small objects
+        return GetOverlappedTiles(circle);
     }
 }

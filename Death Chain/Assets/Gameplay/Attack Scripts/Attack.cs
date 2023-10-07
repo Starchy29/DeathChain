@@ -58,40 +58,21 @@ public class Attack : Ability
         // check if collided with a wall
         Tilemap wallGrid = collidedObject.GetComponent<Tilemap>();
         if(wallGrid != null) {
-            // find which wall tiles were hit
-            List<Vector3Int> hitTiles = new List<Vector3Int>();
-            Vector3Int centerTile = wallGrid.WorldToCell(transform.position);
-            float radius = GetComponent<CircleCollider2D>().radius * transform.localScale.x + 0.1f; // add a little because floats are bad
-            int cellRange = (int)Mathf.Ceil(radius / LevelManager.Instance.WallGrid.cellSize.x);
-            for(int x = -cellRange; x <= cellRange; x++) {
-                for(int y = -cellRange; y <= cellRange; y++) {
-                    Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
-
-                    // check for a breakable wall
-                    WallTile wall = wallGrid.GetTile<WallTile>(testPos);
-                    if(wall == null) {
-                        continue;
-                    }
-
-                    // check if the wall is within range
-                    Vector2 tileCenter = wallGrid.GetCellCenterWorld(testPos);
-                    Vector2 toTile = tileCenter - (Vector2)transform.position;
-                    Vector2 closestPoint = (Vector2)transform.position + radius * toTile.normalized;
-                    if(toTile.magnitude < radius || wallGrid.WorldToCell(closestPoint) == testPos) {
-                        hitTiles.Add(testPos);
+            List<Vector3Int> overlappedTiles = LevelManager.Instance.GetOverlappedTiles(gameObject);
+            List<Vector3Int> hitWalls = new List<Vector3Int>();
+            foreach(Vector3Int overlappedTile in overlappedTiles) {
+                WallTile wall = wallGrid.GetTile<WallTile>(overlappedTile);
+                if(wall != null ) {
+                    hitWalls.Add(overlappedTile);
+                    
+                    // damage breakable walls
+                    if(wall.Type == WallType.Breakable) {
+                        LevelManager.Instance.DamageWall(overlappedTile, damage);
                     }
                 }
             }
 
-            // damage breakable walls
-            foreach(Vector3Int hitTile in hitTiles) {
-                WallTile wall = wallGrid.GetTile<WallTile>(hitTile);
-                if(wall.Type == WallType.Breakable) {
-                    LevelManager.Instance.DamageWall(hitTile, damage);
-                }
-            }
-
-            OnWallCollision(hitTiles);
+            OnWallCollision(hitWalls);
         }
     }
 
