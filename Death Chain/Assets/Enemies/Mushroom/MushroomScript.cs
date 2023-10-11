@@ -111,7 +111,7 @@ public class MushroomScript : Enemy
                 }
             }
         }
-        if(cooldowns[0] <= 0 && controller.Target != null && !controller.IsTargetBlocked(false)) {
+        if(cooldowns[0] <= 0 && controller.Target != null) {
             controller.QueueAbility(0, 0.3f);
         }
     }

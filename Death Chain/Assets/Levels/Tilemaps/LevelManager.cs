@@ -15,7 +15,8 @@ public class LevelManager : MonoBehaviour
 
     public Tilemap WallGrid { get { return wallGrid; } }
     public Tilemap FloorGrid { get { return floorGrid; } }
-    public float TileWidth { get { return GetComponent<Grid>().cellSize.x; } }
+    public GridInformation GridData { get { return gridData; } }
+    public float TileWidth { get { return GetComponent<Grid>().cellSize.x * transform.localScale.x; } }
     public static LevelManager Instance { get; private set; }
 
     void Awake() {

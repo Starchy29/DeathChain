@@ -20,7 +20,7 @@ public class ShadowScript : Enemy
 
     protected override void ChildStart()
     {
-        controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
+        controller = new AIController(gameObject, AIMode.Chase, AIMode.Chase, 500.0f); //new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Loop, 0.8f);
         walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
@@ -33,6 +33,7 @@ public class ShadowScript : Enemy
     }
 
     protected override void UpdateAbilities() {
+        return;
         if(currentSlash != null || Dashing) {
             return;
         }
