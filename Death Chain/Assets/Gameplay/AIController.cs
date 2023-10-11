@@ -26,6 +26,7 @@ public class AIController : Controller
     private float travelTimer; // amount of time to travel in the current direction
     private bool clockwise; // for patrol mvovement
     private float projectileAlertTime; // time when this has a target after being shot at
+    private Vector3Int[] currentPath;
 
     private Vector2 specialAim; // allows enemies to aim in specific directions
     private int queuedAbility = -1; // the attack to use after startup is done
@@ -98,11 +99,11 @@ public class AIController : Controller
                 return ModifyDirection(currentDirection);
 
             case AIMode.Chase:
-                if(target == null) {
+                if(target != null && GetTargetDistance() <= 1.0f + target.GetComponent<Enemy>().CollisionRadius + controlled.GetComponent<Enemy>().CollisionRadius) {
+                    // stop chasing if close enough
                     return Vector2.zero;
                 }
-                Vector2 targetPosition = target.transform.position;// Approach(target.transform.position);
-                return ModifyDirection((targetPosition - (Vector2)controlled.transform.position).normalized);
+                return currentDirection;
 
             case AIMode.Flee:
                 if(controlled.transform.position == target.transform.position) {
@@ -401,21 +402,40 @@ public class AIController : Controller
                 break;
 
             case AIMode.Chase:
-                travelTimer -= Time.deltaTime;
-                if(travelTimer <= 0) {
-                    travelTimer += 0.2f; // pathfinding frequency
-                } else {
+                if(travelTimer > 0) {
+                    travelTimer -= Time.deltaTime;
+                    if(currentPath == null || currentPath.Length == 0) {
+                        currentDirection = Vector2.zero;
+                        return;
+                    }
+
+                    // travel along the path
+                    Vector3Int currentTile = LevelManager.Instance.WallGrid.WorldToCell(controlled.transform.position);
+                    for(int i = 0; i < currentPath.Length - 1; i++) {
+                        if(currentPath[i] == currentTile) {
+                            currentDirection = (LevelManager.Instance.WallGrid.GetCellCenterWorld(currentPath[i+1]) - controlled.transform.position).normalized;
+                            return;
+                        }
+                    }
+
+                    currentDirection = (LevelManager.Instance.WallGrid.GetCellCenterWorld(currentPath[0]) - controlled.transform.position).normalized;
                     return;
                 }
 
                 if(target == null) {
                     currentDirection = Vector2.zero;
+                    return;
                 }
 
                 // determine which direction to move in
                 if(IsTargetBlocked(!controlled.GetComponent<Enemy>().Floating)) {
-
-                } else {
+                    currentPath = FindTilePath(target.transform.position);
+                    currentDirection = Vector2.zero; // start walking path next frame
+                    travelTimer = 0.3f * (1 + currentPath.Length / 4);
+                    return;
+                } 
+                else {
+                    // straight path
                     currentDirection = (target.transform.position - controlled.transform.position).normalized;
                 }
                 break;
@@ -487,10 +507,13 @@ public class AIController : Controller
         GridInformation gridData = LevelManager.Instance.GridData;
         Vector3Int startTile = wallGrid.WorldToCell(controlled.transform.position);
         Vector3Int endTile = wallGrid.WorldToCell(targetPosition);
-        bool checkPits = controlled.GetComponent<Enemy>().Floating;
+        bool checkPits = !controlled.GetComponent<Enemy>().Floating;
         Vector3Int[] directions = new Vector3Int[4] { Vector3Int.up, Vector3Int.down, Vector3Int.right, Vector3Int.left };
 
         // find shortest path with A*
+        gridData.SetPositionProperty(startTile, "travelDistance", 0);
+        gridData.SetPositionProperty(startTile, "parent x", startTile.x);
+        gridData.SetPositionProperty(startTile, "parent y", startTile.y);
         List<Vector3Int> closedList = new List<Vector3Int>();
         List<Vector3Int> openList = new List<Vector3Int>() { startTile };
         while(openList.Count > 0) {
@@ -524,7 +547,7 @@ public class AIController : Controller
             foreach(Vector3Int direction in directions) {
                 Vector3Int neighbor = currentTile + direction;
                 FloorTile floor = floorGrid.GetTile<FloorTile>(neighbor);
-                if(wallGrid.GetTile(neighbor) != null || (checkPits && floor != null && floor.Type == FloorType.Pit)) {
+                if(neighbor != endTile && (wallGrid.GetTile(neighbor) != null || (checkPits && floor != null && floor.Type == FloorType.Pit))) {
                     continue;
                 }
 

@@ -12,6 +12,7 @@ public class DebugDisplay : MonoBehaviour
     public static DebugDisplay Instance { get { return instance; } }
 
     private Dictionary<string, GameObject> dots = new Dictionary<string, GameObject>();
+    private List<GameObject> rects = new List<GameObject>();
 
     // Start is called before the first frame update
     void Awake()
@@ -35,7 +36,15 @@ public class DebugDisplay : MonoBehaviour
         }
 
         GameObject newRect = Instantiate(DebugRect);
+        rects.Add(newRect);
         newRect.transform.position = area.center;
         newRect.transform.localScale = area.size;
+    }
+
+    public void ClearRects() {
+        foreach(GameObject rect in rects) {
+            Destroy(rect);
+        }
+        rects.Clear();
     }
 }
