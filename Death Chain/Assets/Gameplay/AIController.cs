@@ -207,6 +207,11 @@ public class AIController : Controller
             return false;
         }
 
+        if(currentPath != null) {
+            // this is fine here because the pathfinder does not run when following a path already
+            return true;
+        }
+
         Vector2 tileDims = new Vector2(LevelManager.Instance.TileWidth, LevelManager.Instance.TileWidth);
         Tilemap wallGrid = LevelManager.Instance.WallGrid;
         Tilemap floorGrid = LevelManager.Instance.FloorGrid;
@@ -421,6 +426,8 @@ public class AIController : Controller
                     currentDirection = (LevelManager.Instance.WallGrid.GetCellCenterWorld(currentPath[0]) - controlled.transform.position).normalized;
                     return;
                 }
+
+                currentPath = null;
 
                 if(target == null) {
                     currentDirection = Vector2.zero;

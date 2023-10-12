@@ -69,7 +69,6 @@ public abstract class Enemy : MonoBehaviour
     public State CurrentState { get { return state; } }
     public float CollisionRadius { get { return startSize * GetComponent<CircleCollider2D>().radius; } }
     public bool IsCorpse { get { return state == State.Corpse && (deathAnimation == null || currentAnimation.Done); } }
-    public bool DeleteThis { get; set; } // tells the entity tracker to delete this and remove it from the list
 
     void Start()
     {
@@ -156,7 +155,7 @@ public abstract class Enemy : MonoBehaviour
                     // end fall
                     if(currentAnimation != null && currentAnimation == deathAnimation) {
                         // if a floating enemy dies over a pit, just despawn it
-                        DeleteThis = true;
+                        Destroy(gameObject);
                     } else {
                         state = State.Normal;
                         sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1);
@@ -183,7 +182,7 @@ public abstract class Enemy : MonoBehaviour
 
             case State.Despawing:
                 if(currentAnimation.Done) {
-                    DeleteThis = true;
+                    Destroy(gameObject);
                     OnDeath();
 
                     GameObject corpse = Instantiate(IconsAndEffects.Instance.CorpseParticle);
@@ -296,7 +295,7 @@ public abstract class Enemy : MonoBehaviour
         state = State.Corpse;
         Timer.CreateTimer(gameObject, 10.0f, false, () => { // despawn corpse after some time
             if(state == State.Corpse) { // don't delete if resurrected
-                DeleteThis = true;
+                Destroy(gameObject);
                 GameObject corpse = Instantiate(IconsAndEffects.Instance.CorpseParticle);
                 corpse.transform.position = transform.position;
             }
@@ -362,7 +361,7 @@ public abstract class Enemy : MonoBehaviour
     public void Unpossess() {
         if(deathAnimation == null) {
             // temporary
-            DeleteThis = true;
+            Destroy(gameObject);
             return;
         }
 

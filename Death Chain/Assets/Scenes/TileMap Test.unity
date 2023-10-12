@@ -123,63 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &9929395
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3998159039226318255, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_Name
-      value: Debugger
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 8.278121
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.05274094
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.36584467
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799351713350797329, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 2dc38232bccb5744599dcd3eb1d10f17, type: 3}
 --- !u!1001 &218654543
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2058,11 +2001,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061726, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.94
+      value: -6.08
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061726, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -17.09
+      value: 0.29
       objectReference: {fileID: 0}
     - target: {fileID: 5353949509718061726, guid: d9cf7a00b57e3c644b442d83cf46a62b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2177,11 +2120,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3210773263146579857, guid: dc195ab12f328c543b49c9ed96717875, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.48
+      value: 7.07
       objectReference: {fileID: 0}
     - target: {fileID: 3210773263146579857, guid: dc195ab12f328c543b49c9ed96717875, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -21.32
+      value: -0.37
       objectReference: {fileID: 0}
     - target: {fileID: 3210773263146579857, guid: dc195ab12f328c543b49c9ed96717875, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2271,7 +2214,7 @@ Transform:
   - {fileID: 1459842535}
   - {fileID: 374298309}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2098895407
 MonoBehaviour:

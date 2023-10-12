@@ -168,7 +168,7 @@ public class PlayerScript : MonoBehaviour
             // leave corpse animation
             playerCharacter.GetComponent<Enemy>().Unpossess();
         } else {
-            playerCharacter.GetComponent<Enemy>().DeleteThis = true; // remove last body
+            Destroy(playerCharacter); // remove last body
         }
 
         playerCharacter = corpse;
