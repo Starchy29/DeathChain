@@ -417,7 +417,7 @@ public abstract class Enemy : MonoBehaviour
         abilityScript.User = this;
         abilityScript.SetDirection(aim); // default aim to the character's current aim
 
-        if (faceAttack) {
+        if(faceAttack) {
             faceLocked = true;
             if(aim.x > 0) {
                 GetComponent<SpriteRenderer>().flipX = false;

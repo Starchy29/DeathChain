@@ -18,6 +18,7 @@ public class BeastScript : Enemy
         controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
+        walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
     }
 
     protected override void UpdateAbilities() {

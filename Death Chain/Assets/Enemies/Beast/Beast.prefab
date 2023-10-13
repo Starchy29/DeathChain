@@ -128,7 +128,15 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e48805373bd72a442b8f5e6402837699, type: 3}
   - {fileID: 21300000, guid: 1978a8abc1d49b4409acfed18a840f34, type: 3}
   - {fileID: 21300000, guid: 429b1d17dbe52174d96bc7d63261c372, type: 3}
-  walkSprites: []
+  walkSprites:
+  - {fileID: 21300000, guid: 08fbd09a7ccc45f42a595084a1a673cd, type: 3}
+  - {fileID: 21300000, guid: 26fffae08af40b54aa6ade11a830489d, type: 3}
+  - {fileID: 21300000, guid: 7d42de24226d80f47820bb123f1ba083, type: 3}
+  - {fileID: 21300000, guid: 26fffae08af40b54aa6ade11a830489d, type: 3}
+  - {fileID: 21300000, guid: 08fbd09a7ccc45f42a595084a1a673cd, type: 3}
+  - {fileID: 21300000, guid: f847e78dfe058da49848cd7cf80728b6, type: 3}
+  - {fileID: 21300000, guid: 5323f495bce1f664b93d66c475444b1e, type: 3}
+  - {fileID: 21300000, guid: f847e78dfe058da49848cd7cf80728b6, type: 3}
   deathSprites: []
   SlashPrefab: {fileID: 221603433999579084, guid: b0bbc154fb2df8342b4b7aae89833f5b, type: 3}
 --- !u!58 &4952424344138888378
