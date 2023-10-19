@@ -13,6 +13,14 @@ public class CameraScript : MonoBehaviour
 
     void Awake() {
         instance = this;
+
+        if(!enabled) {
+            // debug option for test scenes
+            AddCameraZone(transform.position);
+            enabled = true;
+            return;
+        }
+
         Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
         transform.position = new Vector3(playerPos.x, playerPos.y, transform.position.z);
     }

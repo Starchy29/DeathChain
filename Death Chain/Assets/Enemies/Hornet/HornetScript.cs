@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class HornetScript : Enemy
 {
-    [SerializeField] private GameObject AttackPrefab;
+    [SerializeField] private GameObject StingerPrefab;
+    [SerializeField] private GameObject MeleePrefab;
 
-    private const float ATTACK_CD = 0.4f;
-    private const float SPEED_CD = 8.0f;
+    private const float ATTACK_CD = 0.8f;
+    private const float SHOOT_CD = 0.6f;
 
     private Vector2 lastMoveDirection;
 
     protected override void ChildStart() {
-        controller = new AIController(gameObject, AIMode.Patrol, AIMode.Patrol, 3.0f);
+        controller = new AIController(gameObject, AIMode.Patrol, AIMode.Patrol, 6.0f);
 
         floating = true;
         lastMoveDirection = new Vector2(0, -1);
@@ -20,14 +21,15 @@ public class HornetScript : Enemy
 
     protected override void UpdateAbilities() {
         if(UseAbility(0)) {
-            // contact damage attack
-            cooldowns[0] = ATTACK_CD;
-            CreateAbility(AttackPrefab).transform.parent = transform;
+            // stinger projectile
+            cooldowns[0] = SHOOT_CD;
+            Projectile stinger = CreateAbility(StingerPrefab).GetComponent<Projectile>();
+            stinger.SetDirection(lastMoveDirection);
         }
         else if(UseAbility(1)) {
-            // speed boost
-            cooldowns[1] = SPEED_CD;
-            ApplyStatus(Status.Speed, 3.0f);
+            // contact damage attack
+            cooldowns[1] = ATTACK_CD;
+            CreateAbility(MeleePrefab).transform.parent = transform;
         }
     }
 
@@ -42,10 +44,14 @@ public class HornetScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
-        if(health <= 3 && cooldowns[1] <= 0) {
+        if(controller.Target == null) {
+            return;
+        }
+
+        if(cooldowns[1] <= 0 && controller.GetTargetDistance() <= 1.0f) {
             controller.QueueAbility(1);
         }
-        else if(controller.Target != null && cooldowns[0] <= 0) {
+        else if(cooldowns[0] <= 0) {
             controller.QueueAbility(0);
         }
     }

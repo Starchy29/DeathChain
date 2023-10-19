@@ -455,25 +455,30 @@ public class AIController : Controller
             return desiredDirection;
         }
 
-        // if hanging over a pit, move away from it by averaging the pit and land tile centers
-        List<Vector3Int> overlappedTiles = LevelManager.Instance.GetOverlappedTiles(controlled);
-        Vector3 pitCenterTotal = Vector3.zero;
-        Vector3 landCenterTotal = Vector3.zero;
-        float pitCount = 0f;
-        float landCount = 0f;
-        foreach(Vector3Int overlappedTile in overlappedTiles) {
-            FloorTile floor = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(overlappedTile);
-            if(floor != null && floor.Type == FloorType.Pit) {
-                pitCenterTotal += LevelManager.Instance.FloorGrid.GetCellCenterWorld(overlappedTile);
-                pitCount++;
-            } else {
-                landCenterTotal += LevelManager.Instance.FloorGrid.GetCellCenterWorld(overlappedTile);
-                landCount++;
-            }
-        }
+        bool checkPits = !controlled.GetComponent<Enemy>().Floating;
 
-        if(pitCount > 0) {
-            return (landCenterTotal / landCount - pitCenterTotal / pitCount).normalized;
+        // if hanging over a pit, move away from it by averaging the pit and land tile centers
+        List<Vector3Int> overlappedTiles;
+        if(checkPits) {
+            overlappedTiles = LevelManager.Instance.GetOverlappedTiles(controlled);
+            Vector3 pitCenterTotal = Vector3.zero;
+            Vector3 landCenterTotal = Vector3.zero;
+            float pitCount = 0f;
+            float landCount = 0f;
+            foreach(Vector3Int overlappedTile in overlappedTiles) {
+                FloorTile floor = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(overlappedTile);
+                if(floor != null && floor.Type == FloorType.Pit) {
+                    pitCenterTotal += LevelManager.Instance.FloorGrid.GetCellCenterWorld(overlappedTile);
+                    pitCount++;
+                } else {
+                    landCenterTotal += LevelManager.Instance.FloorGrid.GetCellCenterWorld(overlappedTile);
+                    landCount++;
+                }
+            }
+
+            if(pitCount > 0) {
+                return (landCenterTotal / landCount - pitCenterTotal / pitCount).normalized;
+            }
         }
 
         // look ahead of the current movement to see if there is an upcoming obstacle
@@ -485,7 +490,7 @@ public class AIController : Controller
         foreach(Vector3Int overlappedTile in overlappedTiles) {
             WallTile wall = LevelManager.Instance.WallGrid.GetTile<WallTile>(overlappedTile);
             FloorTile floor = LevelManager.Instance.FloorGrid.GetTile<FloorTile>(overlappedTile);
-            if(wall != null || (!controlled.GetComponent<Enemy>().Floating && floor != null && floor.Type == FloorType.Pit)) {
+            if(wall != null || (checkPits && floor != null && floor.Type == FloorType.Pit)) {
                 overlappedObstacles.Add(overlappedTile);
             }
         }

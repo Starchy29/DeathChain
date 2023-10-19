@@ -142,4 +142,5 @@ MonoBehaviour:
   idleSprites: []
   walkSprites: []
   deathSprites: []
-  AttackPrefab: {fileID: 2175518405741954715, guid: 70ef091a0792e13448ad27be9b8cce97, type: 3}
+  StingerPrefab: {fileID: 6984622048613359354, guid: d711966c773e3d24c8cb967c56bd2417, type: 3}
+  MeleePrefab: {fileID: 2175518405741954715, guid: 70ef091a0792e13448ad27be9b8cce97, type: 3}
