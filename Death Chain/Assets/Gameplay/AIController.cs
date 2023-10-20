@@ -24,7 +24,6 @@ public class AIController : Controller
 
     private Vector2 currentDirection; // optional variable for movement modes that have certain paths
     private float travelTimer; // amount of time to travel in the current direction
-    private bool clockwise; // for patrol mvovement
     private float projectileAlertTime; // time when this has a target after being shot at
     private Vector3Int[] currentPath;
 
@@ -354,56 +353,40 @@ public class AIController : Controller
             case AIMode.Patrol:
                 if(currentDirection == Vector2.zero) {
                     currentDirection = new Vector2(0, -1);
-                }
-
-                // rotate the current direction
-                const float ROT_PER_SEC = Mathf.PI;
-                float rotationAmount = Time.deltaTime * ROT_PER_SEC * controlled.GetComponent<Enemy>().WalkSpeed / 4.0f; // turn more frequently if moving faster
-                float newAngle = Mathf.Atan2(currentDirection.y, currentDirection.x) + rotationAmount * (clockwise ? -1 : 1);
-                currentDirection = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle));
-
-                travelTimer -= rotationAmount;
-                if(travelTimer > 0) {
                     return;
                 }
 
-                // in this case the travelTimer represents the amount to turn
-                travelTimer = Random.Range(Mathf.PI / 4, Mathf.PI * 3/2);
-                clockwise = !clockwise;
-            
-                // make sure it turns around if at the edge of the area
-                if(IgnoreStart || Vector2.Distance(controlled.transform.position, startPosition) <= WANDER_RANGE * 0.5f) {
+                Vector2 toStart = (startPosition - (Vector2)controlled.transform.position).normalized;
+
+                // lock the direction to straight through the middle
+                if(Vector2.Dot(toStart, currentDirection) > 0.9f) {
+                    currentDirection = toStart;
                     return;
                 }
-
-                Vector2 towardStart = startPosition - (Vector2)controlled.transform.position;
-                float toStartAngle = Mathf.Atan2(towardStart.y, towardStart.x);
-
-                // shift so the goal is PI. Makes it simpler
-                float shift = Mathf.PI - toStartAngle;
-                float currentAngle = newAngle + shift;
-                if(currentAngle > 2*Mathf.PI) {
-                    currentAngle -= 2*Mathf.PI;
+                
+                // rotate back towards the start position
+                if(Vector2.Distance(startPosition, controlled.transform.position) < WANDER_RANGE - 2f) {
+                    return;
                 }
-                else if(currentAngle < 0) {
-                    currentAngle += 2*Mathf.PI;
-                }
-                float max = Mathf.PI + 70*Mathf.Deg2Rad;
-                float min = Mathf.PI - 70*Mathf.Deg2Rad;
-
-                if(clockwise) {
-                    if(currentAngle < min) {
-                        currentAngle += 2*Mathf.PI;
-                    }
-
-                    travelTimer = Random.Range(Mathf.Max(currentAngle - max, 0), currentAngle - min);
+                
+                bool clockwise = false;
+                float rotationAmount = 0f;
+                if((currentDirection + toStart).magnitude < 0.01f) {
+                    // randomly choose to rotate clockwise or counter
+                    clockwise = Random.value < 0.5f;
+                    rotationAmount = 0.1f;
                 } else {
-                    if(currentAngle > max) {
-                        currentAngle -= 2 * Mathf.PI;
-                    }
+                    // rotate in the direction which gets this back towards the center faster
+                    Vector2 clockwiseCheck = new Vector2(-toStart.y, toStart.x);
+                    clockwise = Vector2.Dot(clockwiseCheck, currentDirection) > 0;
 
-                    travelTimer = Random.Range(Mathf.Max(min - currentAngle, 0), max - currentAngle);
+                    const float ROT_PER_SEC = Mathf.PI;
+                    rotationAmount = Time.deltaTime * ROT_PER_SEC * controlled.GetComponent<Enemy>().WalkSpeed / 5.0f; // turn more if moving faster
                 }
+
+                float currentAngle = Mathf.Atan2(currentDirection.y, currentDirection.x);
+                float newAngle = currentAngle + rotationAmount * (clockwise ? -1 : 1);
+                currentDirection = new Vector2(Mathf.Cos(newAngle), Mathf.Sin(newAngle));
                 break;
 
             case AIMode.Chase:
