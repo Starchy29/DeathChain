@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : Controller
 {
     private const float DEAD_RADIUS = 0.2f;
-    private const float BUFFER_DURATION = 0.4f;
+    private const float BUFFER_DURATION = 0.2f;
     private int? controllerIndex;
     private bool usingKeyboard;
 
@@ -98,13 +98,13 @@ public class PlayerController : Controller
         if(controllerIndex.HasValue && controllerIndex < Gamepad.all.Count) {
             // check gamepad
             Gamepad controller = Gamepad.all[controllerIndex.Value];
-            if(controller.xButton.wasPressedThisFrame || controller.rightTrigger.wasPressedThisFrame) {
+            if(controller.xButton.isPressed || controller.rightTrigger.isPressed) {
                 return 0;
             }
-            if(controller.aButton.wasPressedThisFrame || controller.leftTrigger.wasPressedThisFrame) {
+            if(controller.aButton.isPressed || controller.leftTrigger.isPressed) {
                 return 1;
             }
-            if(controller.bButton.wasPressedThisFrame || controller.leftShoulder.wasPressedThisFrame) {
+            if(controller.bButton.isPressed || controller.leftShoulder.isPressed) {
                 return 2;
             }
 
@@ -113,13 +113,13 @@ public class PlayerController : Controller
 
         if(usingKeyboard) {
             // check keyboard
-            if(Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) {
+            if(Mouse.current != null && Mouse.current.leftButton.isPressed) {
                 return 0;
             }
-            if(Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame) {
+            if(Mouse.current != null && Mouse.current.rightButton.isPressed) {
                 return 1;
             }
-            if(Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) {
+            if(Keyboard.current != null && Keyboard.current.spaceKey.isPressed) {
                 return 2;
             }
         }

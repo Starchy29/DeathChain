@@ -116,10 +116,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 2
-  knockback: 3
+  knockback: 5
   effect: 0
   effectDuration: 0
-  speed: 10
+  speed: 12
   range: 10
   destroyParticle: {fileID: 0}
 --- !u!50 &8598561033502725236

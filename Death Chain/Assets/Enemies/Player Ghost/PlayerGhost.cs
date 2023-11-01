@@ -12,8 +12,8 @@ public class PlayerGhost : Enemy
     private Animation slashAnimation;
     private Animation shootAnimation;
 
-    private const float SLASH_CD = 0.6f;
-    private const float SHOOT_CD = 1.0f;
+    private const float SLASH_CD = 0.5f;
+    private const float SHOOT_CD = 0.7f;
 
     public GameObject SlashPrefab;
     private GameObject currentSlash; // null means not currently slashing
@@ -47,12 +47,12 @@ public class PlayerGhost : Enemy
         if(UseAbility(0)) { // slash
             cooldowns[0] = SLASH_CD;
             currentSlash = CreateAbility(SlashPrefab, true);
-            ApplyEndlag(0.3f, 2.0f);
+            ApplyEndlag(0.2f, 2.0f);
             StartAnimation(slashAnimation);
         }
         else if(UseAbility(1)) { // shoot
             cooldowns[1] = SHOOT_CD;
-            ApplyEndlag(0.3f, 2.0f);
+            ApplyEndlag(0.2f, 3.0f);
             CreateAbility(ShotPrefab, true).transform.position += new Vector3(0, 0.3f, 0);
             StartAnimation(shootAnimation);
         }

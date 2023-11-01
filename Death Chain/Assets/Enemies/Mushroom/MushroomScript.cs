@@ -8,7 +8,7 @@ public class MushroomScript : Enemy
     [SerializeField] private Sprite[] teleportSprites;
     [SerializeField] private GameObject sporePrefab;
     [SerializeField] private GameObject selectorPrefab;
-    private const float SHOOT_CD = 1.2f;
+    private const float SHOOT_CD = 1.0f;
     private const float WARP_CD = 3.0f;
 
     private Animation shootAnimation;

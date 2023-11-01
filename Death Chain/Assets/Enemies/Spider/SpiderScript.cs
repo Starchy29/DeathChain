@@ -13,7 +13,7 @@ public class SpiderScript : Enemy
     private const float CHARGE_RATE = 15.0f;
     private const float MAX_CHARGE = 20.0f;
     private const float CHARGE_WALK_SPEED = 2.0f;
-    private const int MAX_SHOT_DAMAGE = 3;
+    private const int MAX_SHOT_DAMAGE = 4;
 
     private Animation lobAnimation;
     private Animation pullAnimation;

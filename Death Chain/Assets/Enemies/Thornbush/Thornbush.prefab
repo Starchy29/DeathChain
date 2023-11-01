@@ -136,9 +136,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e09e178d014019429e18f4355a80ab4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseHealth: 8
+  BaseHealth: 12
   BaseSpeed: 5
-  difficulty: 0
+  difficulty: 2
   idleSprites: []
   walkSprites: []
   deathSprites: []

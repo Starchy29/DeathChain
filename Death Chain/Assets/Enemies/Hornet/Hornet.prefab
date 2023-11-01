@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BaseHealth: 8
-  BaseSpeed: 5
+  BaseSpeed: 6
   difficulty: 0
   idleSprites: []
   walkSprites: []

@@ -136,8 +136,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2abb75af46a48a4eb008612b8b993e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseHealth: 8
-  BaseSpeed: 4
+  BaseHealth: 14
+  BaseSpeed: 4.5
   difficulty: 2
   idleSprites:
   - {fileID: 21300000, guid: 5ed9d22d5029fd44fa1d75a7b8955270, type: 3}

@@ -25,7 +25,7 @@ public class BlightScript : Enemy
             cooldowns[0] = BLAST_CD;
             StartAnimation(attackAnimation);
             CreateAbility(BlastPrefab);
-            ApplyEndlag(0.3f, 4.0f);
+            ApplyEndlag(0.3f, 3.0f);
         }
     }
 

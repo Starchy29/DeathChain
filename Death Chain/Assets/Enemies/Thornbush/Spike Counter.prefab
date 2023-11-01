@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 3
-  knockback: 6
+  knockback: 12
   effect: 0
   effectDuration: 0
   colliderDuration: 0.3

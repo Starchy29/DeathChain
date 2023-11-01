@@ -18,7 +18,7 @@ public class BeastScript : Enemy
         controller = new AIController(gameObject, AIMode.Chase, AIMode.Wander, 5.0f);
 
         idleAnimation = new Animation(idleSprites, AnimationType.Oscillate, 0.5f);
-        walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
+        //walkAnimation = new Animation(walkSprites, AnimationType.Loop, 0.8f);
     }
 
     protected override void UpdateAbilities() {
@@ -104,7 +104,7 @@ public class BeastScript : Enemy
         // deal damage if this hit an enemy
         Enemy hitEnemy = collision.gameObject.GetComponent<Enemy>();
         if(hitEnemy != null && hitEnemy.IsAlly != isAlly) {
-            hitEnemy.TakeDamage(5);
+            hitEnemy.TakeDamage(7);
             Vector2 pushDir = (hitEnemy.transform.position - transform.position).normalized;
             hitEnemy.Push(18.0f * pushDir);
             return;

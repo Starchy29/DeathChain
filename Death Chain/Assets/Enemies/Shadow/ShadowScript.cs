@@ -17,6 +17,7 @@ public class ShadowScript : Enemy
     private GameObject currentSlash; // null means not currently slashing
     private const float DASH_CD = 1.0f;
     private bool firstSlash; // false: second slash
+    private bool firstDash; // false: second dash
 
     protected override void ChildStart()
     {
@@ -30,6 +31,7 @@ public class ShadowScript : Enemy
         slash2Animation = new Animation(slash2Sprites, AnimationType.Forward, 0.25f);
 
         firstSlash = true;
+        firstDash = true;
     }
 
     protected override void UpdateAbilities() {
@@ -42,7 +44,7 @@ public class ShadowScript : Enemy
 
             if(firstSlash) {
                 StartAnimation(slash1Animation);
-                cooldowns[0] = 0.2f; // cooldown between 2-slash combo
+                cooldowns[0] = 0.21f; // cooldown between 2-slash combo
                 ApplyEndlag(0.2f, 2.0f);
                 firstSlash = false;
                 Timer.CreateTimer(gameObject, 0.4f, false, () => { firstSlash = true; });
@@ -56,7 +58,15 @@ public class ShadowScript : Enemy
 
         }
         else if(UseAbility(1)) { // dash
-            cooldowns[1] = DASH_CD;
+            if(firstDash) {
+                firstDash = false;
+                cooldowns[1] = 0.3f;
+                Timer.CreateTimer(gameObject, 0.7f, false, () => { firstDash = true; });
+            } else {
+                cooldowns[1] = DASH_CD;
+                firstDash = true;
+            }
+
             Vector2 direction = controller.GetMoveDirection();
             if(direction == Vector2.zero) {
                 direction = controller.GetAimDirection();
