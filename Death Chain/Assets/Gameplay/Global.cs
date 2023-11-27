@@ -21,6 +21,8 @@ public struct Circle {
     }
 }
 
+delegate void VoidFunc();
+
 // a class for utility code that belongs nowhere else
 public static class Global
 {
