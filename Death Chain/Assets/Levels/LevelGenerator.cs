@@ -8,13 +8,14 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] private GameObject[] LeftRightOpenZones; // straight halls
     [SerializeField] private GameObject[] DownRightOpenZones; // L bends
     [SerializeField] private GameObject[] DownLeftRightOpenZones; // T junctions
+    [SerializeField] private GameObject[] WallZones;
 
     private LevelManager managerInstance;
     private ZoneType[] zoneTypes;
     private ZoneType[,] zoneGrid;
 
-    private const int LENGTH = 10;
-    private const int WIDTH = 5;
+    private const int LENGTH = 20;
+    private const int WIDTH = 10;
 
     void Start() {
         managerInstance = LevelManager.Instance;
@@ -32,16 +33,15 @@ public class LevelGenerator : MonoBehaviour
         int col = Random.Range(0, WIDTH);
         while(row > -1) {
             // choose a zone that can go on the current spot
-            List<ZoneType> options = DetermineOptions(row, col);
-            zoneGrid[row, col] = options[Random.Range(0, options.Count)];
+            zoneGrid[row, col] = ChooseZone(DetermineOptions(row, col));
             emptySpots--;
 
             // choose a direction to move
             List<Vector2Int> directions = new List<Vector2Int>();
-            if(zoneGrid[row, col].left && col > 0 && !zoneGrid[row, col - 1].walkable) {
+            if(zoneGrid[row, col].left && col > 0 && !zoneGrid[row, col - 1].placed) {
                 directions.Add(Vector2Int.left);
             }
-            if(zoneGrid[row, col].right && col < WIDTH - 1 && !zoneGrid[row, col + 1].walkable) {
+            if(zoneGrid[row, col].right && col < WIDTH - 1 && !zoneGrid[row, col + 1].placed) {
                 directions.Add(Vector2Int.right);
             }
             if(zoneGrid[row, col].up) {
@@ -59,6 +59,25 @@ public class LevelGenerator : MonoBehaviour
             col += direction.x;
         }
 
+        // fill in walls in spots not adjacent to the main path
+        ZoneType solidWall = new ZoneType { placed = true, up = false, down = false, left = false, right = false };
+        for(row = 0; row < LENGTH; row++) {
+            for(col = 0; col < WIDTH; col++) {
+                if(zoneGrid[row, col].placed) {
+                    col++; // skip the next tile because it can't be valid
+                    continue;
+                }
+
+                bool upZone = row + 1 <= LENGTH - 1 && zoneGrid[row + 1, col].placed && zoneGrid[row + 1, col] != solidWall;
+                bool downZone = row - 1 >= 0 && zoneGrid[row - 1, col].placed && zoneGrid[row - 1, col] != solidWall;
+                bool rightZone = col + 1 <= WIDTH - 1 && zoneGrid[row, col + 1].placed && zoneGrid[row, col + 1] != solidWall;
+                bool leftZone = col - 1 >= 0 && zoneGrid[row, col - 1].placed && zoneGrid[row, col - 1] != solidWall;
+                if(!upZone && !downZone && !leftZone && !rightZone) {
+                    zoneGrid[row, col] = solidWall;
+                }
+            }
+        }
+
         // use wave function collapse to grow off of the main path
         while(emptySpots > 0) {
             List<Vector2Int> candidiates = new List<Vector2Int>();
@@ -67,14 +86,11 @@ public class LevelGenerator : MonoBehaviour
             // find which unplaced tiles next to an existing tile have the least possible options
             for(row = 0; row < LENGTH; row++) {
                 for(col = 0; col < WIDTH; col++) {
-                    if(zoneGrid[row, col].walkable || !HasAdjacentZone(row, col)) {
+                    if(zoneGrid[row, col].placed) {
                         continue;
                     }
 
                     List<ZoneType> options = DetermineOptions(row, col);
-                    if(options.Count == 0) {
-                        continue;
-                    }
 
                     if(options.Count < leastOptions) {
                         candidiates.Clear();
@@ -93,8 +109,12 @@ public class LevelGenerator : MonoBehaviour
 
             // place a random tile in the chosen spot
             Vector2Int chosenSpot = candidiates[Random.Range(0, candidiates.Count)];
-            List<ZoneType> chosenOptions = DetermineOptions(chosenSpot.x, chosenSpot.y);
-            zoneGrid[chosenSpot.x, chosenSpot.y] = chosenOptions[Random.Range(0, chosenOptions.Count)];
+            List<ZoneType> zoneOptions = DetermineOptions(chosenSpot.x, chosenSpot.y);
+            if(zoneOptions.Count > 0) {
+                zoneGrid[chosenSpot.x, chosenSpot.y] = ChooseZone(zoneOptions);
+            } else {
+                zoneGrid[chosenSpot.x, chosenSpot.y] = solidWall;
+            }
         }
     }
 
@@ -103,7 +123,7 @@ public class LevelGenerator : MonoBehaviour
 
         for(int row = 0; row < LENGTH; row++) {
             for(int col = 0; col < WIDTH; col++) {
-                if(!zoneGrid[row, col].walkable) {
+                if(!zoneGrid[row, col].placed) {
                     continue;
                 }
 
@@ -127,6 +147,10 @@ public class LevelGenerator : MonoBehaviour
                     case ZoneShape.T_Junction:
                         prefabList = DownLeftRightOpenZones;
                         break;
+
+                    case ZoneShape.Wall:
+                        prefabList = WallZones;
+                        break;
                 }
 
                 GameObject addedZone = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
@@ -148,45 +172,57 @@ public class LevelGenerator : MonoBehaviour
     }
 
     private bool IsValidZone(ZoneType zone, int row, int col) {
-        bool leftValid = col - 1 < 0 || !zoneGrid[row, col - 1].walkable || (zone.left == zoneGrid[row, col - 1].right);
-        bool rightValid = col + 1 > WIDTH - 1 || !zoneGrid[row, col + 1].walkable || (zone.right == zoneGrid[row, col + 1].left);
-        bool upValid = row - 1 < 0 || !zoneGrid[row - 1, col].walkable || (zone.up == zoneGrid[row - 1, col].down);
-        bool downValid = row + 1 > LENGTH - 1 || !zoneGrid[row + 1, col].walkable || (zone.down == zoneGrid[row + 1, col].up);
+        bool leftValid = col - 1 < 0 || !zoneGrid[row, col - 1].placed || (zone.left == zoneGrid[row, col - 1].right);
+        bool rightValid = col + 1 > WIDTH - 1 || !zoneGrid[row, col + 1].placed || (zone.right == zoneGrid[row, col + 1].left);
+        bool upValid = row - 1 < 0 || !zoneGrid[row - 1, col].placed || (zone.up == zoneGrid[row - 1, col].down);
+        bool downValid = row + 1 > LENGTH - 1 || !zoneGrid[row + 1, col].placed || (zone.down == zoneGrid[row + 1, col].up);
         return upValid && downValid && leftValid && rightValid;
     }
 
-    private bool HasAdjacentZone(int row, int col) {
-        return row - 1 >= 0 && zoneGrid[row - 1, col].walkable ||
-            row + 1 <= LENGTH - 1 && zoneGrid[row + 1, col].walkable ||
-            col - 1 >= 0 && zoneGrid[row, col - 1].walkable ||
-            col + 1 <= WIDTH - 1 && zoneGrid[row, col + 1].walkable;
+    private ZoneType ChooseZone(List<ZoneType> options) {
+        int[] weights = new int[options.Count];
+        int totalWeight = 0;
+        for(int i = 0; i < weights.Length; i++) {
+            int weight = options[i].OpeningCount - 1;
+            weights[i] = weight;
+            totalWeight += weight;
+        }
+
+        int randomChosen = Random.Range(1, totalWeight);
+        int currentIndex = -1;
+        while(randomChosen > 0) {
+            currentIndex++;
+            randomChosen -= weights[currentIndex];
+        }
+
+        return options[currentIndex];
     }
 
     private void SetupZoneTypes() {
         zoneTypes = new ZoneType[11] {
-            new ZoneType { walkable = true, up = true, down = true, left = true, right = true }, // + cross
+            new ZoneType { placed = true, up = true, down = true, left = true, right = true }, // + cross
 
             // straight halls
-            new ZoneType { walkable = true, up = true, down = true, left = false, right = false },
-            new ZoneType { walkable = true, up = false, down = false, left = true, right = true },
+            new ZoneType { placed = true, up = true, down = true, left = false, right = false },
+            new ZoneType { placed = true, up = false, down = false, left = true, right = true },
 
             // L bends
-            new ZoneType { walkable = true, up = true, down = false, left = true, right = false },
-            new ZoneType { walkable = true, up = false, down = true, left = true, right = false },
-            new ZoneType { walkable = true, up = false, down = true, left = false, right = true },
-            new ZoneType { walkable = true, up = true, down = false, left = false, right = true },
+            new ZoneType { placed = true, up = true, down = false, left = true, right = false },
+            new ZoneType { placed = true, up = false, down = true, left = true, right = false },
+            new ZoneType { placed = true, up = false, down = true, left = false, right = true },
+            new ZoneType { placed = true, up = true, down = false, left = false, right = true },
 
             // T junctions
-            new ZoneType { walkable = true, up = false, down = true, left = true, right = true },
-            new ZoneType { walkable = true, up = true, down = false, left = true, right = true },
-            new ZoneType { walkable = true, up = true, down = true, left = false, right = true },
-            new ZoneType { walkable = true, up = true, down = true, left = true, right = false }
+            new ZoneType { placed = true, up = false, down = true, left = true, right = true },
+            new ZoneType { placed = true, up = true, down = false, left = true, right = true },
+            new ZoneType { placed = true, up = true, down = true, left = false, right = true },
+            new ZoneType { placed = true, up = true, down = true, left = true, right = false }
         };
     }
 }
 
 struct ZoneType {
-    public bool walkable; // whether or not it is an open area for gameplay
+    public bool placed; // whether or not this spot in the grid has had a zone type chosen yet
 
     // define which directions are open for a connection
     public bool up;
@@ -198,6 +234,10 @@ struct ZoneType {
 
     public ZoneShape DetermineShape() {
         int openings = OpeningCount;
+
+        if(openings == 0) {
+            return ZoneShape.Wall;
+        }
 
         if(openings == 4) {
             return ZoneShape.Plus;
@@ -249,11 +289,20 @@ struct ZoneType {
 
         return 0;
     }
+
+    public static bool operator==(ZoneType left, ZoneType right) {
+        return left.placed == right.placed && left.up == right.up && left.down == right.down && left.left == right.left && left.right == right.right;
+    }
+
+    public static bool operator!=(ZoneType left, ZoneType right) {
+        return !(left == right);
+    }
 }
 
 enum ZoneShape {
     Plus,
     L_Bend,
     StraightHall,
-    T_Junction
+    T_Junction,
+    Wall
 }
