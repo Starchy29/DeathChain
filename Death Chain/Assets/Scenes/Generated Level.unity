@@ -158,7 +158,7 @@ MonoBehaviour:
   - {fileID: 4210596329168275139, guid: c145adb867a2f594c8d1afdf933a3381, type: 3}
   DownRightOpenZones:
   - {fileID: 6246526137895107285, guid: 42ca358693ed4814e8179cdcc6815016, type: 3}
-  DownLeftRightOpenZones:
+  TopClosedZones:
   - {fileID: 5507266222863667408, guid: be88863c1e89aa0488508d7ada6b7477, type: 3}
   WallZones:
   - {fileID: 4297119449949098544, guid: 00d29075372999b4c90be2f93f9ed658, type: 3}

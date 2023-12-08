@@ -7,7 +7,7 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] private GameObject[] AllOpenZones;
     [SerializeField] private GameObject[] LeftRightOpenZones; // straight halls
     [SerializeField] private GameObject[] DownRightOpenZones; // L bends
-    [SerializeField] private GameObject[] DownLeftRightOpenZones; // T junctions
+    [SerializeField] private GameObject[] TopClosedZones; // T junctions
     [SerializeField] private GameObject[] WallZones;
 
     private LevelManager managerInstance;
@@ -19,7 +19,27 @@ public class LevelGenerator : MonoBehaviour
 
     void Start() {
         managerInstance = LevelManager.Instance;
-        SetupZoneTypes();
+
+        zoneTypes = new ZoneType[11] {
+            new ZoneType { placed = true, up = true, down = true, left = true, right = true }, // + cross
+
+            // straight halls
+            new ZoneType { placed = true, up = true, down = true, left = false, right = false },
+            new ZoneType { placed = true, up = false, down = false, left = true, right = true },
+
+            // L bends
+            new ZoneType { placed = true, up = true, down = false, left = true, right = false },
+            new ZoneType { placed = true, up = false, down = true, left = true, right = false },
+            new ZoneType { placed = true, up = false, down = true, left = false, right = true },
+            new ZoneType { placed = true, up = true, down = false, left = false, right = true },
+
+            // T junctions
+            new ZoneType { placed = true, up = false, down = true, left = true, right = true },
+            new ZoneType { placed = true, up = true, down = false, left = true, right = true },
+            new ZoneType { placed = true, up = true, down = true, left = false, right = true },
+            new ZoneType { placed = true, up = true, down = true, left = true, right = false }
+        };
+
         GenerateLayout();
         SpawnZones();
     }
@@ -74,6 +94,7 @@ public class LevelGenerator : MonoBehaviour
                 bool leftZone = col - 1 >= 0 && zoneGrid[row, col - 1].placed && zoneGrid[row, col - 1] != solidWall;
                 if(!upZone && !downZone && !leftZone && !rightZone) {
                     zoneGrid[row, col] = solidWall;
+                    emptySpots--;
                 }
             }
         }
@@ -115,47 +136,34 @@ public class LevelGenerator : MonoBehaviour
             } else {
                 zoneGrid[chosenSpot.x, chosenSpot.y] = solidWall;
             }
+            emptySpots--;
         }
     }
 
     private void SpawnZones() {
-        int tempWidth = 2;
+        const int ZONE_WIDTH = 10; // number of tiles wide and tall
+        const float TILE_WIDTH = 1.5f; // world space width of 1 tile
+        Dictionary<ZoneShape, GameObject[]> shapeToPrefabList = new Dictionary<ZoneShape, GameObject[]> {
+            { ZoneShape.Plus, AllOpenZones },
+            { ZoneShape.L_Bend, DownRightOpenZones },
+            { ZoneShape.StraightHall, LeftRightOpenZones },
+            { ZoneShape.T_Junction, TopClosedZones },
+            { ZoneShape.Wall, WallZones }
+        };
 
         for(int row = 0; row < LENGTH; row++) {
             for(int col = 0; col < WIDTH; col++) {
-                if(!zoneGrid[row, col].placed) {
-                    continue;
-                }
-
-                // TEMP PRINT INFO
-                Debug.Log($"({col * tempWidth},{(LENGTH - 1 - row) * tempWidth}), up: {zoneGrid[row, col].up}, down: {zoneGrid[row, col].down}, left: {zoneGrid[row, col].left}, right: {zoneGrid[row, col].right}");
-
-                GameObject[] prefabList = AllOpenZones;
-                switch(zoneGrid[row, col].DetermineShape()) {
-                    case ZoneShape.Plus:
-                        prefabList = AllOpenZones;
-                        break;
-
-                    case ZoneShape.L_Bend:
-                        prefabList = DownRightOpenZones;
-                        break;
-
-                    case ZoneShape.StraightHall:
-                        prefabList = LeftRightOpenZones;
-                        break;
-
-                    case ZoneShape.T_Junction:
-                        prefabList = DownLeftRightOpenZones;
-                        break;
-
-                    case ZoneShape.Wall:
-                        prefabList = WallZones;
-                        break;
-                }
-
+                GameObject[] prefabList = shapeToPrefabList[zoneGrid[row, col].DetermineShape()];
                 GameObject addedZone = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
-                addedZone.transform.position = new Vector3(col * tempWidth, (LENGTH-1 - row) * tempWidth);
+
+                // move to the correct position and orientation
+                addedZone.transform.position = new Vector3(col * ZONE_WIDTH * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_WIDTH * TILE_WIDTH, 0);
+
+                // copy the tiles into the main tilemap
+                // (test world positions from each tilemap)
                 addedZone.transform.rotation = Quaternion.Euler(0, 0, zoneGrid[row, col].DetermineRotation());
+
+                // unpack child game objects and delete the container
             }
         }
     }
@@ -196,28 +204,6 @@ public class LevelGenerator : MonoBehaviour
         }
 
         return options[currentIndex];
-    }
-
-    private void SetupZoneTypes() {
-        zoneTypes = new ZoneType[11] {
-            new ZoneType { placed = true, up = true, down = true, left = true, right = true }, // + cross
-
-            // straight halls
-            new ZoneType { placed = true, up = true, down = true, left = false, right = false },
-            new ZoneType { placed = true, up = false, down = false, left = true, right = true },
-
-            // L bends
-            new ZoneType { placed = true, up = true, down = false, left = true, right = false },
-            new ZoneType { placed = true, up = false, down = true, left = true, right = false },
-            new ZoneType { placed = true, up = false, down = true, left = false, right = true },
-            new ZoneType { placed = true, up = true, down = false, left = false, right = true },
-
-            // T junctions
-            new ZoneType { placed = true, up = false, down = true, left = true, right = true },
-            new ZoneType { placed = true, up = true, down = false, left = true, right = true },
-            new ZoneType { placed = true, up = true, down = true, left = false, right = true },
-            new ZoneType { placed = true, up = true, down = true, left = true, right = false }
-        };
     }
 }
 
