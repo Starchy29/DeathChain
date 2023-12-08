@@ -72,7 +72,9 @@ public abstract class Enemy : MonoBehaviour
 
     void Start()
     {
-        statuses = new Statuses(gameObject);
+        if(statuses == null) {
+            statuses = new Statuses(gameObject);
+        }
         health = BaseHealth;
         maxSpeed = BaseSpeed;
         startSize = transform.localScale.x;
@@ -326,6 +328,10 @@ public abstract class Enemy : MonoBehaviour
     public void ApplyStatus(Status effect, float duration = 60 * 60) {
         if(invincible && effect == Status.Poison) {
             return;
+        }
+
+        if(statuses == null) {
+            statuses = new Statuses(gameObject);
         }
         
         statuses.Add(effect, duration);

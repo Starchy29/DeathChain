@@ -5,7 +5,6 @@ using UnityEngine;
 // spawns one of the enemies in the list on start
 public class SpawnSpot : MonoBehaviour
 {
-    [SerializeField] private int difficulty; // must match values in Enemy.cs
     [SerializeField] private List<GameObject> enemyOptions;
     [SerializeField] private bool miniboss;
 
