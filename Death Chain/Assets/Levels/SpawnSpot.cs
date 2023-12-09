@@ -20,7 +20,7 @@ public class SpawnSpot : MonoBehaviour
         if(miniboss) {
             spawned.GetComponent<Enemy>().BecomeMiniboss();
         }
-        else if(Random.value <= 0.1f) {
+        else if(Random.value <= 0.05f) {
             // chance to have a status boost
             spawned.GetComponent<Enemy>().ApplyStatus(boosts[Random.Range(0, boosts.Length)]);
         }

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LevelGenerator : MonoBehaviour
 {
+    [SerializeField] private GameObject EndGateZone;
+    [SerializeField] private GameObject StartingZone;
     [SerializeField] private GameObject[] AllOpenZones;
     [SerializeField] private GameObject[] LeftRightOpenZones; // straight halls
     [SerializeField] private GameObject[] DownRightOpenZones; // L bends
@@ -13,9 +15,11 @@ public class LevelGenerator : MonoBehaviour
     private LevelManager managerInstance;
     private ZoneType[] zoneTypes;
     private ZoneType[,] zoneGrid;
+    private Vector2Int startZone;
+    private Vector2Int endZone;
 
-    private const int LENGTH = 20;
-    private const int WIDTH = 10;
+    private const int LENGTH = 14;
+    private const int WIDTH = 8;
 
     void Start() {
         managerInstance = LevelManager.Instance;
@@ -51,6 +55,7 @@ public class LevelGenerator : MonoBehaviour
         // construct main path
         int row = LENGTH - 1;
         int col = Random.Range(0, WIDTH);
+        startZone = new Vector2Int(row, col);
         while(row > -1) {
             // choose a zone that can go on the current spot
             zoneGrid[row, col] = ChooseZone(DetermineOptions(row, col));
@@ -79,6 +84,10 @@ public class LevelGenerator : MonoBehaviour
             col += direction.x;
         }
 
+        endZone = new Vector2Int(row, col);
+        zoneGrid[startZone.x, startZone.y].down = true; // make sure starting zone can connect down
+        zoneGrid[endZone.x + 1, endZone.y].up = true; // make sure ending zone can connect up
+
         // fill in walls in spots not adjacent to the main path
         ZoneType solidWall = new ZoneType { placed = true, up = false, down = false, left = false, right = false };
         for(row = 0; row < LENGTH; row++) {
@@ -88,11 +97,7 @@ public class LevelGenerator : MonoBehaviour
                     continue;
                 }
 
-                bool upZone = row + 1 <= LENGTH - 1 && zoneGrid[row + 1, col].placed && zoneGrid[row + 1, col] != solidWall;
-                bool downZone = row - 1 >= 0 && zoneGrid[row - 1, col].placed && zoneGrid[row - 1, col] != solidWall;
-                bool rightZone = col + 1 <= WIDTH - 1 && zoneGrid[row, col + 1].placed && zoneGrid[row, col + 1] != solidWall;
-                bool leftZone = col - 1 >= 0 && zoneGrid[row, col - 1].placed && zoneGrid[row, col - 1] != solidWall;
-                if(!upZone && !downZone && !leftZone && !rightZone) {
+                if(!HasAdjacentPlayZone(row, col)) {
                     zoneGrid[row, col] = solidWall;
                     emptySpots--;
                 }
@@ -151,9 +156,23 @@ public class LevelGenerator : MonoBehaviour
             { ZoneShape.Wall, WallZones }
         };
 
-        for(int row = 0; row < LENGTH; row++) {
-            for(int col = 0; col < WIDTH; col++) {
-                GameObject[] prefabList = shapeToPrefabList[zoneGrid[row, col].DetermineShape()];
+        for(int row = -1; row <= LENGTH; row++) {
+            for(int col = -1; col <= WIDTH; col++) {
+                ZoneShape shape;
+                float rotation;
+                if(row == -1 || col == -1 || row == LENGTH || col == WIDTH) {
+                    shape = ZoneShape.Wall;
+                    rotation = 0;
+                } else {
+                    shape = zoneGrid[row, col].DetermineShape();
+                    rotation = zoneGrid[row, col].DetermineRotation();
+                }
+  
+                if(shape == ZoneShape.Wall && !HasAdjacentPlayZone(row, col)) {
+                    continue;
+                }
+
+                GameObject[] prefabList = shapeToPrefabList[shape];
                 GameObject addedZone = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
 
                 // move to the correct position and orientation
@@ -161,11 +180,26 @@ public class LevelGenerator : MonoBehaviour
 
                 // copy the tiles into the main tilemap
                 // (test world positions from each tilemap)
-                addedZone.transform.rotation = Quaternion.Euler(0, 0, zoneGrid[row, col].DetermineRotation());
+                addedZone.transform.rotation = Quaternion.Euler(0, 0, rotation);
 
                 // unpack child game objects and delete the container
             }
         }
+
+        // place the start and end points
+    }
+
+    // determines if any orthogonally adjacent tiles are part of the level the player walks through
+    private bool HasAdjacentPlayZone(int row, int col) {
+        bool upZone = IsInGrid(row + 1, col) && zoneGrid[row + 1, col].placed && zoneGrid[row + 1, col].OpeningCount > 0;
+        bool downZone = IsInGrid(row - 1, col) && zoneGrid[row - 1, col].placed && zoneGrid[row - 1, col].OpeningCount > 0;
+        bool rightZone = IsInGrid(row, col + 1) && zoneGrid[row, col + 1].placed && zoneGrid[row, col + 1].OpeningCount > 0;
+        bool leftZone = IsInGrid(row, col - 1) && zoneGrid[row, col - 1].placed && zoneGrid[row, col - 1].OpeningCount > 0;
+        return upZone || downZone || leftZone || rightZone;
+    }
+
+    private bool IsInGrid(int row, int col) {
+        return row >= 0 && row < LENGTH && col >= 0 && col < WIDTH;
     }
 
     private List<ZoneType> DetermineOptions(int row, int col) {
@@ -274,14 +308,6 @@ struct ZoneType {
         }
 
         return 0;
-    }
-
-    public static bool operator==(ZoneType left, ZoneType right) {
-        return left.placed == right.placed && left.up == right.up && left.down == right.down && left.left == right.left && left.right == right.right;
-    }
-
-    public static bool operator!=(ZoneType left, ZoneType right) {
-        return !(left == right);
     }
 }
 
