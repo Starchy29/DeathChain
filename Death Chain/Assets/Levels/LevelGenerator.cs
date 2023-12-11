@@ -89,6 +89,7 @@ public class LevelGenerator : MonoBehaviour
         endZone = new Vector2Int(row, col);
         zoneGrid[startZone.x, startZone.y].down = true; // make sure starting zone can connect down
         zoneGrid[endZone.x + 1, endZone.y].up = true; // make sure ending zone can connect up
+        startZone.x++; // move one tile below the grid
 
         // fill in walls in spots not adjacent to the main path
         ZoneType solidWall = new ZoneType { placed = true, up = false, down = false, left = false, right = false };
@@ -175,10 +176,21 @@ public class LevelGenerator : MonoBehaviour
                 }
 
                 GameObject[] prefabList = shapeToPrefabList[shape];
-                GameObject addedZone = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
+
+                Vector3 zoneMiddle = new Vector3(col * ZONE_WIDTH * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_WIDTH * TILE_WIDTH, 0);
+                GameObject addedZone;
+                if(row == startZone.x && col == startZone.y) {
+                    addedZone = Instantiate(StartingZone);
+                    PlayerScript.Instance.PlayerEntity.transform.position = zoneMiddle;
+                }
+                else if(row == endZone.x && col == endZone.y) {
+                    addedZone = Instantiate(EndGateZone);
+                }
+                else {
+                    addedZone = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
+                }
 
                 // move to the correct position and orientation, add random flips
-                Vector3 zoneMiddle = new Vector3(col * ZONE_WIDTH * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_WIDTH * TILE_WIDTH, 0);
                 addedZone.transform.position = zoneMiddle;
                 addedZone.transform.rotation = Quaternion.Euler(0, 0, rotation);
 
@@ -203,6 +215,7 @@ public class LevelGenerator : MonoBehaviour
                         spawner.Spawn();
                     } else {
                         addedZone.transform.GetChild(i).SetParent(null);
+                        i--;
                     }
                 }
                 Destroy(addedZone);
