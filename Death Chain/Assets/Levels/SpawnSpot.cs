@@ -10,8 +10,7 @@ public class SpawnSpot : MonoBehaviour
 
     private static Status[] boosts = new Status[4] { Status.Speed, Status.Energy, Status.Strength, Status.Resistance };
 
-    void Start()
-    {
+    public void Spawn() {
         // choose a valid enemy type
         GameObject spawned = Instantiate(enemyOptions[Random.Range(0, enemyOptions.Count)]);
         spawned.transform.position = transform.position;

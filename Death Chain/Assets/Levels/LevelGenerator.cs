@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class LevelGenerator : MonoBehaviour
 {
@@ -18,8 +19,8 @@ public class LevelGenerator : MonoBehaviour
     private Vector2Int startZone;
     private Vector2Int endZone;
 
-    private const int LENGTH = 14;
-    private const int WIDTH = 8;
+    private const int LENGTH = 10;
+    private const int WIDTH = 6;
 
     void Start() {
         managerInstance = LevelManager.Instance;
@@ -46,6 +47,7 @@ public class LevelGenerator : MonoBehaviour
 
         GenerateLayout();
         SpawnZones();
+        managerInstance.OnGenerationComplete();
     }
 
     private void GenerateLayout() {
@@ -175,14 +177,35 @@ public class LevelGenerator : MonoBehaviour
                 GameObject[] prefabList = shapeToPrefabList[shape];
                 GameObject addedZone = Instantiate(prefabList[Random.Range(0, prefabList.Length)]);
 
-                // move to the correct position and orientation
-                addedZone.transform.position = new Vector3(col * ZONE_WIDTH * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_WIDTH * TILE_WIDTH, 0);
-
-                // copy the tiles into the main tilemap
-                // (test world positions from each tilemap)
+                // move to the correct position and orientation, add random flips
+                Vector3 zoneMiddle = new Vector3(col * ZONE_WIDTH * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_WIDTH * TILE_WIDTH, 0);
+                addedZone.transform.position = zoneMiddle;
                 addedZone.transform.rotation = Quaternion.Euler(0, 0, rotation);
 
+                // copy the tiles into the main tilemap by testing world positions
+                Tilemap wallGrid = addedZone.transform.GetChild(0).GetChild(0).GetComponent<Tilemap>(); // assumes wall comes before floor in prefab
+                Tilemap floorGrid = addedZone.transform.GetChild(0).GetChild(1).GetComponent<Tilemap>();
+                for(float x = -ZONE_WIDTH / 2f; x < ZONE_WIDTH / 2f; x++) {
+                    for(float y = -ZONE_WIDTH / 2f; y < ZONE_WIDTH / 2f; y++) {
+                        Vector3 worldPos = new Vector3(zoneMiddle.x + x * TILE_WIDTH + TILE_WIDTH / 2f, zoneMiddle.y + y * TILE_WIDTH + TILE_WIDTH / 2f, 0);
+                        TileBase genWall = wallGrid.GetTile(wallGrid.WorldToCell(worldPos));
+                        TileBase genFloor = floorGrid.GetTile(floorGrid.WorldToCell(worldPos));
+
+                        managerInstance.WallGrid.SetTile(managerInstance.WallGrid.WorldToCell(worldPos), genWall);
+                        managerInstance.FloorGrid.SetTile(managerInstance.FloorGrid.WorldToCell(worldPos), genFloor);
+                    }
+                }
+
                 // unpack child game objects and delete the container
+                for(int i = 1; i < addedZone.transform.childCount; i++) {
+                    SpawnSpot spawner = addedZone.transform.GetChild(i).GetComponent<SpawnSpot>();
+                    if(spawner != null) {
+                        spawner.Spawn();
+                    } else {
+                        addedZone.transform.GetChild(i).SetParent(null);
+                    }
+                }
+                Destroy(addedZone);
             }
         }
 

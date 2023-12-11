@@ -27,6 +27,30 @@ public class LevelManager : MonoBehaviour
 
         Timer.ClearTimers();
 
+        if(GameObject.FindGameObjectWithTag("Level Generator") == null) {
+            OnGenerationComplete();
+        }
+    }
+
+    void Update() {
+        Timer.UpdateAll(Time.deltaTime);
+
+        // check for inactive enemies coming on screen
+        if(CameraScript.Instance == null) {
+            return;
+        }
+
+        Rect cameraArea = CameraScript.Instance.VisibleArea.MakeExpanded(2);
+        for(int i = 0; i < backstageEnemies.Count; i++) {
+            if(cameraArea.Contains(backstageEnemies[i].transform.position)) {
+                backstageEnemies[i].SetActive(true);
+                backstageEnemies.RemoveAt(i);
+                i--;
+            }
+        }
+    }
+
+    public void OnGenerationComplete() {
         // set up the correct data in each tile
         BoundsInt tiledArea = wallGrid.cellBounds;
         for(int x = tiledArea.xMin; x <= tiledArea.xMax; x++) {
@@ -49,24 +73,6 @@ public class LevelManager : MonoBehaviour
 
             enemy.SetActive(false);
             backstageEnemies.Add(enemy);
-        }
-    }
-
-    void Update() {
-        Timer.UpdateAll(Time.deltaTime);
-
-        // check for inactive enemies coming on screen
-        if(CameraScript.Instance == null) {
-            return;
-        }
-
-        Rect cameraArea = CameraScript.Instance.VisibleArea.MakeExpanded(2);
-        for(int i = 0; i < backstageEnemies.Count; i++) {
-            if(cameraArea.Contains(backstageEnemies[i].transform.position)) {
-                backstageEnemies[i].SetActive(true);
-                backstageEnemies.RemoveAt(i);
-                i--;
-            }
         }
     }
 

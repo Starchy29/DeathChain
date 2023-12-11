@@ -1546,7 +1546,7 @@ Transform:
   - {fileID: 5148620160562455399}
   - {fileID: 6214641435842533860}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7085737704614628860
 GameObject:
@@ -1558,8 +1558,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8308637644150710770}
   - component: {fileID: 4460629530984202213}
-  - component: {fileID: 7243854883939498457}
-  - component: {fileID: 3465591371304124738}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -1596,35 +1594,3 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
---- !u!114 &7243854883939498457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7085737704614628860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d27460b26ac33274ead13ec6deb20b12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightCracks: {fileID: 11400000, guid: eb2147abd73ebdb4a9174fa581e97214, type: 2}
-  heavyCracks: {fileID: 11400000, guid: 3f114e10d6354e841b048acdbbdb10ed, type: 2}
---- !u!114 &3465591371304124738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7085737704614628860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7bb9acb2cffc5f45abddc238a0ad9b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PositionIntValues: 
-  m_PositionStringValues: []
-  m_PositionFloatValues: []
-  m_PositionDoubleValues: []
-  m_PositionObjectValues: []
-  m_PositionColorValues: []
