@@ -191,8 +191,22 @@ public class LevelGenerator : MonoBehaviour
                 }
 
                 // move to the correct position and orientation, add random flips
+                float xScale = 1f;
+                float yScale = 1f;
+                if(shape == ZoneShape.T_Junction || shape == ZoneShape.Plus || shape == ZoneShape.StraightHall) {
+                    xScale = Random.value < 0.5f ? 1 : -1;
+                }
+                if(shape == ZoneShape.Plus || shape == ZoneShape.StraightHall) {
+                    yScale = Random.value < 0.5f ? 1 : -1;
+                }
+                if(shape == ZoneShape.L_Bend && Random.value < 0.5f) {
+                    xScale = -1;
+                    rotation += 90f;
+                }
+
                 addedZone.transform.position = zoneMiddle;
                 addedZone.transform.rotation = Quaternion.Euler(0, 0, rotation);
+                addedZone.transform.localScale = new Vector3(xScale, yScale, 1);
 
                 // copy the tiles into the main tilemap by testing world positions
                 Tilemap wallGrid = addedZone.transform.GetChild(0).GetChild(0).GetComponent<Tilemap>(); // assumes wall comes before floor in prefab

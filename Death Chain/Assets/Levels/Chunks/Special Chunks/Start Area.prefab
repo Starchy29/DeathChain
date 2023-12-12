@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 4417187901597958109}
   - component: {fileID: 503890121670485830}
   - component: {fileID: 4903281047473297188}
-  - component: {fileID: 3878506178624482308}
   m_Layer: 6
   m_Name: Walls
   m_TagString: Untagged
@@ -904,18 +903,6 @@ CompositeCollider2D:
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
   m_CompositeGameObject: {fileID: 904294306420541428}
---- !u!114 &3878506178624482308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 904294306420541428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3af8a296c03a3742a3ad1b11c1f69db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &958363753041146646
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,7 +995,6 @@ GameObject:
   - component: {fileID: 1893163001151774195}
   - component: {fileID: 2122858943899199608}
   - component: {fileID: 3483601258527809006}
-  - component: {fileID: 4250915195547132286}
   m_Layer: 11
   m_Name: Floors
   m_TagString: Untagged
@@ -1258,15 +1244,3 @@ CompositeCollider2D:
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
   m_CompositeGameObject: {fileID: 7221484685847963193}
---- !u!114 &4250915195547132286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7221484685847963193}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a2dbf5b593cb9e4fab095180d897a01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

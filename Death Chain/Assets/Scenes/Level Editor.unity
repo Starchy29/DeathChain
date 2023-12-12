@@ -659,18 +659,6 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0.00001
   m_UseDelaunayMesh: 0
---- !u!114 &8013605468018030956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605468018030958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a2dbf5b593cb9e4fab095180d897a01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!66 &8013605468018030957
 CompositeCollider2D:
   m_ObjectHideFlags: 0
@@ -728,7 +716,6 @@ GameObject:
   - component: {fileID: 8013605468018030867}
   - component: {fileID: 8013605468018030866}
   - component: {fileID: 8013605468018030957}
-  - component: {fileID: 8013605468018030956}
   m_Layer: 11
   m_Name: Floors
   m_TagString: Untagged
@@ -1023,18 +1010,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &8013605468111656984
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605468111656986}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3af8a296c03a3742a3ad1b11c1f69db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &8013605468111656985
 Transform:
   m_ObjectHideFlags: 0
@@ -1064,7 +1039,6 @@ GameObject:
   - component: {fileID: 8013605468111656989}
   - component: {fileID: 8013605468111656990}
   - component: {fileID: 8013605468111656991}
-  - component: {fileID: 8013605468111656984}
   m_Layer: 6
   m_Name: Walls
   m_TagString: Untagged
@@ -1415,18 +1389,6 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0.00001
   m_UseDelaunayMesh: 0
---- !u!114 &8013605468286672468
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605468286672470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a2dbf5b593cb9e4fab095180d897a01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!66 &8013605468286672469
 CompositeCollider2D:
   m_ObjectHideFlags: 0
@@ -1484,7 +1446,6 @@ GameObject:
   - component: {fileID: 8013605468286672427}
   - component: {fileID: 8013605468286672426}
   - component: {fileID: 8013605468286672469}
-  - component: {fileID: 8013605468286672468}
   m_Layer: 11
   m_Name: Floors
   m_TagString: Untagged
@@ -1553,18 +1514,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &8013605468568052356
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605468568052358}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a2dbf5b593cb9e4fab095180d897a01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!66 &8013605468568052357
 CompositeCollider2D:
   m_ObjectHideFlags: 0
@@ -1622,7 +1571,6 @@ GameObject:
   - component: {fileID: 8013605468568052475}
   - component: {fileID: 8013605468568052474}
   - component: {fileID: 8013605468568052357}
-  - component: {fileID: 8013605468568052356}
   m_Layer: 11
   m_Name: Floors
   m_TagString: Untagged
@@ -2124,18 +2072,6 @@ Transform:
   m_Father: {fileID: 8013605467889126440}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8013605468835794097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605468835794099}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3af8a296c03a3742a3ad1b11c1f69db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8013605468835794099
 GameObject:
   m_ObjectHideFlags: 0
@@ -2150,7 +2086,6 @@ GameObject:
   - component: {fileID: 8013605468835794100}
   - component: {fileID: 8013605468835794103}
   - component: {fileID: 8013605468835794102}
-  - component: {fileID: 8013605468835794097}
   m_Layer: 6
   m_Name: Walls
   m_TagString: Untagged
@@ -2364,18 +2299,6 @@ CompositeCollider2D:
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
   m_CompositeGameObject: {fileID: 8013605468915758639}
---- !u!114 &8013605468915758637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605468915758639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a2dbf5b593cb9e4fab095180d897a01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &8013605468915758638
 Transform:
   m_ObjectHideFlags: 0
@@ -2405,7 +2328,6 @@ GameObject:
   - component: {fileID: 8013605468915758674}
   - component: {fileID: 8013605468915758675}
   - component: {fileID: 8013605468915758636}
-  - component: {fileID: 8013605468915758637}
   m_Layer: 11
   m_Name: Floors
   m_TagString: Untagged
@@ -2610,18 +2532,6 @@ Transform:
   m_Father: {fileID: 8013605467640197368}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8013605469093326945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605469093326947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3af8a296c03a3742a3ad1b11c1f69db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8013605469093326947
 GameObject:
   m_ObjectHideFlags: 0
@@ -2636,7 +2546,6 @@ GameObject:
   - component: {fileID: 8013605469093326948}
   - component: {fileID: 8013605469093326951}
   - component: {fileID: 8013605469093326950}
-  - component: {fileID: 8013605469093326945}
   m_Layer: 6
   m_Name: Walls
   m_TagString: Untagged
@@ -3122,18 +3031,6 @@ Transform:
   m_Father: {fileID: 8013605468446332864}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8013605469360887641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8013605469360887643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3af8a296c03a3742a3ad1b11c1f69db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8013605469360887643
 GameObject:
   m_ObjectHideFlags: 0
@@ -3148,7 +3045,6 @@ GameObject:
   - component: {fileID: 8013605469360887644}
   - component: {fileID: 8013605469360887647}
   - component: {fileID: 8013605469360887646}
-  - component: {fileID: 8013605469360887641}
   m_Layer: 6
   m_Name: Walls
   m_TagString: Untagged
