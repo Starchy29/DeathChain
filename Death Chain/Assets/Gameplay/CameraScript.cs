@@ -71,8 +71,8 @@ public class CameraScript : MonoBehaviour
 
     // called by the level generator to define where the camera can move to
     public void DefineCameraZones(Vector2 topLeft, float zoneWidth, ZoneType[,] zoneGrid) {
-        float length = zoneGrid.GetLength(1);
-        float width = zoneGrid.GetLength(0);
+        float length = zoneGrid.GetLength(0);
+        float width = zoneGrid.GetLength(1);
         for(int row = 0; row < length; row++) {
             for(int col = 0; col < width; col++) {
                 if(zoneGrid[row, col].OpeningCount == 0) {
@@ -80,12 +80,13 @@ public class CameraScript : MonoBehaviour
                     continue;
                 }
 
-                bool connectsRight = col < length - 1 && zoneGrid[row, col].right;
-                bool connectsDown = row < width - 1 && zoneGrid[row, col].down;
-                bool connectsDownRight = col < length - 1 && row < width - 1 && zoneGrid[row, col + 1].down && zoneGrid[row + 1, col].right;
+                bool connectsRight = col < width - 2 && zoneGrid[row, col].right;
+                bool connectsDown = row < length - 2 && zoneGrid[row, col].down;
+                bool connectsDownRight = col < width - 2 && row < length - 2 && zoneGrid[row, col + 1].down && zoneGrid[row + 1, col].right;
 
                 if(connectsRight && connectsDown && connectsDownRight) {
                     cameraZones.Add(new Rect(topLeft.x + col * zoneWidth, topLeft.y + row * zoneWidth, zoneWidth, zoneWidth));
+                    DebugDisplay.Instance.DisplayRect(new Rect(topLeft.x + col * zoneWidth, topLeft.y + row * zoneWidth, zoneWidth, zoneWidth));
                 } 
                 else {
                     if(connectsRight) {
