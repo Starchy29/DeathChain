@@ -85,7 +85,7 @@ public class LevelGenerator : MonoBehaviour
             row += direction.y;
             col += direction.x;
         }
-
+        return;
         endZone = new Vector2Int(row, col);
         zoneGrid[startZone.x, startZone.y].down = true; // make sure starting zone can connect down
         zoneGrid[endZone.x + 1, endZone.y].up = true; // make sure ending zone can connect up
@@ -235,8 +235,6 @@ public class LevelGenerator : MonoBehaviour
                 Destroy(addedZone);
             }
         }
-
-        // place the start and end points
     }
 
     // determines if any orthogonally adjacent tiles are part of the level the player walks through

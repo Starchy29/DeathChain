@@ -48,11 +48,19 @@ MonoBehaviour:
   StartingZone: {fileID: 2678860285568966844, guid: 4fa7cc6de9deffb4a880562bc2673a47, type: 3}
   AllOpenZones:
   - {fileID: 7058834431063578529, guid: 0fca25e8388162e44beb955f0f355ffd, type: 3}
+  - {fileID: 632157053602969780, guid: 124b75ae3df07c642bd250fc1ab08d0c, type: 3}
+  - {fileID: 8424492383091358188, guid: 4d5b366bf2d9b1d4985673c8a0bce586, type: 3}
   LeftRightOpenZones:
   - {fileID: 4666623416247764491, guid: a3dda4718809a014c9a17a684c017afd, type: 3}
+  - {fileID: 357219136262115940, guid: 47a0a3b523ae39a43b089c44f74e35d8, type: 3}
+  - {fileID: 6985879235571513965, guid: 5d4eb8446e68cee4ebd1c65f49334e1f, type: 3}
   DownRightOpenZones:
   - {fileID: 2413228346021872610, guid: 0916309fb8c7737458e81810ee0d9b89, type: 3}
+  - {fileID: 2665509368742154979, guid: 548d4716b638c0740b53a42bb91c5ac6, type: 3}
+  - {fileID: 6944512728263359903, guid: d206ab23a64facc4d84dcf38754650a2, type: 3}
   TopClosedZones:
   - {fileID: 3786997520323489427, guid: 60929c0b63829f442a98fd55a0742021, type: 3}
+  - {fileID: 8175091554191662599, guid: 96e45d8bdc311a34e887c95acd5d4a55, type: 3}
+  - {fileID: 7014386419990368326, guid: 8eb75a6656f51f24ea46bf1756f52c70, type: 3}
   WallZones:
   - {fileID: 4893180612739979313, guid: 45bce182437d66742b951811a65f34dd, type: 3}
