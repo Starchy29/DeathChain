@@ -21,6 +21,8 @@ public class LevelGenerator : MonoBehaviour
 
     private const int LENGTH = 10;
     private const int WIDTH = 6;
+    const int ZONE_TILES_WIDE = 10; // number of tiles wide and tall
+    const float TILE_WIDTH = 1.5f; // world space width of 1 tile
 
     void Start() {
         managerInstance = LevelManager.Instance;
@@ -46,6 +48,7 @@ public class LevelGenerator : MonoBehaviour
         };
 
         GenerateLayout();
+        CameraScript.Instance.DefineCameraZones(new Vector2(0, ZONE_TILES_WIDE * TILE_WIDTH * (LENGTH - 1)), ZONE_TILES_WIDE * TILE_WIDTH, zoneGrid);
         SpawnZones();
         managerInstance.OnGenerationComplete();
     }
@@ -149,8 +152,6 @@ public class LevelGenerator : MonoBehaviour
     }
 
     private void SpawnZones() {
-        const int ZONE_WIDTH = 10; // number of tiles wide and tall
-        const float TILE_WIDTH = 1.5f; // world space width of 1 tile
         Dictionary<ZoneShape, GameObject[]> shapeToPrefabList = new Dictionary<ZoneShape, GameObject[]> {
             { ZoneShape.Plus, AllOpenZones },
             { ZoneShape.L_Bend, DownRightOpenZones },
@@ -177,7 +178,7 @@ public class LevelGenerator : MonoBehaviour
 
                 GameObject[] prefabList = shapeToPrefabList[shape];
 
-                Vector3 zoneMiddle = new Vector3(col * ZONE_WIDTH * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_WIDTH * TILE_WIDTH, 0);
+                Vector3 zoneMiddle = new Vector3(col * ZONE_TILES_WIDE * TILE_WIDTH, (LENGTH - 1 - row) * ZONE_TILES_WIDE * TILE_WIDTH, 0);
                 GameObject addedZone;
                 if(row == startZone.x && col == startZone.y) {
                     addedZone = Instantiate(StartingZone);
@@ -211,8 +212,8 @@ public class LevelGenerator : MonoBehaviour
                 // copy the tiles into the main tilemap by testing world positions
                 Tilemap wallGrid = addedZone.transform.GetChild(0).GetChild(0).GetComponent<Tilemap>(); // assumes wall comes before floor in prefab
                 Tilemap floorGrid = addedZone.transform.GetChild(0).GetChild(1).GetComponent<Tilemap>();
-                for(float x = -ZONE_WIDTH / 2f; x < ZONE_WIDTH / 2f; x++) {
-                    for(float y = -ZONE_WIDTH / 2f; y < ZONE_WIDTH / 2f; y++) {
+                for(float x = -ZONE_TILES_WIDE / 2f; x < ZONE_TILES_WIDE / 2f; x++) {
+                    for(float y = -ZONE_TILES_WIDE / 2f; y < ZONE_TILES_WIDE / 2f; y++) {
                         Vector3 worldPos = new Vector3(zoneMiddle.x + x * TILE_WIDTH + TILE_WIDTH / 2f, zoneMiddle.y + y * TILE_WIDTH + TILE_WIDTH / 2f, 0);
                         TileBase genWall = wallGrid.GetTile(wallGrid.WorldToCell(worldPos));
                         TileBase genFloor = floorGrid.GetTile(floorGrid.WorldToCell(worldPos));
@@ -289,7 +290,7 @@ public class LevelGenerator : MonoBehaviour
     }
 }
 
-struct ZoneType {
+public struct ZoneType {
     public bool placed; // whether or not this spot in the grid has had a zone type chosen yet
 
     // define which directions are open for a connection
@@ -359,7 +360,7 @@ struct ZoneType {
     }
 }
 
-enum ZoneShape {
+public enum ZoneShape {
     Plus,
     L_Bend,
     StraightHall,
