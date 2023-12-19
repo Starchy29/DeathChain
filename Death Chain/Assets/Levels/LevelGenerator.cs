@@ -48,8 +48,10 @@ public class LevelGenerator : MonoBehaviour
         };
 
         GenerateLayout();
+        SpawnZones(); // moves player
         CameraScript.Instance.DefineCameraZones(new Vector2(0, ZONE_TILES_WIDE * TILE_WIDTH * (LENGTH - 1)), ZONE_TILES_WIDE * TILE_WIDTH, zoneGrid);
-        SpawnZones();
+        PlayerScript.Instance.PlayerEntity.transform.position = new Vector3(startZone.y * ZONE_TILES_WIDE * TILE_WIDTH, -ZONE_TILES_WIDE * TILE_WIDTH, 0);
+        CameraScript.Instance.transform.position = CameraScript.Instance.FindTargetPosition();
         managerInstance.OnGenerationComplete();
     }
 
@@ -182,7 +184,6 @@ public class LevelGenerator : MonoBehaviour
                 GameObject addedZone;
                 if(row == startZone.x && col == startZone.y) {
                     addedZone = Instantiate(StartingZone);
-                    PlayerScript.Instance.PlayerEntity.transform.position = zoneMiddle;
                 }
                 else if(row == endZone.x && col == endZone.y) {
                     addedZone = Instantiate(EndGateZone);

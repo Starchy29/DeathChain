@@ -3,16 +3,22 @@ using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-    private readonly Vector2 SIZE = new Vector2(21.33f, 12); // values found through observation
+    private const float ASPECT_RATIO = 16f / 9f;
     private List<Vector2> cameraPoints = new List<Vector2>(); // points that connetc to form the camera's movable area
     private List<Rect> cameraZones = new List<Rect>(); // areas that the middle of the camera must not leave, determined from cameraZones
+    private float cameraSize;
+    private float startZ;
     
     private static CameraScript instance;
     public static CameraScript Instance { get { return instance; } }
-    public Rect VisibleArea { get { return new Rect((Vector2)transform.position - SIZE / 2, SIZE); } }
+
+    public Rect VisibleArea { get { return new Rect((Vector2)transform.position - Size / 2, Size); } }
+    public Vector2 Size { get { return new Vector2(ASPECT_RATIO * 2 * cameraSize, 2 * cameraSize); } }
 
     void Awake() {
         instance = this;
+        cameraSize = GetComponent<Camera>().orthographicSize;
+        startZ = transform.position.z;
 
         if(!enabled) {
             // debug option for test scenes
@@ -20,53 +26,51 @@ public class CameraScript : MonoBehaviour
             enabled = true;
             return;
         }
-
-        Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
-        transform.position = new Vector3(playerPos.x, playerPos.y, transform.position.z);
     }
 
     // use fixed update to prevent camera jitters
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
 
         if(cameraZones.Count <= 0) {
-            transform.position = new Vector3(playerPos.x, playerPos.y, transform.position.z);
+            transform.position = new Vector3(playerPos.x, playerPos.y, startZ);
             return;
         }
 
-        Vector3? targetPos = null;
-        List<Vector2> potentialSpots = new List<Vector2>();
-        foreach(Rect positionZone in cameraZones) {
-            // check if the player is inside this zone
-            if(positionZone.Contains(playerPos)) {
-                targetPos = new Vector3(playerPos.x, playerPos.y, transform.position.z);
-            } else {
-                // find the closest spot to snap to this zone
-                Vector2 closestSpot;
-                closestSpot.x = Mathf.Max(positionZone.xMin, Mathf.Min(playerPos.x, positionZone.xMax));
-                closestSpot.y = Mathf.Max(positionZone.yMin, Mathf.Min(playerPos.y, positionZone.yMax));
-                potentialSpots.Add(closestSpot);
-            }
-        }
-
-        if(!targetPos.HasValue) {
-            potentialSpots.Sort((Vector2 current, Vector2 next) => {
-                return Vector2.Distance(playerPos, current) < Vector2.Distance(playerPos, next) ? -1 : 1;
-            });
-            targetPos = new Vector3(potentialSpots[0].x, potentialSpots[0].y, transform.position.z);
-        }
-
         // approach the target position
-        float distance = Vector3.Distance(transform.transform.position, targetPos.Value);
+        Vector3 targetPosition = FindTargetPosition();
+        float distance = Vector3.Distance(transform.position, targetPosition);
         float speed = 8.0f;
         speed += distance;
         float shift = speed * Time.deltaTime;
         if(shift > distance) {
-            transform.position = targetPos.Value;
+            transform.position = targetPosition;
         } else {
-            transform.position = transform.position + shift * (targetPos.Value - transform.position).normalized;
+            transform.position = transform.position + shift * (targetPosition - transform.position).normalized;
         }
+    }
+
+    public Vector3 FindTargetPosition() {
+        Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
+
+        List<Vector2> potentialSpots = new List<Vector2>();
+        foreach(Rect zone in cameraZones) {
+            // check if the player is inside this zone
+            if(zone.Contains(playerPos)) {
+                return new Vector3(playerPos.x, playerPos.y, startZ);
+            }
+
+            // find the closest spot to snap to this zone
+            Vector2 closestSpot;
+            closestSpot.x = Mathf.Max(zone.xMin, Mathf.Min(playerPos.x, zone.xMax));
+            closestSpot.y = Mathf.Max(zone.yMin, Mathf.Min(playerPos.y, zone.yMax));
+            potentialSpots.Add(closestSpot);
+        }
+
+        potentialSpots.Sort((Vector2 current, Vector2 next) => {
+            return Vector2.Distance(playerPos, current) < Vector2.Distance(playerPos, next) ? -1 : 1;
+        });
+        return new Vector3(potentialSpots[0].x, potentialSpots[0].y, startZ);
     }
 
     // called by the level generator to define where the camera can move to
@@ -80,20 +84,23 @@ public class CameraScript : MonoBehaviour
                     continue;
                 }
 
-                bool connectsRight = col < width - 2 && zoneGrid[row, col].right;
-                bool connectsDown = row < length - 2 && zoneGrid[row, col].down;
-                bool connectsDownRight = col < width - 2 && row < length - 2 && zoneGrid[row, col + 1].down && zoneGrid[row + 1, col].right;
+                bool connectsRight = col < width - 1 && zoneGrid[row, col].right && zoneGrid[row, col + 1].left;
+                bool connectsDown = row < length - 1 && zoneGrid[row, col].down && zoneGrid[row + 1, col].up;
+                bool connectsDownRight = false;
+                if(connectsDown && connectsRight) {
+                    connectsDownRight = zoneGrid[row, col + 1].down && zoneGrid[row + 1, col].right;
+                }
+                
+                Vector2 zoneMid = new Vector2(topLeft.x + col * zoneWidth, topLeft.y - row * zoneWidth);
 
-                if(connectsRight && connectsDown && connectsDownRight) {
-                    cameraZones.Add(new Rect(topLeft.x + col * zoneWidth, topLeft.y + row * zoneWidth, zoneWidth, zoneWidth));
-                    DebugDisplay.Instance.DisplayRect(new Rect(topLeft.x + col * zoneWidth, topLeft.y + row * zoneWidth, zoneWidth, zoneWidth));
-                } 
-                else {
+                if(connectsDownRight) {
+                    cameraZones.Add(new Rect(zoneMid.x, zoneMid.y - zoneWidth, zoneWidth, zoneWidth));
+                } else {
                     if(connectsRight) {
-                        cameraZones.Add(new Rect(topLeft.x + col * zoneWidth, topLeft.y + row * zoneWidth, zoneWidth, 0));
+                        cameraZones.Add(new Rect(zoneMid.x, zoneMid.y, zoneWidth, 0));
                     }
                     if(connectsDown) {
-                        cameraZones.Add(new Rect(topLeft.x + col * zoneWidth, topLeft.y + row * zoneWidth, 0, zoneWidth));
+                        cameraZones.Add(new Rect(zoneMid.x, zoneMid.y - zoneWidth, 0, zoneWidth));
                     }
                 }
             }
@@ -103,7 +110,7 @@ public class CameraScript : MonoBehaviour
     // adds an area that the camera can move in based on a position. It automatially connects the point to nearby points to create movable areas
     public void AddCameraZone(Vector2 movePoint) {
         // find adjacent points
-        Rect adjacencyChecker = new Rect(movePoint - 1.1f * SIZE, 2 * 1.1f * SIZE); // stretch by 1.1 in case the point is a tad too far
+        Rect adjacencyChecker = new Rect(movePoint - 1.1f * Size, 2 * 1.1f * Size); // stretch by 1.1 in case the point is a tad too far
         Vector2?[,] pointGrid = new Vector2?[3, 3];
         pointGrid[1, 1] = movePoint;
         foreach(Vector2 oldPoint in cameraPoints) {
