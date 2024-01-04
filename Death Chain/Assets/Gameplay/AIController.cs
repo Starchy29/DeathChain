@@ -141,7 +141,7 @@ public class AIController : Controller
         }
 
         if(target != null) {
-            return CalcTargetDirection();
+            return GetTargetDirection();
         }
 
         Vector2 move = GetMoveDirection();
@@ -211,62 +211,15 @@ public class AIController : Controller
             return true;
         }
 
-        Vector2 tileDims = new Vector2(LevelManager.Instance.TileWidth, LevelManager.Instance.TileWidth);
-        Tilemap wallGrid = LevelManager.Instance.WallGrid;
-        Tilemap floorGrid = LevelManager.Instance.FloorGrid;
-        Vector3 direction = (target.transform.position - controlled.transform.position).normalized;
-        Vector3 currentPosition = controlled.transform.position;
-        Vector3Int currentTile = wallGrid.WorldToCell(controlled.transform.position);
-        Vector3Int targetTile = wallGrid.WorldToCell(target.transform.position);
-        while(currentTile != targetTile) {
-            // check if this tile is a blocker
-            if(currentPosition != controlled.transform.position) { // skip the first tile
-                FloorTile floor = floorGrid.GetTile<FloorTile>(currentTile);
-                if(wallGrid.GetTile(currentTile) != null || (checkPits && floor != null && floor.Type == FloorType.Pit)) {
-                    return true;
-                }
-            }
-
-            // find the next tile in this direction
-            if(direction.x == 0) {
-                currentTile += new Vector3Int(0, (direction.y > 0 ? 1 : -1), 0);
-                continue;
-            }
-            else if(direction.y == 0) {
-                currentTile += new Vector3Int((direction.x > 0 ? 1 : -1), 0, 0);
-                continue;
-            }
-
-            Rect tileArea = new Rect((Vector2)wallGrid.GetCellCenterWorld(currentTile) - tileDims/2, tileDims);
-            float targetX = (direction.x > 0 ? tileArea.xMax : tileArea.xMin);
-            float targetY = (direction.y > 0 ? tileArea.yMax : tileArea.yMin);
-            float xDist = (targetX - currentPosition.x) / direction.x;
-            float yDist = (targetY - currentPosition.y) / direction.y;
-            
-            if(Mathf.Abs(xDist - yDist) <= 0.1f) {
-                // move diagonally
-                currentTile += new Vector3Int((direction.x > 0 ? 1 : -1), (direction.y > 0 ? 1 : -1), 0);
-                currentPosition += xDist * direction;
-            }
-            else if(xDist < yDist) {
-                // move horizontally
-                currentTile += new Vector3Int((direction.x > 0 ? 1 : -1), 0, 0);
-                currentPosition += xDist * direction;
-            }
-            else {
-                // move vertically
-                currentTile += new Vector3Int(0, (direction.y > 0 ? 1 : -1), 0);
-                currentPosition += yDist * direction;
-            }
-        }
-        
-        return false;
+        string[] layersToCheck = checkPits ? new string[2] { "Wall", "Floor" } : new string[1] { "Wall" };
+        RaycastHit2D castResult = Physics2D.Raycast(controlled.transform.position, GetTargetDirection(), GetTargetDistance(), LayerMask.GetMask(layersToCheck));
+        return castResult.collider != null;
     }
     #endregion
 
     #region Helper functions
     // returns the unit vector towards the target, zero vector if no target
-    private Vector2 CalcTargetDirection() {
+    private Vector2 GetTargetDirection() {
         if(target == null) {
             return Vector2.zero;
         }
@@ -313,7 +266,7 @@ public class AIController : Controller
             // check if target is lost
             if(!target.activeInHierarchy || target.GetComponent<Enemy>().IsCorpse || (projectileAlertTime <= 0 && GetTargetDistance() > CurrentVision)) {
                 if(paused) {
-                    specialAim = CalcTargetDirection(); // if the player leaves the character's range when an attack is queued, attack at their last seen location
+                    specialAim = GetTargetDirection(); // if the player leaves the character's range when an attack is queued, attack at their last seen location
                 }
                 target = null;
             }
@@ -563,7 +516,7 @@ public class AIController : Controller
                 }
             }
         }
-
+        
         return null;
     }
 

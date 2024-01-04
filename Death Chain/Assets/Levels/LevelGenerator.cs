@@ -48,8 +48,8 @@ public class LevelGenerator : MonoBehaviour
         };
 
         GenerateLayout();
-        SpawnZones(); // moves player
-        CameraScript.Instance.DefineCameraZones(new Vector2(0, ZONE_TILES_WIDE * TILE_WIDTH * (LENGTH - 1)), ZONE_TILES_WIDE * TILE_WIDTH, zoneGrid);
+        SpawnZones();
+        DefineCameraMovement();
         PlayerScript.Instance.PlayerEntity.transform.position = new Vector3(startZone.y * ZONE_TILES_WIDE * TILE_WIDTH, -ZONE_TILES_WIDE * TILE_WIDTH, 0);
         CameraScript.Instance.transform.position = CameraScript.Instance.FindTargetPosition();
         managerInstance.OnGenerationComplete();
@@ -237,6 +237,55 @@ public class LevelGenerator : MonoBehaviour
                 Destroy(addedZone);
             }
         }
+    }
+
+    private void DefineCameraMovement() {
+        CameraScript camera = CameraScript.Instance;
+        Vector2 topLeft = new Vector2(0, ZONE_TILES_WIDE * TILE_WIDTH * (LENGTH - 1));
+        const float EDGE_HEIGHT = 1.0f;
+        float zoneWidth = ZONE_TILES_WIDE * TILE_WIDTH;
+        for(int row = 0; row < LENGTH; row++) {
+            for(int col = 0; col < WIDTH; col++) {
+                if(zoneGrid[row, col].OpeningCount == 0) {
+                    // ignore walls
+                    continue;
+                }
+
+                bool connectsRight = col < WIDTH - 1 && zoneGrid[row, col].right && zoneGrid[row, col + 1].left;
+                bool connectsDown = row < LENGTH - 1 && zoneGrid[row, col].down && zoneGrid[row + 1, col].up;
+                bool connectsDownRight = false;
+                if(connectsDown && connectsRight) {
+                    connectsDownRight = zoneGrid[row, col + 1].down && zoneGrid[row + 1, col].right;
+                }
+                
+                Vector2 zoneMid = new Vector2(topLeft.x + col * zoneWidth, topLeft.y - row * zoneWidth);
+
+                if(connectsDownRight) {
+                    camera.AddCameraZone(new Rect(zoneMid.x, zoneMid.y - zoneWidth, zoneWidth, zoneWidth));
+                } else {
+                    if(connectsRight) {
+                        camera.AddCameraZone(new Rect(zoneMid.x, zoneMid.y, zoneWidth, 0));
+                    }
+                    if(connectsDown) {
+                        camera.AddCameraZone(new Rect(zoneMid.x, zoneMid.y - zoneWidth, 0, zoneWidth));
+                    }
+                }
+
+                // add top and bottom
+                if(row == 0) {
+                    camera.AddCameraZone(new Rect(zoneMid.x, zoneMid.y, connectsRight ? zoneWidth : 0f, EDGE_HEIGHT));
+                }
+                else if(row == LENGTH - 1) {
+                    camera.AddCameraZone(new Rect(zoneMid.x, zoneMid.y - EDGE_HEIGHT, connectsRight ? zoneWidth : 0f, EDGE_HEIGHT));
+                }
+            }
+        }
+
+        // add area for beginning and ending zones
+        Vector2 startMid = new Vector2(topLeft.x + startZone.y * zoneWidth, topLeft.y - startZone.x * zoneWidth);
+        camera.AddCameraZone(new Rect(startMid.x, startMid.y + zoneWidth / 4f, 0, zoneWidth / 4f));
+        Vector2 endMid = new Vector2(topLeft.x + endZone.y * zoneWidth, topLeft.y - (endZone.x + 1) * zoneWidth);
+        camera.AddCameraZone(new Rect(endMid.x, endMid.y, 0, 3f));
     }
 
     // determines if any orthogonally adjacent tiles are part of the level the player walks through

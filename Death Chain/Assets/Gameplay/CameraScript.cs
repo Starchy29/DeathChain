@@ -22,7 +22,7 @@ public class CameraScript : MonoBehaviour
 
         if(!enabled) {
             // debug option for test scenes
-            AddCameraZone(transform.position);
+            Deprecated_AddCameraZone(transform.position);
             enabled = true;
             return;
         }
@@ -39,15 +39,12 @@ public class CameraScript : MonoBehaviour
 
         // approach the target position
         Vector3 targetPosition = FindTargetPosition();
-        float distance = Vector3.Distance(transform.position, targetPosition);
-        float speed = 8.0f;
-        speed += distance;
-        float shift = speed * Time.deltaTime;
-        if(shift > distance) {
-            transform.position = targetPosition;
-        } else {
-            transform.position = transform.position + shift * (targetPosition - transform.position).normalized;
+        Vector3 shift = (targetPosition - transform.position) * 0.1f * Time.timeScale;
+        if(shift.sqrMagnitude > 0.3f * 0.3f) {
+            shift.Normalize();
+            shift *= 0.3f;
         }
+        transform.position += shift;
     }
 
     public Vector3 FindTargetPosition() {
@@ -73,42 +70,12 @@ public class CameraScript : MonoBehaviour
         return new Vector3(potentialSpots[0].x, potentialSpots[0].y, startZ);
     }
 
-    // called by the level generator to define where the camera can move to
-    public void DefineCameraZones(Vector2 topLeft, float zoneWidth, ZoneType[,] zoneGrid) {
-        float length = zoneGrid.GetLength(0);
-        float width = zoneGrid.GetLength(1);
-        for(int row = 0; row < length; row++) {
-            for(int col = 0; col < width; col++) {
-                if(zoneGrid[row, col].OpeningCount == 0) {
-                    // ignore walls
-                    continue;
-                }
-
-                bool connectsRight = col < width - 1 && zoneGrid[row, col].right && zoneGrid[row, col + 1].left;
-                bool connectsDown = row < length - 1 && zoneGrid[row, col].down && zoneGrid[row + 1, col].up;
-                bool connectsDownRight = false;
-                if(connectsDown && connectsRight) {
-                    connectsDownRight = zoneGrid[row, col + 1].down && zoneGrid[row + 1, col].right;
-                }
-                
-                Vector2 zoneMid = new Vector2(topLeft.x + col * zoneWidth, topLeft.y - row * zoneWidth);
-
-                if(connectsDownRight) {
-                    cameraZones.Add(new Rect(zoneMid.x, zoneMid.y - zoneWidth, zoneWidth, zoneWidth));
-                } else {
-                    if(connectsRight) {
-                        cameraZones.Add(new Rect(zoneMid.x, zoneMid.y, zoneWidth, 0));
-                    }
-                    if(connectsDown) {
-                        cameraZones.Add(new Rect(zoneMid.x, zoneMid.y - zoneWidth, 0, zoneWidth));
-                    }
-                }
-            }
-        }
+    public void AddCameraZone(Rect zone) {
+        cameraZones.Add(zone);
     }
 
     // adds an area that the camera can move in based on a position. It automatially connects the point to nearby points to create movable areas
-    public void AddCameraZone(Vector2 movePoint) {
+    public void Deprecated_AddCameraZone(Vector2 movePoint) {
         // find adjacent points
         Rect adjacencyChecker = new Rect(movePoint - 1.1f * Size, 2 * 1.1f * Size); // stretch by 1.1 in case the point is a tad too far
         Vector2?[,] pointGrid = new Vector2?[3, 3];

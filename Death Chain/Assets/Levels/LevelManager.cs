@@ -25,6 +25,7 @@ public class LevelManager : MonoBehaviour
         floorGrid = transform.GetChild(1).gameObject.GetComponent<Tilemap>();
         gridData = GetComponent<GridInformation>();
 
+        Physics2D.queriesHitTriggers = true;
         Timer.ClearTimers();
 
         if(GameObject.FindGameObjectWithTag("Level Generator") == null) {
@@ -106,7 +107,7 @@ public class LevelManager : MonoBehaviour
         int cellRange = (int)Mathf.Ceil(circle.Radius / wallGrid.cellSize.x);
 
         // check which tiles are within range
-        for (int x = -cellRange; x <= cellRange; x++) {
+        for(int x = -cellRange; x <= cellRange; x++) {
             for(int y = -cellRange; y <= cellRange; y++) {
                 Vector3Int testPos = centerTile + new Vector3Int(x, y, 0);
                 Vector3 tileCenter = wallGrid.GetCellCenterWorld(testPos);

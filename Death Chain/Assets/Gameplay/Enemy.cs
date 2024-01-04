@@ -93,7 +93,7 @@ public abstract class Enemy : MonoBehaviour
         if(PauseMenuScript.Instance.Paused) {
             return;
         }
-
+        
         if(currentAnimation != null) {
             currentAnimation.Update(GetComponent<SpriteRenderer>());
 
@@ -292,6 +292,10 @@ public abstract class Enemy : MonoBehaviour
         }
 
         PlayerScript.Instance.AddResources(difficulty);
+
+        if(Dashing) {
+            EndDash();
+        }
 
         // become a corpse that can be possessed
         state = State.Corpse;

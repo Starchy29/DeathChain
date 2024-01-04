@@ -16,6 +16,7 @@ public class StatusZone : Ability
     void Start()
     {
         enemiesWithin = new List<Enemy>();
+        GetComponent<SpriteRenderer>().sortingOrder = (int)(-transform.position.y * 100);
 
         // apply the status effect to all enemies within every interval
         timer = Timer.CreateTimer(gameObject, 0.2f, true, () => { 
@@ -35,7 +36,7 @@ public class StatusZone : Ability
 
     private void OnTriggerEnter2D(Collider2D collision) {
         Enemy script = collision.gameObject.GetComponent<Enemy>();
-        if(script != null && !(grounded && script.Floating)) {
+        if(script != null && script.CurrentState == Enemy.State.Normal && !(grounded && script.Floating)) {
             enemiesWithin.Add(script);
             script.ApplyStatus(effect, enterAmount);
         }

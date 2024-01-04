@@ -7,7 +7,7 @@ public class CameraZoneSpawner : MonoBehaviour
 {
     void Start()
     {
-        CameraScript.Instance.AddCameraZone(transform.position);
+        CameraScript.Instance.Deprecated_AddCameraZone(transform.position);
         Destroy(gameObject);
     }
 }
