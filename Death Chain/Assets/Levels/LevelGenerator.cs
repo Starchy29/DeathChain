@@ -51,7 +51,7 @@ public class LevelGenerator : MonoBehaviour
         SpawnZones();
         DefineCameraMovement();
         PlayerScript.Instance.PlayerEntity.transform.position = new Vector3(startZone.y * ZONE_TILES_WIDE * TILE_WIDTH, -ZONE_TILES_WIDE * TILE_WIDTH, 0);
-        CameraScript.Instance.transform.position = CameraScript.Instance.FindTargetPosition();
+        CameraScript.Instance.transform.position = CameraScript.Instance.FindTargetPosition(out bool isSnap);
         managerInstance.OnGenerationComplete();
     }
 

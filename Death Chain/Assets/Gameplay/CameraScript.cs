@@ -6,6 +6,8 @@ public class CameraScript : MonoBehaviour
     private const float ASPECT_RATIO = 16f / 9f;
     private List<Vector2> cameraPoints = new List<Vector2>(); // points that connetc to form the camera's movable area
     private List<Rect> cameraZones = new List<Rect>(); // areas that the middle of the camera must not leave, determined from cameraZones
+    private Vector3? snapPoint;
+    private Vector3? snapPointBorder;
     private float cameraSize;
     private float startZ;
     
@@ -38,7 +40,34 @@ public class CameraScript : MonoBehaviour
         }
 
         // approach the target position
-        Vector3 targetPosition = FindTargetPosition();
+        bool isSnapPoint;
+        Vector3 targetPosition = FindTargetPosition(out isSnapPoint);
+
+        // delay camera shift when snapping between two different points
+        if(isSnapPoint) {
+            if(snapPointBorder.HasValue) {
+                // hold previous snap point when close to the border
+                if(Vector3.Distance(snapPointBorder.Value, playerPos) > 1.0f) {
+                    snapPointBorder = null;
+                    snapPoint = null;
+                } else {
+                    targetPosition = snapPoint.Value;
+                }
+            } else {
+                // go to closest snap point
+                if(snapPoint.HasValue && Vector3.Distance(snapPoint.Value, targetPosition) > 2.0f) {
+                    snapPointBorder = playerPos;
+                    targetPosition = snapPoint.Value;
+                } else {
+                    snapPoint = targetPosition;
+                    snapPointBorder = null;
+                }
+            }
+        } else {
+            snapPoint = null;
+            snapPointBorder = null;
+        }
+
         Vector3 shift = (targetPosition - transform.position) * 0.1f * Time.timeScale;
         if(shift.sqrMagnitude > 0.3f * 0.3f) {
             shift.Normalize();
@@ -47,13 +76,14 @@ public class CameraScript : MonoBehaviour
         transform.position += shift;
     }
 
-    public Vector3 FindTargetPosition() {
+    public Vector3 FindTargetPosition(out bool isSnapPoint) {
         Vector2 playerPos = PlayerScript.Instance.PlayerEntity.transform.position;
 
         List<Vector2> potentialSpots = new List<Vector2>();
         foreach(Rect zone in cameraZones) {
             // check if the player is inside this zone
             if(zone.Contains(playerPos)) {
+                isSnapPoint = false;
                 return new Vector3(playerPos.x, playerPos.y, startZ);
             }
 
@@ -67,6 +97,8 @@ public class CameraScript : MonoBehaviour
         potentialSpots.Sort((Vector2 current, Vector2 next) => {
             return Vector2.Distance(playerPos, current) < Vector2.Distance(playerPos, next) ? -1 : 1;
         });
+
+        isSnapPoint = true;
         return new Vector3(potentialSpots[0].x, potentialSpots[0].y, startZ);
     }
 
