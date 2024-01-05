@@ -283,7 +283,7 @@ public class LevelGenerator : MonoBehaviour
 
         // add area for beginning and ending zones
         Vector2 startMid = new Vector2(topLeft.x + startZone.y * zoneWidth, topLeft.y - startZone.x * zoneWidth);
-        camera.AddCameraZone(new Rect(startMid.x, startMid.y + zoneWidth / 4f, 0, zoneWidth / 4f));
+        camera.AddCameraZone(new Rect(startMid.x, startMid.y + zoneWidth / 4f, 0, zoneWidth * 3f / 4f));
         Vector2 endMid = new Vector2(topLeft.x + endZone.y * zoneWidth, topLeft.y - (endZone.x + 1) * zoneWidth);
         camera.AddCameraZone(new Rect(endMid.x, endMid.y, 0, 3f));
     }

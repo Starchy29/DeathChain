@@ -124,7 +124,7 @@ public class LevelManager : MonoBehaviour
 
     // overload for entites that have a circle collider, uses the collider as the test circle 
     public List<Vector3Int> GetOverlappedTiles(GameObject circularEntity) {
-        Circle circle = new Circle(circularEntity.transform.position, circularEntity.GetComponent<CircleCollider2D>().radius * circularEntity.transform.localScale.x + 0.1f); // add a little to the radius for small objects
+        Circle circle = new Circle(circularEntity.transform.position, circularEntity.GetComponent<CircleCollider2D>().radius * circularEntity.transform.localScale.x);
         return GetOverlappedTiles(circle);
     }
 }

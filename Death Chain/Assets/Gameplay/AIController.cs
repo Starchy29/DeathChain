@@ -373,6 +373,12 @@ public class AIController : Controller
                 // determine which direction to move in
                 if(IsTargetBlocked(!controlled.GetComponent<Enemy>().Floating)) {
                     currentPath = FindTilePath(target.transform.position);
+                    if(currentPath == null) {
+                        // no valid path
+                        currentDirection = Vector2.zero;
+                        return;
+                    }
+
                     currentDirection = Vector2.zero; // start walking path next frame
                     travelTimer = 0.3f * (1 + currentPath.Length / 4);
                     return;

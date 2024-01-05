@@ -58,7 +58,7 @@ public class Attack : Ability
         // check if collided with a wall
         Tilemap wallGrid = collidedObject.GetComponent<Tilemap>();
         if(wallGrid != null) {
-            List<Vector3Int> overlappedTiles = LevelManager.Instance.GetOverlappedTiles(gameObject);
+            List<Vector3Int> overlappedTiles = LevelManager.Instance.GetOverlappedTiles(new Circle(transform.position, GetComponent<CircleCollider2D>().radius * transform.localScale.x + 0.1f)); // add a little to the radius because attacks tend to be too small to work properly
             List<Vector3Int> hitWalls = new List<Vector3Int>();
             foreach(Vector3Int overlappedTile in overlappedTiles) {
                 WallTile wall = wallGrid.GetTile<WallTile>(overlappedTile);

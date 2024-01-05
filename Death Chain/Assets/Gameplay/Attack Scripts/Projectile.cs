@@ -10,7 +10,6 @@ public class Projectile : Attack
     [SerializeField] protected float range;
     [SerializeField] protected GameObject destroyParticle; // animation that plays when this is destroyed
 
-    //protected Vector3 velocity; // z should be 0
     protected float distance; // distance travelled
     protected Rigidbody2D physicsBody;
 
