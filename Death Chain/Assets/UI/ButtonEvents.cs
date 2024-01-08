@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class ButtonEvents : MonoBehaviour
 {
     public void StartClicked() {
-        SceneManager.LoadScene("Custom Level");
+        SceneManager.LoadScene("Tutorial");
     }
 
     public void QuitClicked() {

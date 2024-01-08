@@ -10,7 +10,13 @@ public class VictoryZone : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject == PlayerScript.Instance.PlayerEntity) {
-            SceneManager.LoadScene("Main Menu");
+            int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+            sceneIndex++;
+            if(sceneIndex >= SceneManager.sceneCountInBuildSettings) {
+                SceneManager.LoadScene("Main Menu");
+            } else {
+                SceneManager.LoadScene(sceneIndex);
+            }
         }
     }
 }

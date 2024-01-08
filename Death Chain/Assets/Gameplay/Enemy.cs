@@ -315,7 +315,7 @@ public abstract class Enemy : MonoBehaviour
             currentAnimation.ChangeType(AnimationType.Forward); // make sure it is forward because rezzing plays it backwards
         } else {
             // temporary
-            GetComponent<SpriteRenderer>().color = Color.black;
+            GetComponent<SpriteRenderer>().color = new Color(0.2f, 0.2f, 0.2f);
         }
     }
 
@@ -341,9 +341,9 @@ public abstract class Enemy : MonoBehaviour
         statuses.Add(effect, duration);
     }
 
-    public void Possess(PlayerController player) {
-        controller = player;
-        health = BaseHealth; // reset health
+    public void Possess() {
+        controller = new PlayerController(gameObject);
+        health = BaseHealth / 2; // reset health
         ResetWalkSpeed(); // in case the enemy changed its own speed
         IsAlly = true;
 

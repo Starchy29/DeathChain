@@ -30,6 +30,7 @@ public class PlayerScript : MonoBehaviour
     private const float POSSESS_RANGE = 1.5f; // how far away the player can be from a corpse and possess it
     private const float ABILITY_ALPHA = 0.7f;
     private GameObject possessTarget;
+    private bool canPossess;
 
     public GameObject PlayerEntity { get { return playerCharacter; } }
     public int Souls { get; set; } // currency used to open the end gate and buy upgrades
@@ -41,6 +42,7 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        canPossess = true;
         soulDisplay.text = "" + Souls;
         possessIndicator.SetActive(false);
         corpseHealthBar.SetActive(false);
@@ -70,7 +72,7 @@ public class PlayerScript : MonoBehaviour
         }
 
         // -- manage possession --
-        if(PossessPressed()) {
+        if(canPossess && PossessPressed()) {
             // find closest corpse within range to be the possess target
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             GameObject closestOption = null;
@@ -102,7 +104,7 @@ public class PlayerScript : MonoBehaviour
                 possessIndicator.SetActive(false);
             }
         }
-        else if(PossessReleased()) {
+        else if(canPossess && PossessReleased()) {
             if(possessTarget != null && spirit >= CalcCost(possessTarget.GetComponent<Enemy>())) {
                 Possess(possessTarget);
             } 
@@ -172,8 +174,12 @@ public class PlayerScript : MonoBehaviour
         }
 
         playerCharacter = corpse;
-        playerCharacter.GetComponent<Enemy>().Possess(new PlayerController(playerCharacter));
+        playerCharacter.GetComponent<Enemy>().Possess();
         SetAbilityIcons();
+
+        // cooldown after possessing
+        canPossess = false;
+        Timer.CreateTimer(null, 2.0f, false, () => { canPossess = true; });
 
         // place corpse bar to the right of the soul health bar
         corpseHealthBar.SetActive(true);
@@ -195,7 +201,7 @@ public class PlayerScript : MonoBehaviour
     }
 
     private int CalcCost(Enemy enemyType) {
-        return enemyType.Difficulty + 1;
+        return 2; //enemyType.Difficulty + 1;
     }
 
     private void PlacePossessIndicator(Vector2 position, bool showCross) {

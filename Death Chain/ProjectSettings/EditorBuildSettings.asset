@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main Menu.unity
     guid: 8a46c959cbd78824597858f67cc56fd1
-  - enabled: 0
-    path: Assets/Scenes/Gameplay.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Custom Level.unity
-    guid: 0805bf7d3a2022040821ebea227926b8
+    path: Assets/Scenes/Tutorial.unity
+    guid: 496dd87d853d2384da2603325bc59458
+  - enabled: 1
+    path: Assets/Scenes/Generated Level.unity
+    guid: 1770570279a39ce409fab4d975b0e589
   m_configObjects: {}

@@ -8,7 +8,7 @@ public class MushroomScript : Enemy
     [SerializeField] private Sprite[] teleportSprites;
     [SerializeField] private GameObject sporePrefab;
     [SerializeField] private GameObject selectorPrefab;
-    private const float SHOOT_CD = 1.0f;
+    private const float SHOOT_CD = 0.5f;
     private const float WARP_CD = 3.0f;
 
     private Animation shootAnimation;
@@ -112,7 +112,7 @@ public class MushroomScript : Enemy
             }
         }
         if(cooldowns[0] <= 0 && controller.Target != null) {
-            controller.QueueAbility(0, 0.3f);
+            controller.QueueAbility(0, 0.5f, 0.6f);
         }
     }
 }

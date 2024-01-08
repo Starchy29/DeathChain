@@ -20,6 +20,7 @@ public class HornetScript : Enemy
     }
 
     protected override void UpdateAbilities() {
+        return;
         if(UseAbility(0)) {
             // stinger projectile
             cooldowns[0] = SHOOT_CD;
@@ -44,6 +45,7 @@ public class HornetScript : Enemy
     }
 
     public override void AIUpdate(AIController controller) {
+        return;
         if(controller.Target == null) {
             return;
         }
