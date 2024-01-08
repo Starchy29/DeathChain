@@ -60,7 +60,6 @@ MonoBehaviour:
   - {fileID: 6944512728263359903, guid: d206ab23a64facc4d84dcf38754650a2, type: 3}
   TopClosedZones:
   - {fileID: 3786997520323489427, guid: 60929c0b63829f442a98fd55a0742021, type: 3}
-  - {fileID: 8175091554191662599, guid: 96e45d8bdc311a34e887c95acd5d4a55, type: 3}
   - {fileID: 7014386419990368326, guid: 8eb75a6656f51f24ea46bf1756f52c70, type: 3}
   WallZones:
   - {fileID: 4893180612739979313, guid: 45bce182437d66742b951811a65f34dd, type: 3}
